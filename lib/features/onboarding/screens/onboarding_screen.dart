@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'GetStartedScreen1.dart';
 import 'GetStartedScreen2.dart';
 import 'GetStartedScreen3.dart';
-import 'screens/login_screen.dart'; // Update this import
+import '../../authentication/screens/login_screen.dart'; // Update this import
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
