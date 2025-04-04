@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 
 class EnquiryScreen extends StatefulWidget {
@@ -113,59 +115,60 @@ class _EnquiryScreenState extends State<EnquiryScreen>
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  'Brand',
-                  style: TextStyle(
-                    color: Color(0xFF757575),
-                    fontSize: 14,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .spaceAround, // Add space between columns
+                  children: const [
+                    Text(
+                      'Brand',
+                      style: TextStyle(
+                        color: Color(0xFF757575),
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      'Tons',
+                      style: TextStyle(
+                        color: Color(0xFF757575),
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      'Location',
+                      style: TextStyle(
+                        color: Color(0xFF757575),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                const Text(
-                  'Simhadri TMT',
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Tons',
-                  style: TextStyle(
-                    color: Color(0xFF757575),
-                    fontSize: 14,
-                  ),
-                ),
-                const Text(
-                  '6',
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Location',
-                  style: TextStyle(
-                    color: Color(0xFF757575),
-                    fontSize: 14,
-                  ),
-                ),
-                const Text(
-                  'Vizianagaram',
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .spaceAround, // Add space between columns
+                  children: const [
+                    Text(
+                      'Simhadri TMT',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      '6',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      'Vizianagaram',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -199,7 +202,12 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Respond'),
+                    child: const Text(
+                      'Respond',
+                      style: TextStyle(
+                        color: Color(0xFFF9FAFC), // Updated font color
+                      ),
+                    ),
                   ),
                 ),
               ],

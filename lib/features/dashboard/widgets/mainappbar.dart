@@ -5,6 +5,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showProfileIcon;
   final bool showNotificationIcon; // Add this parameter
 
+  // ignore: use_super_parameters
   const MainAppBar({
     Key? key,
     required this.title,

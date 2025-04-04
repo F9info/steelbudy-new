@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/mainappbar.dart';
 import '../widgets/mainbottombar.dart';
 import 'enquiry.dart';
-import '../../../data.dart/productlist.dart';
+import '../../../data/productlist.dart';
 import 'profile.dart'; // Import the product list
 
 class DashboardScreen extends StatefulWidget {
@@ -150,24 +150,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   PreferredSizeWidget _getAppBar() {
     switch (_selectedIndex) {
       case 0:
+        // ignore: prefer_const_constructors
         return MainAppBar(
           title: 'Dashboard',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
       case 1:
+        // ignore: prefer_const_constructors
         return MainAppBar(
           title: 'Enquiry',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
       case 2:
+        // ignore: prefer_const_constructors
         return MainAppBar(
           title: 'Profile',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
       default:
+        // ignore: prefer_const_constructors
         return MainAppBar(
           title: 'Dashboard',
           showProfileIcon: false,
@@ -283,11 +287,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center, // Center-align content
           children: [
             Stack(
               children: [
                 Container(
+                  width: double.infinity, // Make the image take full width
                   height: 100,
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
@@ -297,6 +302,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Image.asset(
                       imagePath,
                       fit: BoxFit.cover,
+                      width:
+                          double.infinity, // Ensure the image covers full width
                       errorBuilder: (context, error, stackTrace) {
                         return const Icon(Icons.broken_image,
                             size: 50, color: Colors.grey);
@@ -338,9 +345,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
+              textAlign: TextAlign.center, // Center-align text
             ),
             const SizedBox(height: 4),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center, // Center-align row
               children: [
                 const Icon(
                   Icons.circle,
