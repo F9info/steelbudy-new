@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/mainappbar.dart';
 import '../widgets/mainbottombar.dart';
 import 'enquiry.dart';
@@ -144,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Widget> _screens = [
     Container(), // Will be replaced by _buildDashboardContent()
     const EnquiryScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   // Fix the _getAppBar method to return a PreferredSizeWidget

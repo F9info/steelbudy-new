@@ -1,7 +1,44 @@
 import 'package:flutter/material.dart';
 
+import '../../../services/authentication.dart';
+// Make sure to import the AuthService
+
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final AuthService _authService = AuthService(); // Initialize AuthService
+
+  ProfileScreen({super.key});
+
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Clear login state
+      await _authService.logout();
+
+      // Remove loading indicator and navigate to login
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logout failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
                   radius: 40,
                   backgroundColor: Colors.blue,
                   child: Image.asset(
-                    'assets/images/vizag_logo.png', // Replace with your logo asset
+                    'assets/images/vizag_logo.png',
                     width: 60,
                     height: 60,
                     errorBuilder: (context, error, stackTrace) {
@@ -62,8 +99,6 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Enquiries'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Since MainScreen handles navigation, we can update the index there
-              // For now, we'll keep the navigation as is
               Navigator.pushNamed(context, '/enquiry');
             },
           ),
@@ -88,7 +123,6 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Edit Profile'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigate to Edit Profile screen
               // Navigator.pushNamed(context, '/edit_profile');
             },
           ),
@@ -99,7 +133,6 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Dealer Profile'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigate to Dealer Profile screen
               // Navigator.pushNamed(context, '/dealer_profile');
             },
           ),
@@ -110,7 +143,6 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('ISI Information'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigate to ISI Info screen
               // Navigator.pushNamed(context, '/isi_info');
             },
           ),
@@ -135,7 +167,6 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Support & help'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigate to Support screen
               // Navigator.pushNamed(context, '/support');
             },
           ),
@@ -145,10 +176,7 @@ class ProfileScreen extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle logout action
-              Navigator.pushReplacementNamed(context, '/login');
-            },
+            onTap: () => _handleLogout(context), // Updated logout handler
           ),
         ],
       ),

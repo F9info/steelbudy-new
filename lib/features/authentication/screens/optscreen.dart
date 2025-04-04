@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../services/authentication.dart';
 import '../../dashboard/screens/dashboardscreen.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
@@ -25,12 +25,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     6,
     (index) => FocusNode(),
   );
+  final AuthService _authService = AuthService(); // Initialize AuthService
   bool _isButtonEnabled = false;
   bool _isLoading = false;
   String? _error;
   int _resendTimer = 30;
   bool _canResend = false;
-  final String _correctOtp = '123456'; // Updated to match the image's OTP hint
+  final String _correctOtp = '123456';
 
   @override
   void initState() {
@@ -84,8 +85,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     try {
       String otp = _controllers.map((c) => c.text).join();
 
-      // Check if the entered OTP matches the correct OTP
       if (otp == _correctOtp) {
+        // Set login state
+        await _authService.setLoggedIn(true);
+
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -155,7 +158,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Validate and format the phone number
     String formattedPhoneNumber;
     try {
       if (widget.phoneNumber.length == 10) {
@@ -179,7 +181,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Text(
                 'SteelBuddy',
                 style: TextStyle(
@@ -189,7 +190,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              // Title
               Text(
                 'Enter code',
                 style: TextStyle(
@@ -200,7 +200,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              // Subtitle with formatted phone number
               Text(
                 'Enter the OTP sent to +91 $formattedPhoneNumber',
                 style: TextStyle(
@@ -221,7 +220,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 ),
               ],
               const SizedBox(height: 30),
-              // OTP Input Fields
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(6, (index) {
@@ -277,7 +275,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 }),
               ),
               const SizedBox(height: 20),
-              // Timer and Resend Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -304,7 +301,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 ],
               ),
               const SizedBox(height: 30),
-              // Login Button
               SizedBox(
                 width: double.infinity,
                 height: 50,

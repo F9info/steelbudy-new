@@ -13,6 +13,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   bool _isValid = false;
+  bool _isLoading = false; // Added loading state
+  String? _error; // Added error state
   final String _allowedNumber = '1234567890'; // Allowed phone number
 
   @override
@@ -27,24 +29,43 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void _login() {
-    if (_isValid) {
+  Future<void> _login() async {
+    // Made async for better handling
+    if (!_isValid || _isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
       if (_phoneController.text == _allowedNumber) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OtpScreen(phoneNumber: _phoneController.text),
-          ),
-        );
+        // Use named route instead of direct navigation
+        if (mounted) {
+          Navigator.pushReplacementNamed(
+            context,
+            '/otp',
+            arguments: _phoneController.text, // Pass phone number as argument
+          );
+        }
       } else {
-        // Show error message if the number is not allowed
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text('Invalid phone number. Please enter the correct number.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        throw 'Invalid phone number. Please enter the correct number.';
+      }
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_error!),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -143,13 +164,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _error!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 // Login Button
                 SizedBox(
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
-                    onPressed: _isValid ? _login : null,
+                    onPressed: _isValid && !_isLoading ? _login : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       disabledBackgroundColor: Colors.grey[300],
@@ -158,14 +186,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Get OTP',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Get OTP',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],

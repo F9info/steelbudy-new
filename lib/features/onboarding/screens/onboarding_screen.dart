@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'GetStartedScreen1.dart';
 import 'GetStartedScreen2.dart';
 import 'GetStartedScreen3.dart';
-import '../../authentication/screens/login_screen.dart'; // Update this import
+import '../../authentication/screens/login_screen.dart'; // Keep this import as is
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -45,11 +45,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _getStarted() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const LoginScreen()), // Updated this line
-    );
+    // Use named route to match main.dart routing
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
