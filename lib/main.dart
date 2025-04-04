@@ -5,6 +5,7 @@ import 'features/dashboard/screens/dashboardscreen.dart';
 import 'services/authentication.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/authentication/screens/login_screen.dart';
+import 'features/dashboard/screens/edit-profile.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

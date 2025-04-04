@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../services/authentication.dart';
+import 'edit-profile.dart';
 // Make sure to import the AuthService
 
 class ProfileScreen extends StatelessWidget {
@@ -123,7 +124,10 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Edit Profile'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigator.pushNamed(context, '/edit_profile');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EditProfile()),
+              );
             },
           ),
 
