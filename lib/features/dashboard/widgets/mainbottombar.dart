@@ -14,7 +14,7 @@ class MainBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
-      onTap: onTap,
+      onTap: onTap, // Directly use the onTap function for all items
       selectedItemColor: Colors.blue, // Color for the selected icon and label
       unselectedItemColor: Colors.grey, // Color for unselected icons and labels
       showUnselectedLabels: true, // Show labels for unselected items

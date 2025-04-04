@@ -3,7 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/mainappbar.dart';
 import '../widgets/mainbottombar.dart';
 import 'enquiry.dart';
-import '../../../data.dart/productlist.dart'; // Import the product list
+import '../../../data.dart/productlist.dart';
+import 'profile.dart'; // Import the product list
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -143,7 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Widget> _screens = [
     Container(), // Will be replaced by _buildDashboardContent()
     const EnquiryScreen(),
-    const Center(child: Text('Profile Screen')),
+    const ProfileScreen(),
   ];
 
   // Fix the _getAppBar method to return a PreferredSizeWidget
@@ -151,36 +152,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (_selectedIndex) {
       case 0:
         return MainAppBar(
-          title: 'Dashboard', // Removed const
+          title: 'Dashboard',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
       case 1:
         return MainAppBar(
-          title: 'Enquiry', // Removed const
+          title: 'Enquiry',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
       case 2:
         return MainAppBar(
-          title: 'Profile', // Removed const
+          title: 'Profile',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
       default:
         return MainAppBar(
-          title: 'Dashboard', // Removed const
+          title: 'Dashboard',
           showProfileIcon: false,
           showNotificationIcon: true,
         );
     }
   }
 
+  void _showBottomPopup(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.blue,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person, color: Colors.white),
+              title: const Text(
+                'Profile (Last updated: 26 Mar 2024)',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.pop(context); // Close the popup
+                // Handle Profile action
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info, color: Colors.white),
+              title:
+                  const Text('ISI Info', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // Close the popup
+                // Handle ISI Info action
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.support, color: Colors.white),
+              title:
+                  const Text('Support', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // Close the popup
+                // Handle Support action
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.white),
+              title:
+                  const Text('Logout', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // Close the popup
+                // Handle Logout action
+              },
+            ),
+            const SizedBox(height: 16), // Padding at the bottom
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _getAppBar(), // No need to cast to PreferredSizeWidget
+      appBar: _getAppBar(),
       body: _selectedIndex == 0
           ? _buildDashboardContent()
           : _screens[_selectedIndex],
@@ -253,7 +310,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   right: 8,
                   child: GestureDetector(
                     onTap: () {
-                      // Handle add action
+                      _showBottomPopup(context); // Show the bottom popup
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -263,7 +320,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        'Add',
+                        'More',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
