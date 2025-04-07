@@ -1,9 +1,11 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import '../widgets/mainappbar.dart';
 import '../widgets/mainbottombar.dart';
 import 'enquiry.dart';
 import '../../../data/productlist.dart';
-import 'profile.dart'; // Import the product list
+import 'profile.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -69,17 +71,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDashboardContent() {
     return Column(
       children: [
-        const SizedBox(height: 8), // Adjust for app bar padding
+        const SizedBox(height: 8),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Search products...',
-              prefixIcon: const Icon(Icons.search),
+              hintText: 'Search for products...',
+              suffixIcon: const Icon(Icons.search,
+                  color: Colors.blue), // Moved icon to right
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderSide: BorderSide(
+                    color: Colors.blue), // Blue border as per screenshot
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide:
+                    BorderSide(color: Colors.blue, width: 2), // Focused state
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.blue), // Default state
               ),
               filled: true,
               fillColor: Colors.grey[100],
@@ -146,38 +159,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ProfileScreen(),
   ];
 
-  // Fix the _getAppBar method to return a PreferredSizeWidget
+  // Adjusted app bar to match screenshot design
   PreferredSizeWidget _getAppBar() {
-    switch (_selectedIndex) {
-      case 0:
-        // ignore: prefer_const_constructors
-        return MainAppBar(
-          title: 'Dashboard',
-          showProfileIcon: false,
-          showNotificationIcon: true,
-        );
-      case 1:
-        // ignore: prefer_const_constructors
-        return MainAppBar(
-          title: 'Enquiry',
-          showProfileIcon: false,
-          showNotificationIcon: true,
-        );
-      case 2:
-        // ignore: prefer_const_constructors
-        return MainAppBar(
-          title: 'Profile',
-          showProfileIcon: false,
-          showNotificationIcon: true,
-        );
-      default:
-        // ignore: prefer_const_constructors
-        return MainAppBar(
-          title: 'Dashboard',
-          showProfileIcon: false,
-          showNotificationIcon: true,
-        );
-    }
+    return MainAppBar(
+      title: 'Products',
+      showProfileIcon: false,
+      showNotificationIcon: true,
+    );
   }
 
   void _showBottomPopup(BuildContext context) {
@@ -198,8 +186,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
-                Navigator.pop(context); // Close the popup
-                // Handle Profile action
+                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -207,8 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title:
                   const Text('ISI Info', style: TextStyle(color: Colors.white)),
               onTap: () {
-                Navigator.pop(context); // Close the popup
-                // Handle ISI Info action
+                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -216,8 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title:
                   const Text('Support', style: TextStyle(color: Colors.white)),
               onTap: () {
-                Navigator.pop(context); // Close the popup
-                // Handle Support action
+                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -225,11 +210,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title:
                   const Text('Logout', style: TextStyle(color: Colors.white)),
               onTap: () {
-                Navigator.pop(context); // Close the popup
-                // Handle Logout action
+                Navigator.pop(context);
               },
             ),
-            const SizedBox(height: 16), // Padding at the bottom
+            const SizedBox(height: 16),
           ],
         );
       },
@@ -287,56 +271,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center, // Center-align content
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Stack(
-              children: [
-                Container(
-                  width: double.infinity, // Make the image take full width
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      width:
-                          double.infinity, // Ensure the image covers full width
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.broken_image,
-                            size: 50, color: Colors.grey);
-                      },
-                    ),
-                  ),
+            Container(
+              width: double.infinity,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image,
+                        size: 50, color: Colors.grey);
+                  },
                 ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: GestureDetector(
-                    onTap: () {
-                      _showBottomPopup(context); // Show the bottom popup
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'More',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -345,11 +299,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
-              textAlign: TextAlign.center, // Center-align text
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center, // Center-align row
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
                   Icons.circle,
@@ -368,24 +322,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 8),
             SizedBox(
-              width: double.infinity,
+              width: double.infinity, // Make Call button full width
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle call action
+                  // Handle call action (preserving original functionality)
+                  print('Call button pressed for $name');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E90FF),
+                  backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
                 ),
                 child: const Text(
                   'Call',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ),

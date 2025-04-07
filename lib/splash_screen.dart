@@ -29,11 +29,17 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white, // White theme
       body: Center(
-        child: SvgPicture.asset(
-          'assets/images/logo.svg',
-          height: 120, // Adjust size as needed
-          width: 120, // Adjust size as needed
-          fit: BoxFit.contain,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 200),
+            child: SvgPicture.asset(
+              'assets/images/logo.svg',
+              height: 120,
+              width: 120,
+              fit: BoxFit.contain,
+            ),
+          ),
         ),
       ),
     );

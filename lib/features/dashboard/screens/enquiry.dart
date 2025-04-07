@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 
 class EnquiryScreen extends StatefulWidget {
@@ -50,6 +48,33 @@ class _EnquiryScreenState extends State<EnquiryScreen>
               Tab(text: 'New'),
               Tab(text: 'Responded'),
             ],
+          ),
+        ),
+        // Add the "Create enquiry" button below the tab bar
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: double.infinity, // Full width button
+            child: ElevatedButton(
+              onPressed: () {
+                // Handle Create enquiry action
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text(
+                '+ Create enquiry',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
         ),
         // Tab Bar View
@@ -119,8 +144,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .spaceAround, // Add space between columns
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: const [
                     Text(
                       'Brand',
@@ -147,8 +171,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                 ),
                 const SizedBox(height: 4),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .spaceAround, // Add space between columns
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: const [
                     Text(
                       'Simhadri TMT',
@@ -205,7 +228,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     child: const Text(
                       'Respond',
                       style: TextStyle(
-                        color: Color(0xFFF9FAFC), // Updated font color
+                        color: Color(0xFFF9FAFC),
                       ),
                     ),
                   ),

@@ -6,6 +6,8 @@ import 'services/authentication.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/authentication/screens/login_screen.dart';
 import 'features/dashboard/screens/edit-profile.dart';
+import 'splash_screen.dart';
+import 'features/dashboard/screens/notifications.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -35,61 +37,14 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => OtpScreen(phoneNumber: phoneNumber),
             );
+          case '/edit-profile':
+            return MaterialPageRoute(builder: (_) => const EditProfile());
+          case '/notifications':
+            return MaterialPageRoute(builder: (_) => const Notifications());
           default:
             return MaterialPageRoute(builder: (_) => const SplashScreen());
         }
       },
-    );
-  }
-}
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-  }
-
-  Future<void> _checkLoginStatus() async {
-    await Future.delayed(const Duration(seconds: 2));
-    final authService = AuthService();
-    final isLoggedIn = await authService.isLoggedIn();
-
-    if (mounted) {
-      Navigator.pushReplacementNamed(
-        context,
-        isLoggedIn ? '/dashboard' : '/onboarding',
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'SteelBuddy',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            SizedBox(height: 20),
-            CircularProgressIndicator(),
-          ],
-        ),
-      ),
     );
   }
 }

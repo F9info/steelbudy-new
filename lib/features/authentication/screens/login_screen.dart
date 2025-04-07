@@ -91,8 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: SvgPicture.asset(
                     'assets/images/logo.svg',
-                    height: 100,
-                    width: 100,
+                    height: 70,
                   ),
                 ),
                 const SizedBox(height: 48),

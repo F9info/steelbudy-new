@@ -16,7 +16,7 @@ class GetStartedScreen2 extends StatelessWidget {
               'assets/images/logo.svg', // Use the same logo as in GetStartedScreen1
               placeholderBuilder: (BuildContext context) =>
                   const CircularProgressIndicator(),
-              height: 100, // Match the height used in GetStartedScreen1
+              height: 70, // Match the height used in GetStartedScreen1
               semanticsLabel: 'SteelBuddy Logo', // Accessibility label
             ),
           ),

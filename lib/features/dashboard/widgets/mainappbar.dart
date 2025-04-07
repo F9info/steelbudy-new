@@ -3,22 +3,21 @@ import 'package:flutter/material.dart';
 class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showProfileIcon;
-  final bool showNotificationIcon; // Add this parameter
+  final bool showNotificationIcon;
 
-  // ignore: use_super_parameters
   const MainAppBar({
     Key? key,
     required this.title,
     this.showProfileIcon = false,
-    this.showNotificationIcon = false, // Default to false
+    this.showNotificationIcon = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: false, // Remove back arrow
+      automaticallyImplyLeading: false,
       title: Align(
-        alignment: Alignment.centerLeft, // Align title to the left
+        alignment: Alignment.centerLeft,
         child: Text(
           title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -29,7 +28,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              // Handle notification icon action
+              Navigator.pushNamed(context, '/notifications');
             },
           ),
         if (showProfileIcon)

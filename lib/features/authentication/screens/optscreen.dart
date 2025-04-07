@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/authentication.dart';
 import '../../dashboard/screens/dashboardscreen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -187,12 +188,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'SteelBuddy',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue[900],
+              Center(
+                child: SvgPicture.asset(
+                  'assets/images/logo.svg',
+                  height: 70,
                 ),
               ),
               const SizedBox(height: 40),

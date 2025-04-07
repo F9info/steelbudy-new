@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-
 import '../../../services/authentication.dart';
 import 'edit-profile.dart';
-// Make sure to import the AuthService
 
 class ProfileScreen extends StatelessWidget {
-  final AuthService _authService = AuthService(); // Initialize AuthService
+  final AuthService _authService = AuthService();
 
   ProfileScreen({super.key});
 
   Future<void> _handleLogout(BuildContext context) async {
     try {
-      // Show loading indicator
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -20,10 +17,8 @@ class ProfileScreen extends StatelessWidget {
         ),
       );
 
-      // Clear login state
       await _authService.logout();
 
-      // Remove loading indicator and navigate to login
       if (context.mounted) {
         Navigator.pop(context); // Close loading dialog
         Navigator.pushReplacementNamed(context, '/login');
@@ -124,10 +119,7 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Edit Profile'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const EditProfile()),
-              );
+              Navigator.pushNamed(context, '/edit-profile'); // Use named route
             },
           ),
 
@@ -180,7 +172,7 @@ class ProfileScreen extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => _handleLogout(context), // Updated logout handler
+            onTap: () => _handleLogout(context),
           ),
         ],
       ),
