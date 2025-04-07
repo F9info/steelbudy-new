@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../services/authentication.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -8,20 +12,22 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  // Controllers for text fields
+  final AuthService _authService = AuthService();
+  final ImagePicker _picker = ImagePicker();
+
+  XFile? _profileImage;
+
   final TextEditingController _nameController =
       TextEditingController(text: "Harsha Valluri");
-  final TextEditingController _phoneController =
-      TextEditingController(text: "+91 72870 - 14530");
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController(
       text: "SDFsdjkyB5DJVBVAKJSVAKJDBFVAJAKSFDASNVAFJVNJADFBJADFNBAJFNBJFBA");
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _pinCodeController = TextEditingController();
 
-  // List of selected locations
-  List<String> _selectedLocations = ["Guntur", "Nellore", "Tirupati"];
+  bool _isLoadingPhone = true;
 
-  // List of available locations (dummy data)
+  List<String> _selectedLocations = ["Guntur", "Nellore", "Tirupati"];
   final List<String> _availableLocations = [
     "Vijayawada",
     "Visakhapatnam",
@@ -29,7 +35,20 @@ class _EditProfileState extends State<EditProfile> {
     "Srikakulam"
   ];
 
-  // Function to add a location
+  @override
+  void initState() {
+    super.initState();
+    _fetchPhoneNumber();
+  }
+
+  Future<void> _fetchPhoneNumber() async {
+    final phone = await _authService.getPhoneNumber();
+    setState(() {
+      _phoneController.text = phone ?? "Phone number not available";
+      _isLoadingPhone = false;
+    });
+  }
+
   void _addLocation(String location) {
     setState(() {
       _selectedLocations.add(location);
@@ -37,7 +56,6 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  // Function to remove a location
   void _removeLocation(String location) {
     setState(() {
       _selectedLocations.remove(location);
@@ -45,7 +63,6 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  // Function to save profile (for now, just prints the data)
   void _saveProfile() {
     print("Name: ${_nameController.text}");
     print("Phone: ${_phoneController.text}");
@@ -54,9 +71,52 @@ class _EditProfileState extends State<EditProfile> {
     print("Pin Code: ${_pinCodeController.text}");
     print("Selected Locations: $_selectedLocations");
 
-    // Later, this can be replaced with an API call to save the data
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Profile saved successfully!")),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          _profileImage = pickedFile;
+        });
+      }
+    } catch (e) {
+      debugPrint("Image picker error: $e");
+    }
+  }
+
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Pick from gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              if (!kIsWeb && !Platform.isMacOS && !Platform.isWindows)
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take a photo'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -76,39 +136,37 @@ class _EditProfileState extends State<EditProfile> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           "Edit profile",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        centerTitle: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Profile photo section
+            // Profile photo
             Stack(
               alignment: Alignment.bottomRight,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 50,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, size: 50, color: Colors.white),
-                  // Later, replace with actual image from API or local storage
+                  backgroundImage: _profileImage != null
+                      ? FileImage(File(_profileImage!.path))
+                      : null,
+                  backgroundColor: Colors.grey[300],
+                  child: _profileImage == null
+                      ? const Icon(Icons.person, size: 50, color: Colors.white)
+                      : null,
                 ),
                 Positioned(
                   bottom: 0,
                   right: 0,
                   child: GestureDetector(
-                    onTap: () {
-                      // Add functionality to edit photo (e.g., pick from gallery)
-                      print("Edit photo tapped");
-                    },
+                    onTap: _showImagePickerOptions,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
@@ -131,19 +189,22 @@ class _EditProfileState extends State<EditProfile> {
             ),
             const SizedBox(height: 24),
 
-            // Name field
             _buildTextField("Name", _nameController),
             const SizedBox(height: 16),
 
-            // Phone number field
-            _buildTextField("Phone number", _phoneController),
+            _isLoadingPhone
+                ? const CircularProgressIndicator()
+                : _buildTextField(
+                    "Phone number",
+                    _phoneController,
+                    readOnly: true,
+                    textColor: Colors.grey,
+                  ),
             const SizedBox(height: 16),
 
-            // Address field
             _buildTextField("Address", _addressController, maxLines: 3),
             const SizedBox(height: 16),
 
-            // City and Pin Code fields (side by side)
             Row(
               children: [
                 Expanded(child: _buildTextField("City", _cityController)),
@@ -154,7 +215,6 @@ class _EditProfileState extends State<EditProfile> {
             ),
             const SizedBox(height: 16),
 
-            // Selected locations with border
             if (_selectedLocations.isNotEmpty) ...[
               const Align(
                 alignment: Alignment.centerLeft,
@@ -188,7 +248,6 @@ class _EditProfileState extends State<EditProfile> {
               const SizedBox(height: 16),
             ],
 
-            // Available locations
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -211,7 +270,6 @@ class _EditProfileState extends State<EditProfile> {
             ),
             const SizedBox(height: 24),
 
-            // Save button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -239,20 +297,25 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  // Helper method to build text fields
-  Widget _buildTextField(String label, TextEditingController controller,
-      {int maxLines = 1}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    bool readOnly = false,
+    Color? textColor,
+  }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      readOnly: readOnly,
+      style: TextStyle(color: textColor ?? Colors.black),
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
         filled: true,
         fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
   }

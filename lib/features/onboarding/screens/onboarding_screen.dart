@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'GetStartedScreen1.dart';
 import 'GetStartedScreen2.dart';
 import 'GetStartedScreen3.dart';
-import '../../authentication/screens/login_screen.dart'; // Keep this import as is
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -44,8 +44,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  void _getStarted() {
-    // Use named route to match main.dart routing
+  Future<void> _getStarted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_complete', true);
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -55,7 +56,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // PageView with the three screens
           PageView(
             controller: _pageController,
             onPageChanged: _onPageChanged,
@@ -65,7 +65,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               GetStartedScreen3(),
             ],
           ),
-          // Bottom navigation and dots
           Positioned(
             left: 0,
             right: 0,
@@ -75,7 +74,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Pagination dots
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(3, (index) {
@@ -96,7 +94,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     }),
                   ),
                   const SizedBox(height: 32),
-                  // Next/Get Started button
                   SizedBox(
                     width: double.infinity,
                     height: 56,

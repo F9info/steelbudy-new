@@ -34,7 +34,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   String? _error;
   int _resendTimer = 30;
   bool _canResend = false;
-  final String _correctOtp = '123456';
+  final String _correctOtp = '123456'; // Simulated correct OTP
 
   @override
   void initState() {
@@ -78,7 +78,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   Future<void> _verifyOtp(BuildContext context) async {
-    // ignore: use_build_context_synchronously
     if (!_isButtonEnabled || _isLoading) return;
 
     setState(() {
@@ -90,10 +89,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       String otp = _controllers.map((c) => c.text).join();
 
       if (otp == _correctOtp) {
-        // Set login state
-        await _authService.setLoggedIn(true);
+        // Set login state with phone number
+        await _authService.setLoggedIn(true,
+            phoneNumber: '+91${widget.phoneNumber}');
 
-        // ignore: use_build_context_synchronously
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -117,7 +116,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   Future<void> _resendCode() async {
-    // ignore: use_build_context_synchronously
     if (!_canResend) return;
 
     setState(() {
@@ -126,10 +124,9 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     });
 
     try {
-      // Simulate API call
+      // Simulate API call for resending OTP
       await Future.delayed(const Duration(seconds: 1));
 
-      // ignore: use_build_context_synchronously
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -195,10 +192,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              // ignore: prefer_const_constructors
               Text(
                 'Enter code',
-                // ignore: prefer_const_constructors
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -209,7 +204,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               const SizedBox(height: 10),
               Text(
                 'Enter the OTP sent to +91 $formattedPhoneNumber',
-                // ignore: prefer_const_constructors
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black54,

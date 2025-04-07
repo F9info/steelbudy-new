@@ -36,6 +36,15 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  Future<String> _fetchPhoneNumber() async {
+    try {
+      final phoneNumber = await _authService.getPhoneNumber();
+      return phoneNumber ?? 'Phone number not available';
+    } catch (e) {
+      return 'Error fetching phone number';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -75,12 +84,30 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      '+91 7287014560',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                    FutureBuilder<String>(
+                      future: _fetchPhoneNumber(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            snapshot.data ?? 'Phone number not available',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -119,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Edit Profile'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              Navigator.pushNamed(context, '/edit-profile'); // Use named route
+              Navigator.pushNamed(context, '/edit-profile');
             },
           ),
 
