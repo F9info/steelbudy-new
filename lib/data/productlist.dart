@@ -3,48 +3,71 @@ final List<Map<String, dynamic>> allProducts = [
     'name': '12MM REBAR',
     'brand': 'Simhadri TMT',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Vizag',
   },
   {
     'name': '19MM REBAR',
     'brand': 'Vizag Profiles',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Hyderabad',
   },
   {
     'name': '20MM REBAR',
     'brand': 'Simhadri TMT',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Vijayawada',
   },
   {
     'name': '32MM REBAR',
     'brand': 'Simhadri TMT',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Chennai',
   },
   {
     'name': '8MM REBAR',
     'brand': 'Vizag Profiles',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Vizag',
   },
   {
     'name': 'BINDING WIRE',
     'brand': 'Simhadri TMT',
     'image': 'assets/images/product-image.png',
-    'category': 'Wire'
+    'category': 'Wire',
+    'location': 'Hyderabad',
   },
   {
     'name': '10MM REBAR',
     'brand': 'Simhadri TMT',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Vijayawada',
   },
   {
     'name': '16MM REBAR',
     'brand': 'Simhadri TMT',
     'image': 'assets/images/product-image.png',
-    'category': 'Steel'
+    'category': 'Steel',
+    'location': 'Chennai',
+  },
+  // Adding new products for more diversity
+  {
+    'name': '25MM REBAR',
+    'brand': 'TATA Steel',
+    'image': 'assets/images/product-image.png',
+    'category': 'Steel',
+    'location': 'Vizag',
+  },
+  {
+    'name': 'BINDING WIRE',
+    'brand': 'JSW',
+    'image': 'assets/images/product-image.png',
+    'category': 'Wire',
+    'location': 'Hyderabad',
   },
 ];
