@@ -4,12 +4,14 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showProfileIcon;
   final bool showNotificationIcon;
+  final VoidCallback? onProfileTap;
 
   const MainAppBar({
     Key? key,
     required this.title,
     this.showProfileIcon = false,
     this.showNotificationIcon = false,
+    this.onProfileTap,
   }) : super(key: key);
 
   @override
@@ -34,9 +36,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (showProfileIcon)
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () {
-              // Handle profile icon action
-            },
+            onPressed: onProfileTap,
           ),
       ],
     );
