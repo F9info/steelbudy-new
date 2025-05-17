@@ -242,21 +242,30 @@ class DashboardScreen extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.circle, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        brand ?? 'Unknown Brand',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
+            const SizedBox(height: 8),
+            Center(
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center, // Centers the children horizontally
+    children: [
+      Container(
+        width: 16,
+        height: 16,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey, width: 1),
+        ),
+      ),
+      const SizedBox(width: 4),
+      Text(
+        brand ?? 'Unknown Brand',
+        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+      ),
+    ],
+  ),
+),
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: name != null
