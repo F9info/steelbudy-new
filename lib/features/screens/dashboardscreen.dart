@@ -4,62 +4,51 @@ import '../dashboard/widgets/mainappbar.dart';
 import '../dashboard/widgets/mainbottombar.dart';
 import '../dashboard/widgets/searchfilters.dart';
 import 'enquiry.dart';
-import '../../data/productlist.dart';
 import 'profile.dart';
 import '../../providers/dashboard_providers.dart';
+import '../../services/api_service.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
-  List<Map<String, dynamic>> _getFilteredProducts(
+  List<Product> _getFilteredProducts(
     WidgetRef ref,
-    List<Map<String, dynamic>> allProducts,
+    List<Product> allProducts,
   ) {
     final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
     final selectedProducts = ref.watch(selectedProductsProvider);
     final selectedBrands = ref.watch(selectedBrandsProvider);
     final selectedLocations = ref.watch(selectedLocationsProvider);
 
-    // Use lazy evaluation with Iterable
-    final filtered = allProducts.where((product) {
-      final productName = product['name'].toString();
-      final productBrand = product['brand'].toString();
-      final productLocation = product['location'].toString();
+    return allProducts.where((product) {
+      final productName = product.name;
+      final productBrand = product.brand;
+      final productLocation = product.location;
 
-      // Check selected products
-      if (selectedProducts.isNotEmpty &&
-          !selectedProducts.contains(productName)) {
+      if (selectedProducts.isNotEmpty && !selectedProducts.contains(productName)) {
         return false;
       }
 
-      // Check selected brands
       if (selectedBrands.isNotEmpty && !selectedBrands.contains(productBrand)) {
         return false;
       }
 
-      // Check selected locations
-      if (selectedLocations.isNotEmpty &&
-          !selectedLocations.contains(productLocation)) {
+      if (selectedLocations.isNotEmpty && !selectedLocations.contains(productLocation)) {
         return false;
       }
 
-      // Check search query
-      if (searchQuery.isNotEmpty &&
-          !productName.toLowerCase().contains(searchQuery)) {
+      if (searchQuery.isNotEmpty && !productName.toLowerCase().contains(searchQuery)) {
         return false;
       }
 
       return true;
-    });
-
-    // Convert to List only when needed
-    return filtered.toList();
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedIndexProvider);
-    final filteredProducts = _getFilteredProducts(ref, allProducts);
+    final productsAsync = ref.watch(productsProvider);
 
     void _updateSearchQuery(String query) {
       ref.read(searchQueryProvider.notifier).state = query;
@@ -73,53 +62,57 @@ class DashboardScreen extends ConsumerWidget {
     }
 
     Widget _buildDashboardContent() {
-      return Column(
-        children: [
-          Searchfilters(
-            searchQuery: ref.watch(searchQueryProvider),
-            selectedProducts: ref.watch(selectedProductsProvider),
-            selectedBrands: ref.watch(selectedBrandsProvider),
-            selectedLocations: ref.watch(selectedLocationsProvider),
-            onSearchChanged: _updateSearchQuery,
-            onFiltersApplied: _updateFilters,
-          ),
-          Expanded(
-            child: filteredProducts.isEmpty
-                ? Center(child: Text('No products found'))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    itemCount: (filteredProducts.length / 2).ceil(),
-                    itemBuilder: (context, index) {
-                      final firstProductIndex = index * 2;
-                      final secondProductIndex = firstProductIndex + 1;
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: _buildProductCard(
-                              filteredProducts[firstProductIndex]['name'],
-                              filteredProducts[firstProductIndex]['brand'],
-                              filteredProducts[firstProductIndex]['image'],
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: secondProductIndex < filteredProducts.length
-                                ? _buildProductCard(
-                                    filteredProducts[secondProductIndex]
-                                        ['name'],
-                                    filteredProducts[secondProductIndex]
-                                        ['brand'],
-                                    filteredProducts[secondProductIndex]
-                                        ['image'],
-                                  )
-                                : SizedBox.shrink(),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-          ),
-        ],
+      return productsAsync.when(
+        data: (products) {
+          final filteredProducts = _getFilteredProducts(ref, products);
+          return Column(
+            children: [
+              Searchfilters(
+                searchQuery: ref.watch(searchQueryProvider),
+                selectedProducts: ref.watch(selectedProductsProvider),
+                selectedBrands: ref.watch(selectedBrandsProvider),
+                selectedLocations: ref.watch(selectedLocationsProvider),
+                onSearchChanged: _updateSearchQuery,
+                onFiltersApplied: _updateFilters,
+              ),
+              Expanded(
+                child: filteredProducts.isEmpty
+                    ? const Center(child: Text('No products found'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        itemCount: (filteredProducts.length / 2).ceil(),
+                        itemBuilder: (context, index) {
+                          final firstProductIndex = index * 2;
+                          final secondProductIndex = firstProductIndex + 1;
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: _buildProductCard(
+                                  filteredProducts[firstProductIndex].name,
+                                  filteredProducts[firstProductIndex].brand,
+                                  filteredProducts[firstProductIndex].image,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: secondProductIndex < filteredProducts.length
+                                    ? _buildProductCard(
+                                        filteredProducts[secondProductIndex].name,
+                                        filteredProducts[secondProductIndex].brand,
+                                        filteredProducts[secondProductIndex].image,
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       );
     }
 
@@ -135,8 +128,8 @@ class DashboardScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.person, color: Colors.white),
-                title: Text(
+                leading: const Icon(Icons.person, color: Colors.white),
+                title: const Text(
                   'Profile (Last updated: 26 Mar 2024)',
                   style: TextStyle(color: Colors.white),
                 ),
@@ -144,32 +137,32 @@ class DashboardScreen extends ConsumerWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen()),
+                    MaterialPageRoute(builder: (context) =>  ProfileScreen()),
                   );
                 },
               ),
               ListTile(
-                leading: Icon(Icons.info, color: Colors.white),
-                title: Text('ISI Info', style: TextStyle(color: Colors.white)),
+                leading: const Icon(Icons.info, color: Colors.white),
+                title: const Text('ISI Info', style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.support, color: Colors.white),
-                title: Text('Support', style: TextStyle(color: Colors.white)),
+                leading: const Icon(Icons.support, color: Colors.white),
+                title: const Text('Support', style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.logout, color: Colors.white),
-                title: Text('Logout', style: TextStyle(color: Colors.white)),
+                leading: const Icon(Icons.logout, color: Colors.white),
+                title: const Text('Logout', style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.pop(context);
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             ],
           );
         },
@@ -194,7 +187,7 @@ class DashboardScreen extends ConsumerWidget {
           ? _buildDashboardContent()
           : selectedIndex == 1
               ? const EnquiryScreen()
-              : ProfileScreen(),
+              :  ProfileScreen(),
       bottomNavigationBar: MainBottomBar(
         currentIndex: selectedIndex,
         onTap: (index) {
@@ -223,37 +216,37 @@ class DashboardScreen extends ConsumerWidget {
               ),
               child: Center(
                 child: imagePath != null && imagePath.isNotEmpty
-                    ? Image.asset(
+                    ? Image.network(
                         imagePath,
                         fit: BoxFit.cover,
                         width: double.infinity,
                         errorBuilder: (context, error, stackTrace) {
-                          return Icon(Icons.broken_image,
+                          return const Icon(Icons.broken_image,
                               size: 50, color: Colors.grey);
                         },
                       )
-                    : Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                    : const Icon(Icons.broken_image, size: 50, color: Colors.grey),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               name ?? 'Unknown Product',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.circle, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
+                const Icon(Icons.circle, size: 16, color: Colors.grey),
+                const SizedBox(width: 4),
                 Text(
                   brand ?? 'Unknown Brand',
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -261,13 +254,13 @@ class DashboardScreen extends ConsumerWidget {
                     ? () {
                         print('Call button pressed for $name');
                       }
-                    : null, // Disable button if name is null
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: name != null ? Colors.blue : Colors.grey,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text('Call', style: TextStyle(color: Colors.white)),
+                child: const Text('Call', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],

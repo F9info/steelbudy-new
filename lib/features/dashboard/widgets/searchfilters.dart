@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../providers/dashboard_providers.dart';
 
 class Searchfilters extends StatefulWidget {
   final String searchQuery;
@@ -26,30 +28,6 @@ class _SearchfiltersState extends State<Searchfilters> {
   late TextEditingController _searchController;
   int _selectedCategoryIndex = 0;
 
-  final List<String> _productOptions = [
-    '10MM REBAR',
-    '12MM REBAR',
-    '16MM REBAR',
-    '19MM REBAR',
-    '20MM REBAR',
-    '25MM REBAR',
-    '32MM REBAR',
-    '8MM REBAR',
-    'BINDING WIRE'
-  ];
-  final List<String> _brandOptions = [
-    'Simhadri TMT',
-    'Vizag Profiles',
-    'TATA Steel',
-    'JSW'
-  ];
-  final List<String> _locationOptions = [
-    'Vizag',
-    'Hyderabad',
-    'Vijayawada',
-    'Chennai'
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -67,7 +45,7 @@ class _SearchfiltersState extends State<Searchfilters> {
 
   void _showMultiSelectBottomSheet({
     required String title,
-    required List<String> options,
+    required AsyncValue<List<String>> optionsAsync,
     required List<String> selectedItems,
     required String filterType,
   }) {
@@ -79,100 +57,121 @@ class _SearchfiltersState extends State<Searchfilters> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Text(title,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      SizedBox(width: 48),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    children: options.map((option) {
-                      return CheckboxListTile(
-                        title: Text(option),
-                        value: tempSelected.contains(option),
-                        onChanged: (bool? selected) {
-                          setModalState(() {
-                            if (selected == true) {
-                              tempSelected.add(option);
-                            } else {
-                              tempSelected.remove(option);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.blue),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+        return Consumer(
+          builder: (context, ref, child) {
+            return optionsAsync.when(
+              data: (options) {
+                return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setModalState) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 48),
+                            ],
                           ),
-                          child: Text('Cancel',
-                              style: TextStyle(color: Colors.blue)),
                         ),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            List<String> updatedProducts =
-                                widget.selectedProducts;
-                            List<String> updatedBrands = widget.selectedBrands;
-                            List<String> updatedLocations =
-                                widget.selectedLocations;
-
-                            if (filterType == 'Products') {
-                              updatedProducts = tempSelected;
-                            } else if (filterType == 'Brands') {
-                              updatedBrands = tempSelected;
-                            } else if (filterType == 'Locations') {
-                              updatedLocations = tempSelected;
-                            }
-
-                            widget.onFiltersApplied(updatedProducts,
-                                updatedBrands, updatedLocations);
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                        Expanded(
+                          child: ListView(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            children: options.map((option) {
+                              return CheckboxListTile(
+                                title: Text(option),
+                                value: tempSelected.contains(option),
+                                onChanged: (bool? selected) {
+                                  setModalState(() {
+                                    if (selected == true) {
+                                      tempSelected.add(option);
+                                    } else {
+                                      tempSelected.remove(option);
+                                    }
+                                  });
+                                },
+                              );
+                            }).toList(),
                           ),
-                          child: Text('Apply',
-                              style: TextStyle(color: Colors.white)),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Colors.blue),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Cancel',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    List<String> updatedProducts =
+                                        widget.selectedProducts;
+                                    List<String> updatedBrands = widget.selectedBrands;
+                                    List<String> updatedLocations =
+                                        widget.selectedLocations;
+
+                                    if (filterType == 'Products') {
+                                      updatedProducts = tempSelected;
+                                    } else if (filterType == 'Brands') {
+                                      updatedBrands = tempSelected;
+                                    } else if (filterType == 'Locations') {
+                                      updatedLocations = tempSelected;
+                                    }
+
+                                    widget.onFiltersApplied(
+                                      updatedProducts,
+                                      updatedBrands,
+                                      updatedLocations,
+                                    );
+                                    Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Apply',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(child: Text('Error: $error')),
             );
           },
         );
@@ -180,34 +179,34 @@ class _SearchfiltersState extends State<Searchfilters> {
     );
   }
 
-  void _showProductListPopup() {
+  void _showProductListPopup(WidgetRef ref) {
     _showMultiSelectBottomSheet(
       title: "Select Products",
-      options: _productOptions,
+      optionsAsync: ref.watch(productNamesProvider),
       selectedItems: widget.selectedProducts,
       filterType: 'Products',
     );
   }
 
-  void _showBrandListPopup() {
+  void _showBrandListPopup(WidgetRef ref) {
     _showMultiSelectBottomSheet(
       title: "Select Brands",
-      options: _brandOptions,
+      optionsAsync: ref.watch(brandsProvider),
       selectedItems: widget.selectedBrands,
       filterType: 'Brands',
     );
   }
 
-  void _showLocationListPopup() {
+  void _showLocationListPopup(WidgetRef ref) {
     _showMultiSelectBottomSheet(
       title: "Select Locations",
-      options: _locationOptions,
+      optionsAsync: ref.watch(locationsProvider),
       selectedItems: widget.selectedLocations,
       filterType: 'Locations',
     );
   }
 
-  Widget _buildCategoryChip(String label, int index) {
+  Widget _buildCategoryChip(String label, int index, WidgetRef ref) {
     bool isSelected = _selectedCategoryIndex == index;
     return Container(
       margin: const EdgeInsets.only(right: 8),
@@ -221,11 +220,11 @@ class _SearchfiltersState extends State<Searchfilters> {
               widget.onFiltersApplied([], [], []);
               _searchController.clear();
             } else if (label == 'Products') {
-              _showProductListPopup();
+              _showProductListPopup(ref);
             } else if (label == 'Brands') {
-              _showBrandListPopup();
+              _showBrandListPopup(ref);
             } else if (label == 'Locations') {
-              _showLocationListPopup();
+              _showLocationListPopup(ref);
             }
           });
         },
@@ -241,49 +240,53 @@ class _SearchfiltersState extends State<Searchfilters> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search for products...',
-              suffixIcon: Icon(Icons.search, color: Colors.blue),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.blue),
+    return Consumer(
+      builder: (context, ref, child) {
+        return Column(
+          children: [
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search for products...',
+                  suffixIcon: const Icon(Icons.search, color: Colors.blue),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.blue, width: 2),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.blue),
-              ),
-              filled: true,
-              fillColor: Colors.grey[100],
             ),
-          ),
-        ),
-        SizedBox(height: 16),
-        SizedBox(
-          height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              _buildCategoryChip('All', 0),
-              _buildCategoryChip('Products', 1),
-              _buildCategoryChip('Brands', 2),
-              _buildCategoryChip('Locations', 3),
-            ],
-          ),
-        ),
-        SizedBox(height: 16),
-      ],
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                children: [
+                  _buildCategoryChip('All', 0, ref),
+                  _buildCategoryChip('Products', 1, ref),
+                  _buildCategoryChip('Brands', 2, ref),
+                  _buildCategoryChip('Locations', 3, ref),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
+      },
     );
   }
 }
