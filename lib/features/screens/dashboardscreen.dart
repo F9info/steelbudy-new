@@ -84,26 +84,29 @@ class DashboardScreen extends ConsumerWidget {
                         itemBuilder: (context, index) {
                           final firstProductIndex = index * 2;
                           final secondProductIndex = firstProductIndex + 1;
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: _buildProductCard(
-                                  filteredProducts[firstProductIndex].name,
-                                  filteredProducts[firstProductIndex].brand,
-                                  filteredProducts[firstProductIndex].image,
+                          return IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: _buildProductCard(
+                                    filteredProducts[firstProductIndex].name,
+                                    filteredProducts[firstProductIndex].brand,
+                                    filteredProducts[firstProductIndex].image,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: secondProductIndex < filteredProducts.length
-                                    ? _buildProductCard(
-                                        filteredProducts[secondProductIndex].name,
-                                        filteredProducts[secondProductIndex].brand,
-                                        filteredProducts[secondProductIndex].image,
-                                      )
-                                    : const SizedBox.shrink(),
-                              ),
-                            ],
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: secondProductIndex < filteredProducts.length
+                                      ? _buildProductCard(
+                                          filteredProducts[secondProductIndex].name,
+                                          filteredProducts[secondProductIndex].brand,
+                                          filteredProducts[secondProductIndex].image,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -207,61 +210,66 @@ class DashboardScreen extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: imagePath != null && imagePath.isNotEmpty
-                    ? Image.network(
-                        imagePath,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.broken_image,
-                              size: 50, color: Colors.grey);
-                        },
-                      )
-                    : const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+            Expanded(
+              child: Column(
+                children: [
+                  Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: imagePath != null && imagePath.isNotEmpty
+                          ? Image.network(
+                              imagePath,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.broken_image,
+                                    size: 50, color: Colors.grey);
+                              },
+                            )
+                          : const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    name ?? 'Unknown Product',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.circle, size: 16, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        brand ?? 'Unknown Brand',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              name ?? 'Unknown Product',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.circle, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
-                Text(
-                  brand ?? 'Unknown Brand',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: name != null
-                    ? () {
-                        print('Call button pressed for $name');
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: name != null ? Colors.blue : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('Call', style: TextStyle(color: Colors.white)),
+            ElevatedButton(
+              onPressed: name != null
+                  ? () {
+                      print('Call button pressed for $name');
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: name != null ? Colors.blue : Colors.grey,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
+              child: const Text('Call', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
