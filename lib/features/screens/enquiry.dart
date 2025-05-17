@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:steel_budy/features/screens/create_enquiry_screen.dart';
 
 class EnquiryScreen extends StatefulWidget {
   const EnquiryScreen({super.key});
@@ -57,7 +58,12 @@ class _EnquiryScreenState extends State<EnquiryScreen>
             width: double.infinity, // Full width button
             child: ElevatedButton(
               onPressed: () {
-                // Handle Create enquiry action
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateEnquiryScreen(),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,

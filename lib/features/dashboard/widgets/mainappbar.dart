@@ -26,18 +26,12 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        if (showNotificationIcon)
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.pushNamed(context, '/notifications');
-            },
-          ),
-        if (showProfileIcon)
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: onProfileTap,
-          ),
+        IconButton(
+          icon: const Icon(Icons.notifications),
+          onPressed: () {
+            Navigator.pushNamed(context, '/notifications');
+          },
+        ),
       ],
     );
   }

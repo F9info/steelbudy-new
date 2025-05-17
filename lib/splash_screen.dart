@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
+import 'features/screens/dashboardscreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,15 +15,25 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate to next screen after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-        );
-      }
-    });
+    _navigateBasedOnLoginState();
+  }
+
+  Future<void> _navigateBasedOnLoginState() async {
+    await Future.delayed(const Duration(seconds: 2)); // Shorter splash
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+    if (!mounted) return;
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+      );
+    }
   }
 
   @override

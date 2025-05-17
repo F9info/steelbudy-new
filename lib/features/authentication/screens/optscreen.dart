@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/authentication.dart';
-import '../../dashboard/screens/dashboardscreen.dart';
+import '../../screens/dashboardscreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {

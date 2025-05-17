@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../services/authentication.dart';
+import '../../services/authentication.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});

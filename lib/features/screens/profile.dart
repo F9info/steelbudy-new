@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../services/authentication.dart';
+import '../../services/authentication.dart';
 import 'edit-profile.dart';
 
 class ProfileScreen extends StatelessWidget {
