@@ -126,10 +126,10 @@ class _EnquiryScreenState extends State<EnquiryScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   '32mm Rebar',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -139,19 +139,19 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                 Text(
                   '2 days ago',
                   style: TextStyle(
-                    color: const Color(0xFF757575),
+                    color: Color(0xFF757575),
                     fontSize: 14,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Column(
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const [
+                  children: [
                     Text(
                       'Brand',
                       style: TextStyle(
@@ -175,10 +175,10 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const [
+                  children: [
                     Text(
                       'Simhadri TMT',
                       style: TextStyle(

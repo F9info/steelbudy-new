@@ -6,7 +6,7 @@ import '../dashboard/widgets/searchfilters.dart';
 import 'enquiry.dart';
 import 'profile.dart';
 import '../../providers/dashboard_providers.dart';
-import '../../services/api_service.dart';
+import '../../models/product_model.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});

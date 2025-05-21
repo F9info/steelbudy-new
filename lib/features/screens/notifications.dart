@@ -20,7 +20,7 @@ class _NotificationsState extends State<Notifications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MainAppBar(
+      appBar: const MainAppBar(
         title: 'Notifications',
         showNotificationIcon: true, // Show the bell icon
         showProfileIcon: false, // No profile icon in this screen
@@ -188,7 +188,7 @@ class MainBottomBar extends StatelessWidget {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: Notifications(),
   ));
 }

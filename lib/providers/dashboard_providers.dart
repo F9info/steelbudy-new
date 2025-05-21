@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/api_service.dart';
+import '../../models/product_model.dart';
 
 // Provider for fetching products
 final productsProvider = FutureProvider<List<Product>>((ref) async {

@@ -3,11 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/providers/auth_provider.dart';
 import 'package:steel_budy/features/screens/dashboardscreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:io';
 import 'package:steel_budy/services/api_service.dart';
-import 'package:flutter/foundation.dart';
+import '../../models/role_model.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -21,7 +18,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   String? _selectedRole;
   bool _isLoading = true;
   String? _error;
-  List<Map<String, String>> _roles = [];
+  List<Role> _roles = [];
 
   @override
   void initState() {
@@ -36,55 +33,12 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
         _error = null;
       });
 
-      try {
-        final response = await http
-            .get(
-          Uri.parse('http://127.0.0.1:8000/api/user-types'),
-        )
-            .timeout(
-          const Duration(seconds: 10),
-          onTimeout: () {
-            throw Exception('Connection timed out');
-          },
-        );
+      final roles = await ApiService.getUserTypes();
 
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> responseData = json.decode(response.body);
-
-          if (!responseData.containsKey('userTypes')) {
-            throw Exception('Invalid response format: missing userTypes field');
-          }
-
-          final List<dynamic> userTypes = responseData['userTypes'];
-          if (userTypes.isEmpty) {
-            throw Exception('No roles found in the response');
-          }
-
-          setState(() {
-            _roles = userTypes.map((item) {
-              if (item['name'] == null) {
-                throw Exception('Invalid role data: missing name field');
-              }
-              return {
-                'name': item['name'] as String,
-                'value':
-                    item['name'].toString().toLowerCase().replaceAll(' ', '_'),
-              };
-            }).toList();
-            _isLoading = false;
-          });
-        } else {
-          throw HttpException(
-              'Server returned status code ${response.statusCode}');
-        }
-      } on FormatException {
-        throw Exception('Invalid response format from server');
-      } on SocketException {
-        throw Exception(
-            'Could not connect to the server. Please check if the server is running.');
-      } on HttpException catch (e) {
-        throw Exception('HTTP Error: ${e.message}');
-      }
+      setState(() {
+        _roles = roles;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -163,8 +117,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                           value: _selectedRole,
                           items: _roles.map((role) {
                             return DropdownMenuItem(
-                              value: role['value'],
-                              child: Text(role['name']!),
+                              value: role.value,
+                              child: Text(role.name),
                             );
                           }).toList(),
                           onChanged: (String? value) {
@@ -180,10 +134,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                           child: ElevatedButton(
                             onPressed: _selectedRole != null
                                 ? () async {
-                                    // Get the phone number from auth state
                                     final authState = ref.read(authProvider);
                                     if (authState.phoneNumber != null) {
-                                      // Submit role and navigate to dashboard
                                       await ref
                                           .read(authProvider.notifier)
                                           .login(
