@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/authentication.dart';
-import '../../screens/dashboardscreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../screens/role_selection_screen.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -96,7 +96,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
           );
         }
       } else {

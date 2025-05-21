@@ -5,8 +5,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthState {
   final bool isAuthenticated;
   final String? phoneNumber;
+  final String? role;
 
-  AuthState({this.isAuthenticated = false, this.phoneNumber});
+  AuthState({
+    this.isAuthenticated = false, 
+    this.phoneNumber,
+    this.role,
+  });
+
+  AuthState copyWith({
+    bool? isAuthenticated,
+    String? phoneNumber,
+    String? role,
+  }) {
+    return AuthState(
+      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      role: role ?? this.role,
+    );
+  }
 }
 
 // Auth Notifier to manage authentication state
@@ -24,11 +41,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         AuthState(isAuthenticated: isAuthenticated, phoneNumber: phoneNumber);
   }
 
-  Future<void> login(String phoneNumber) async {
+  Future<void> login(String phoneNumber, String? role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isAuthenticated', true);
     await prefs.setString('phoneNumber', phoneNumber);
-    state = AuthState(isAuthenticated: true, phoneNumber: phoneNumber);
+    await prefs.setString('role', role ?? '');
+    state = AuthState(
+      isAuthenticated: true, 
+      phoneNumber: phoneNumber,
+      role: role,
+    );
   }
 
   Future<void> logout() async {
