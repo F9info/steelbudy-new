@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
+import 'package:steel_budy/features/dashboard/widgets/mainbottombar.dart';
+import 'package:steel_budy/providers/dashboard_providers.dart';
 
-
-class NotificationScreen extends StatefulWidget {
+class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
+class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   List<dynamic> notifications = [];
   bool isLoading = true;
 
@@ -48,8 +51,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  PreferredSizeWidget _getAppBar() {
+    return MainAppBar(
+      title: 'Notifications',
+      onNotificationTap: () {
+        // No action needed since we're already on NotificationScreen
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final selectedIndex = ref.watch(selectedIndexProvider);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: _getAppBar(),
+      body: _buildNotificationCard(), // Always show notification content
+      bottomNavigationBar: MainBottomBar(
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          ref.read(selectedIndexProvider.notifier).state = index;
+          Navigator.pop(context); // Navigate back to DashboardScreen
+        },
+      ),
+    );
+  }
+
+  Column _buildNotificationCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
