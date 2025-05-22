@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:steel_budy/features/layout/layout.dart';
 
-
-
 class CreateEnquiryScreen extends StatefulWidget {
   const CreateEnquiryScreen({Key? key}) : super(key: key);
 
@@ -97,13 +95,12 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Layout(
+        appBarTitle: 'Create Enquiry', // Added required appBarTitle
+        initialIndex: _selectedIndex, // Added initialIndex to match Layout requirements
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
@@ -197,8 +194,6 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
           ),
         ),
       ),
- 
-   
     );
   }
 }

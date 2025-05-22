@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/edit-profile': (context) => const EditProfile(),
-        '/notifications': (context) => const Notifications(),
+        '/notifications': (context) => const NotificationScreen(),
         '/profile': (context) =>  ProfileScreen(),
         '/create-enquiry': (context) => const CreateEnquiryScreen(), // Add this route
       },

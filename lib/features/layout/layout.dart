@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
-import 'package:steel_budy/features/screens/profile.dart';
 import 'package:steel_budy/features/dashboard/widgets/mainbottombar.dart';
+import 'package:steel_budy/features/screens/dashboardscreen.dart';
+import 'package:steel_budy/features/screens/enquiry.dart';
+import 'package:steel_budy/features/screens/profile.dart';
+import 'package:steel_budy/features/screens/notifications.dart';
 
 class Layout extends StatefulWidget {
   final Widget child;
   final String appBarTitle;
-  final bool showProfileIcon;
-  final bool showNotificationIcon;
+  final int initialIndex;
 
   const Layout({
     super.key,
     required this.child,
-    this.appBarTitle = 'Products',
-    this.showProfileIcon = true,
-    this.showNotificationIcon = false,
+    required this.appBarTitle,
+    this.initialIndex = 0,
   });
 
   @override
@@ -22,116 +23,67 @@ class Layout extends StatefulWidget {
 }
 
 class _LayoutState extends State<Layout> {
-  int selectedIndex = 0;
+  late int selectedIndex;
 
-  // Function to handle bottom navigation tap
+  @override
+  void initState() {
+    super.initState();
+    selectedIndex = widget.initialIndex;
+  }
+
   void _onItemTapped(int index) {
+    if (selectedIndex == index) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+      return;
+    }
+
     setState(() {
       selectedIndex = index;
     });
 
-    // Navigate to the corresponding screen based on index
+    Widget newScreen;
+    String newTitle;
+
     switch (index) {
       case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Layout(
-              child: Center(child: Text('Home Screen')),
-              appBarTitle: 'Home',
-            ),
-          ),
-        );
+        newScreen = const DashboardScreen();
+        newTitle = 'Dashboard';
         break;
       case 1:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Layout(
-              child: Center(child: Text('Enquiry Screen')),
-              appBarTitle: 'Enquiry',
-            ),
-          ),
-        );
+        newScreen = const EnquiryScreen();
+        newTitle = 'Enquiry';
         break;
       case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Layout(
-              child: ProfileScreen(),
-              appBarTitle: 'Profile',
-            ),
-          ),
-        );
+        newScreen = ProfileScreen();
+        newTitle = 'Profile';
         break;
+      default:
+        return;
     }
-  }
 
-  // Function to show bottom popup
-  void _showBottomPopup(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Layout(
+          child: newScreen,
+          appBarTitle: newTitle,
+          initialIndex: index,
+        ),
       ),
-      backgroundColor: Colors.blue,
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.person, color: Colors.white),
-              title: const Text(
-                'Profile (Last updated: 26 Mar 2024)',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>  ProfileScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info, color: Colors.white),
-              title: const Text('ISI Info', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.support, color: Colors.white),
-              title: const Text('Support', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.white),
-              title: const Text('Logout', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                // Add logout logic here (e.g., clear auth state, navigate to login)
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        );
-      },
+      (route) => false,
     );
   }
 
-  // Function to get the appropriate AppBar
-  PreferredSizeWidget _getAppBar() {
-    return MainAppBar(
-      title: widget.appBarTitle,
-      showProfileIcon: widget.showProfileIcon,
-      showNotificationIcon: widget.showNotificationIcon,
-      onProfileTap: () {
-        _showBottomPopup(context);
-      },
+  void _onNotificationTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Layout(
+          child: const NotificationScreen(),
+          appBarTitle: 'Notifications',
+          initialIndex: selectedIndex,
+        ),
+      ),
     );
   }
 
@@ -139,7 +91,10 @@ class _LayoutState extends State<Layout> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _getAppBar(),
+      appBar: MainAppBar(
+        title: widget.appBarTitle,
+        onNotificationTap: _onNotificationTap,
+      ),
       body: widget.child,
       bottomNavigationBar: MainBottomBar(
         currentIndex: selectedIndex,

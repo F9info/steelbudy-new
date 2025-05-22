@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../dashboard/widgets/mainappbar.dart';
-import '../dashboard/widgets/mainbottombar.dart';
-import '../dashboard/widgets/searchfilters.dart';
-import 'enquiry.dart';
-import 'profile.dart';
-import '../../providers/dashboard_providers.dart';
-import '../../models/product_model.dart';
+import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
+import 'package:steel_budy/features/dashboard/widgets/mainbottombar.dart';
+import 'package:steel_budy/features/dashboard/widgets/searchfilters.dart';
+import 'package:steel_budy/features/screens/enquiry.dart';
+import 'package:steel_budy/features/screens/profile.dart';
+import 'package:steel_budy/features/screens/notifications.dart';
+
+import 'package:steel_budy/providers/dashboard_providers.dart';
+import 'package:steel_budy/models/product_model.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -119,66 +121,16 @@ class DashboardScreen extends ConsumerWidget {
       );
     }
 
-    void _showBottomPopup(BuildContext context) {
-      showModalBottomSheet(
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        backgroundColor: Colors.blue,
-        builder: (BuildContext context) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person, color: Colors.white),
-                title: const Text(
-                  'Profile (Last updated: 26 Mar 2024)',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>  ProfileScreen()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.info, color: Colors.white),
-                title: const Text('ISI Info', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.support, color: Colors.white),
-                title: const Text('Support', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.white),
-                title: const Text('Logout', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          );
-        },
-      );
-    }
-
     PreferredSizeWidget _getAppBar() {
       return MainAppBar(
         title: 'Products',
-        showProfileIcon: true,
-        showNotificationIcon: false,
-        onProfileTap: () {
-          _showBottomPopup(context);
+        onNotificationTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NotificationScreen(), // Navigate directly to NotificationScreen
+            ),
+          );
         },
       );
     }
@@ -190,7 +142,7 @@ class DashboardScreen extends ConsumerWidget {
           ? _buildDashboardContent()
           : selectedIndex == 1
               ? const EnquiryScreen()
-              :  ProfileScreen(),
+              : ProfileScreen(),
       bottomNavigationBar: MainBottomBar(
         currentIndex: selectedIndex,
         onTap: (index) {
@@ -247,25 +199,25 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Center(
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center, // Centers the children horizontally
-    children: [
-      Container(
-        width: 16,
-        height: 16,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey, width: 1),
-        ),
-      ),
-      const SizedBox(width: 4),
-      Text(
-        brand ?? 'Unknown Brand',
-        style: TextStyle(color: Colors.grey[600], fontSize: 14),
-      ),
-    ],
-  ),
-),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center, // Centers the children horizontally
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey, width: 1),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    brand ?? 'Unknown Brand',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: name != null
