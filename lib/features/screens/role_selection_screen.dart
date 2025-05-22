@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/providers/auth_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:steel_budy/services/api_service.dart';
 import '../../models/role_model.dart';
+import '../../providers/auth_provider.dart';
 import 'package:steel_budy/features/layout/layout.dart';
 import 'package:steel_budy/features/screens/edit-profile.dart';
 
@@ -42,7 +42,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = 'Failed to load roles: $e';
         _isLoading = false;
       });
       debugPrint('Error fetching roles: $e');
@@ -87,13 +87,15 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Error loading roles:\n${_error!.split(':').first}',
+                          _error!.split(':').first, // Added null check operator
                           style: const TextStyle(color: Colors.red),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
-                          onPressed: _fetchRoles,
+                          onPressed: () {
+                            _fetchRoles();
+                          },
                           icon: const Icon(Icons.refresh),
                           label: const Text('Retry'),
                         ),

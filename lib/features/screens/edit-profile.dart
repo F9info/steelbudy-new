@@ -2,16 +2,22 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/authentication.dart';
+import '../../services/api_service.dart';
+import '../../models/app_user_model.dart';
+import '../../models/role_model.dart';
+import '../../providers/auth_provider.dart';
 
-class EditProfile extends StatefulWidget {
+class EditProfile extends ConsumerStatefulWidget {
   const EditProfile({super.key});
 
   @override
-  State<EditProfile> createState() => _EditProfileState();
+  ConsumerState<EditProfile> createState() => _EditProfileState();
 }
 
-class _EditProfileState extends State<EditProfile> {
+class _EditProfileState extends ConsumerState<EditProfile> {
+  bool _isLoading = false;
   final AuthService _authService = AuthService();
   final ImagePicker _picker = ImagePicker();
 
@@ -28,7 +34,7 @@ class _EditProfileState extends State<EditProfile> {
   bool _isLoadingPhone = true;
 
   List<String> _selectedLocations = ["Guntur", "Nellore", "Tirupati"];
-  final List<String> _availableLocations = [
+  List<String> _availableLocations = [
     "Vijayawada",
     "Visakhapatnam",
     "Vizianagaram",
@@ -39,6 +45,7 @@ class _EditProfileState extends State<EditProfile> {
   void initState() {
     super.initState();
     _fetchPhoneNumber();
+    _fetchAvailableLocations();
   }
 
   Future<void> _fetchPhoneNumber() async {
@@ -47,6 +54,21 @@ class _EditProfileState extends State<EditProfile> {
       _phoneController.text = phone ?? "Phone number not available";
       _isLoadingPhone = false;
     });
+  }
+
+  Future<void> _fetchAvailableLocations() async {
+    try {
+      final regions = await ApiService.getRegions();
+      setState(() {
+        _availableLocations = regions.map((region) => region.name).toList();
+        _availableLocations
+            .removeWhere((location) => _selectedLocations.contains(location));
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching regions: $e")),
+      );
+    }
   }
 
   void _addLocation(String location) {
@@ -63,17 +85,114 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  void _saveProfile() {
-    print("Name: ${_nameController.text}");
-    print("Phone: ${_phoneController.text}");
-    print("Address: ${_addressController.text}");
-    print("City: ${_cityController.text}");
-    print("Pin Code: ${_pinCodeController.text}");
-    print("Selected Locations: $_selectedLocations");
+  Future<bool> _saveProfile(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Profile saved successfully!")),
-    );
+    // Validate required fields
+    if (_nameController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _addressController.text.isEmpty ||
+        _cityController.text.isEmpty ||
+        _pinCodeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields")),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
+    }
+
+    final authState = ref.read(authProvider);
+    if (authState.role.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select a role first")),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
+    }
+
+    try {
+      final userType = await ApiService.getUserTypes();
+      final selectedUserType = userType.firstWhere(
+        (role) => role.value == authState.role,
+        orElse: () => Role.fromValues(
+          id: 0,
+          name: "",
+          value: authState.role,
+        ),
+      );
+
+      final appUser = AppUser(
+        userTypeId: selectedUserType.id,
+        companyName: _nameController.text,
+        contactPerson: _nameController.text,
+        mobile: _phoneController.text,
+        email: "",
+        streetLine: _addressController.text,
+        townCity: _cityController.text,
+        state: "Andhra Pradesh",
+        country: "India",
+        pincode: _pinCodeController.text,
+        regionId: null,
+        userType: UserType(
+          id: selectedUserType.id,
+          name: selectedUserType.name,
+          publish: 1,
+        ),
+        regions: _selectedLocations.isNotEmpty ? _selectedLocations : null,
+      );
+
+      try {
+        if (authState.userId != null) {
+          // Update existing user
+          try {
+            final userId = int.parse(authState.userId!);
+            await ApiService.updateAppUser(userId, appUser);
+          } catch (e) {
+            throw Exception("Invalid user ID format: ${authState.userId}");
+          }
+        } else {
+          // Create new user
+          final createdUser = await ApiService.createAppUser(appUser);
+          // Update auth state with new user ID
+          ref.read(authProvider.notifier).update((state) => state.copyWith(
+                userId: createdUser.id.toString(),
+              ));
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Profile saved successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return true;
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error saving profile: $e")),
+        );
+        return false;
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error fetching user types: $e")),
+      );
+      return false;
+    }
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -133,7 +252,24 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
+      appBar: AppBar(
+        title: const Text('Edit Profile'),
+        actions: [
+          IconButton(
+            icon: _isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.save),
+            onPressed: _isLoading ? null : () => _saveProfile(context),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -177,6 +313,39 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        if (await _saveProfile(context)) {
+                          Navigator.pop(context);
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : const Text(
+                        'Save',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -260,28 +429,6 @@ class _EditProfileState extends State<EditProfile> {
               }).toList(),
             ),
             const SizedBox(height: 24),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  "Save",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
