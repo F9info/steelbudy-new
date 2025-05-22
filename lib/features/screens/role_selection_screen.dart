@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/providers/auth_provider.dart';
-import 'package:steel_budy/features/screens/dashboardscreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:steel_budy/services/api_service.dart';
 import '../../models/role_model.dart';
 import 'package:steel_budy/features/layout/layout.dart';
+import 'package:steel_budy/features/screens/edit-profile.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -157,9 +157,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => Layout(
-                                              appBarTitle: 'Products',
-                                              initialIndex: 0,
-                                              child: const DashboardScreen(),
+                                              appBarTitle: 'Edit Profile',
+                                              initialIndex: 2,
+                                              child: const EditProfile(),
                                             ),
                                           ),
                                         );

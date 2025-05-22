@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
-import 'package:steel_budy/features/dashboard/widgets/mainbottombar.dart';
-import 'package:steel_budy/providers/dashboard_providers.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
@@ -62,7 +60,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = ref.watch(selectedIndexProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,

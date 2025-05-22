@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
-import 'package:steel_budy/features/dashboard/widgets/mainbottombar.dart';
 import 'package:steel_budy/features/dashboard/widgets/searchfilters.dart';
 import 'package:steel_budy/features/screens/enquiry.dart';
 import 'package:steel_budy/features/screens/profile.dart';
