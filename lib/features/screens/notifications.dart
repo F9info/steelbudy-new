@@ -66,15 +66,9 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _getAppBar(),
+  
       body: _buildNotificationCard(), // Always show notification content
-      bottomNavigationBar: MainBottomBar(
-        currentIndex: selectedIndex,
-        onTap: (index) {
-          ref.read(selectedIndexProvider.notifier).state = index;
-          Navigator.pop(context); // Navigate back to DashboardScreen
-        },
-      ),
+     
     );
   }
 

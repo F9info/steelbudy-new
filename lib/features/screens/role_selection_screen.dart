@@ -5,6 +5,7 @@ import 'package:steel_budy/features/screens/dashboardscreen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:steel_budy/services/api_service.dart';
 import '../../models/role_model.dart';
+import 'package:steel_budy/features/layout/layout.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -50,6 +51,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -132,25 +135,41 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: _selectedRole != null
+                            onPressed: (_selectedRole != null &&
+                                    authState.phoneNumber != null &&
+                                    !_isLoading)
                                 ? () async {
-                                    final authState = ref.read(authProvider);
-                                    if (authState.phoneNumber != null) {
+                                    setState(() {
+                                      _isLoading = true;
+                                      _error = null;
+                                    });
+
+                                    try {
                                       await ref
                                           .read(authProvider.notifier)
                                           .login(
                                             authState.phoneNumber!,
-                                            _selectedRole,
+                                            _selectedRole!,
                                           );
+
                                       if (mounted) {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                const DashboardScreen(),
+                                            builder: (context) => Layout(
+                                              appBarTitle: 'Products',
+                                              initialIndex: 0,
+                                              child: const DashboardScreen(),
+                                            ),
                                           ),
                                         );
                                       }
+                                    } catch (e) {
+                                      setState(() {
+                                        _error =
+                                            'Failed to login: ${e.toString()}';
+                                        _isLoading = false;
+                                      });
                                     }
                                   }
                                 : null,
@@ -162,14 +181,23 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                               ),
                               elevation: 0,
                             ),
-                            child: const Text(
-                              'Submit',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],

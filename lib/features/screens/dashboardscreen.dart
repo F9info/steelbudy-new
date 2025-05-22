@@ -123,7 +123,7 @@ class DashboardScreen extends ConsumerWidget {
 
     PreferredSizeWidget _getAppBar() {
       return MainAppBar(
-        title: 'Products',
+        title: 'Products sss',
         onNotificationTap: () {
           Navigator.push(
             context,
@@ -137,18 +137,13 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _getAppBar(),
+
       body: selectedIndex == 0
           ? _buildDashboardContent()
           : selectedIndex == 1
               ? const EnquiryScreen()
               : ProfileScreen(),
-      bottomNavigationBar: MainBottomBar(
-        currentIndex: selectedIndex,
-        onTap: (index) {
-          ref.read(selectedIndexProvider.notifier).state = index;
-        },
-      ),
+    
     );
   }
 
