@@ -1,7 +1,6 @@
-// ignore_for_file: unnecessary_to_list_in_spreads
-
 import 'package:flutter/material.dart';
 import 'package:steel_budy/features/layout/layout.dart';
+import 'add_product_popup.dart'; // Import the AddProductPopup
 
 class CreateEnquiryScreen extends StatefulWidget {
   const CreateEnquiryScreen({Key? key}) : super(key: key);
@@ -19,6 +18,10 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   String? _selectedDeliveryCondition;
   String? _selectedDeliveryDate;
   String? _withinDays;
+
+  // State to track selected products
+  List<String> _selectedProductNames = [];
+  Map<String, dynamic>? _productDetails;
 
   // State for bottom navigation
   int _selectedIndex = 1; // Default to Enquiry tab
@@ -88,6 +91,29 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
     );
   }
 
+  void _showAddProductPopup() async {
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows the bottom sheet to take more height
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
+        child: const AddProductPopup(),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _productDetails = result;
+        _selectedProductNames = [];
+        result['selectedProducts'].forEach((product, isSelected) {
+          if (isSelected) {
+            _selectedProductNames.add(product);
+          }
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,9 +132,11 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'No products selected',
-                        style: TextStyle(fontSize: 16),
+                      Text(
+                        _selectedProductNames.isEmpty
+                            ? 'No products selected'
+                            : '${_selectedProductNames.length} product${_selectedProductNames.length > 1 ? 's' : ''} selected',
+                        style: const TextStyle(fontSize: 16),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -117,7 +145,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: _showAddProductPopup, // Open the popup
                         child: const Text(
                           'Add Product',
                           style: TextStyle(color: Colors.white),
