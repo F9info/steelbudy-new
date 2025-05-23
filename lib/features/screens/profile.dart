@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/authentication.dart';
+import 'isi_information.dart'; // Import the IsiInformation screen
 
 class ProfileScreen extends StatelessWidget {
   final AuthService _authService = AuthService();
@@ -165,7 +166,10 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('ISI Information'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigator.pushNamed(context, '/isi_info');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const IsiInformation()),
+              );
             },
           ),
 

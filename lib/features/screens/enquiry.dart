@@ -16,7 +16,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // Updated length to 3
     _tabController.addListener(() {
       if (_tabController.index != _selectedTabIndex) {
         setState(() {
@@ -48,6 +48,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
             tabs: const [
               Tab(text: 'New'),
               Tab(text: 'Responded'),
+              Tab(text: 'Finalized'), // Added Finalized tab
             ],
           ),
         ),
@@ -97,6 +98,16 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                 },
               ),
               // Content for 'Responded' tab
+              const Center(
+                child: Text(
+                  'No Data Found',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF757575),
+                  ),
+                ),
+              ),
+              // Content for 'Finalized' tab
               const Center(
                 child: Text(
                   'No Data Found',
