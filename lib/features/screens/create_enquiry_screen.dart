@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_to_list_in_spreads
+
 import 'package:flutter/material.dart';
 import 'package:steel_budy/features/layout/layout.dart';
 
@@ -10,10 +12,13 @@ class CreateEnquiryScreen extends StatefulWidget {
 
 class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   final _formKey = GlobalKey<FormState>();
-  String? _selectedProduct;
-  String? _quantity;
-  String? _selectedLocation;
-  String? _notes;
+  String? _selectedPaymentTerm;
+  String? _creditDays;
+  String? _selectedDeliveryTerm;
+  String? _deliveryAddress;
+  String? _selectedDeliveryCondition;
+  String? _selectedDeliveryDate;
+  String? _withinDays;
 
   // State for bottom navigation
   int _selectedIndex = 1; // Default to Enquiry tab
@@ -22,28 +27,16 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
       _selectedIndex = index;
     });
     if (index == 0) {
-      // Navigate to Dashboard
       Navigator.pushReplacementNamed(context, '/dashboard');
-    } else if (index == 1) {
-      // Stay on Enquiry
     } else if (index == 2) {
-      // Navigate to Profile
       Navigator.pushNamed(context, '/profile');
     }
   }
 
-  final List<String> _products = [
-    '10MM REBAR',
-    '12MM REBAR',
-    '16MM REBAR',
-    '19MM REBAR',
-    '20MM REBAR',
-    '25MM REBAR',
-    '32MM REBAR',
-    '8MM REBAR',
-    'BINDING WIRE'
-  ];
-  final List<String> _locations = ['Vizag', 'Hyderabad', 'Vijayawada', 'Chennai'];
+  final List<String> _paymentTerms = ['Advance', 'Advance Against Delivery', 'Credit'];
+  final List<String> _deliveryTerms = ['Delivered to', 'Self-Pickup Ex-Visakhapatnam'];
+  final List<String> _deliveryConditions = ['Bend', 'Straight'];
+  final List<String> _deliveryDates = ['Immediate', 'Within'];
 
   void _showBottomPopup(BuildContext context) {
     showModalBottomSheet(
@@ -99,8 +92,8 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Layout(
-        appBarTitle: 'Create Enquiry', // Added required appBarTitle
-        initialIndex: _selectedIndex, // Added initialIndex to match Layout requirements
+        appBarTitle: 'Your Enquiry',
+        initialIndex: _selectedIndex,
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
@@ -110,59 +103,139 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Product',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: _products
-                        .map((product) => DropdownMenuItem(
-                              value: product,
-                              child: Text(product),
-                            ))
-                        .toList(),
-                    value: _selectedProduct,
-                    onChanged: (value) => setState(() => _selectedProduct = value),
-                    validator: (value) =>
-                        value == null ? 'Please select a product' : null,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'No products selected',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {},
+                        child: const Text(
+                          'Add Product',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      'Call Now',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'PAYMENT TERMS',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  ..._paymentTerms.map((term) {
+                    return RadioListTile<String>(
+                      title: Text(term),
+                      value: term,
+                      groupValue: _selectedPaymentTerm,
+                      onChanged: (value) => setState(() => _selectedPaymentTerm = value),
+                      activeColor: Colors.purple,
+                    );
+                  }).toList(),
+                  if (_selectedPaymentTerm == 'Credit')
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Days',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (val) => _creditDays = val,
+                      validator: (val) =>
+                          val == null || val.isEmpty ? 'Enter credit days' : null,
+                    ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'DELIVERY TERMS',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  ..._deliveryTerms.map((term) {
+                    return RadioListTile<String>(
+                      title: Text(term),
+                      value: term,
+                      groupValue: _selectedDeliveryTerm,
+                      onChanged: (value) => setState(() => _selectedDeliveryTerm = value),
+                      activeColor: Colors.purple,
+                    );
+                  }).toList(),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'DELIVERY ADDRESS',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
                   TextFormField(
                     decoration: const InputDecoration(
-                      labelText: 'Quantity (tons)',
                       border: OutlineInputBorder(),
                     ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) => _quantity = val,
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'Enter quantity' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: _locations
-                        .map((loc) => DropdownMenuItem(
-                              value: loc,
-                              child: Text(loc),
-                            ))
-                        .toList(),
-                    value: _selectedLocation,
-                    onChanged: (value) => setState(() => _selectedLocation = value),
-                    validator: (value) =>
-                        value == null ? 'Please select a location' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Notes',
-                      border: OutlineInputBorder(),
-                    ),
+                    initialValue: 'Self-Pickup Ex-Visakhapatnam',
                     maxLines: 3,
-                    onChanged: (val) => _notes = val,
+                    onChanged: (val) => _deliveryAddress = val,
                   ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'DELIVERY CONDITION',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  ..._deliveryConditions.map((condition) {
+                    return RadioListTile<String>(
+                      title: Text(condition),
+                      value: condition,
+                      groupValue: _selectedDeliveryCondition,
+                      onChanged: (value) =>
+                          setState(() => _selectedDeliveryCondition = value),
+                      activeColor: Colors.purple,
+                    );
+                  }).toList(),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'DELIVERY DATE',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  ..._deliveryDates.map((date) {
+                    return RadioListTile<String>(
+                      title: Text(date),
+                      value: date,
+                      groupValue: _selectedDeliveryDate,
+                      onChanged: (value) => setState(() => _selectedDeliveryDate = value),
+                      activeColor: Colors.purple,
+                    );
+                  }).toList(),
+                  if (_selectedDeliveryDate == 'Within')
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Days',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (val) => _withinDays = val,
+                      validator: (val) =>
+                          val == null || val.isEmpty ? 'Enter days' : null,
+                    ),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
@@ -171,7 +244,8 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
@@ -181,11 +255,14 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                           Navigator.pop(context);
                         }
                       },
-                      child: const Text('Submit',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Submit Enquiry',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
