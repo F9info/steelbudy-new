@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/splash_screen.dart';
+import 'package:steel_budy/features/screens/support-help.dart';
+import 'splash_screen.dart';
 import 'features/authentication/screens/optscreen.dart';
 import 'features/screens/dashboardscreen.dart';
 import 'features/screens/edit-profile.dart';
@@ -9,7 +10,8 @@ import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/screens/notifications.dart';
 import 'features/screens/profile.dart';
 import 'features/screens/create_enquiry_screen.dart';
-import 'features/screens/view_profile.dart'; // Add this import for ViewProfile
+import 'features/screens/view_profile.dart';
+import 'features/screens/view_enquiries.dart'; // Add this import for ViewEnquiries
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -35,7 +37,9 @@ class MyApp extends StatelessWidget {
         '/notifications': (context) => const NotificationScreen(),
         '/profile': (context) => ProfileScreen(),
         '/create-enquiry': (context) => const CreateEnquiryScreen(),
-        '/dealer_profile': (context) => const ViewProfile(), // Add this route for ViewProfile
+        '/dealer_profile': (context) => const ViewProfile(),
+        '/support': (context) => const SupportHelp(),
+        '/view-enquiries': (context) => const ViewEnquiries(), // Add this route
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

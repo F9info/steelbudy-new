@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:steel_budy/features/screens/view_profile.dart';
 import '../../services/authentication.dart';
 import 'isi_information.dart'; // Import the IsiInformation screen
 
@@ -40,7 +39,7 @@ class ProfileScreen extends StatelessWidget {
   Future<String> _fetchPhoneNumber() async {
     try {
       final phoneNumber = await _authService.getPhoneNumber();
-      return phoneNumber ?? 'Phone number not available';
+      return phoneNumber ?? 'Phone number account available';
     } catch (e) {
       return 'Error fetching phone number';
     }
@@ -123,7 +122,7 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Enquiries'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              Navigator.pushNamed(context, '/enquiry');
+              Navigator.pushNamed(context, '/view-enquiries');
             },
           ),
 
@@ -152,17 +151,14 @@ class ProfileScreen extends StatelessWidget {
           ),
 
           // Dealer Profile
-        ListTile(
-  leading: const Icon(Icons.person),
-  title: const Text('View Profile'),
-  trailing: const Icon(Icons.chevron_right),
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ViewProfile()),
-    );
-  },
-),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('View Profile'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.pushNamed(context, '/dealer_profile');
+            },
+          ),
 
           // ISI Information
           ListTile(
@@ -197,7 +193,7 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Support & help'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Navigator.pushNamed(context, '/support');
+              Navigator.pushNamed(context, '/support');
             },
           ),
 
