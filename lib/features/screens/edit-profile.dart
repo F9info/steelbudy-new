@@ -23,23 +23,25 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   XFile? _profileImage;
 
-  final TextEditingController _nameController =
-      TextEditingController(text: "Harsha Valluri");
+  final TextEditingController _companyNameController = TextEditingController();
+  final TextEditingController _contactPersonController =
+      TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController(
-      text: "SDFsdjkyB5DJVBVAKJSVAKJDBFVAJAKSFDASNVAFJVNJADFBJADFNBAJFNBJFBA");
-  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _alternateNumberController =
+      TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _streetLineController = TextEditingController();
+  final TextEditingController _townCityController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _countryController = TextEditingController();
   final TextEditingController _pinCodeController = TextEditingController();
+  final TextEditingController _gstController = TextEditingController();
+  final TextEditingController _panController = TextEditingController();
 
   bool _isLoadingPhone = true;
 
-  List<String> _selectedLocations = ["Guntur", "Nellore", "Tirupati"];
-  List<String> _availableLocations = [
-    "Vijayawada",
-    "Visakhapatnam",
-    "Vizianagaram",
-    "Srikakulam"
-  ];
+  List<String> _selectedLocations = [];
+  List<String> _availableLocations = [];
 
   @override
   void initState() {
@@ -91,10 +93,13 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     });
 
     // Validate required fields
-    if (_nameController.text.isEmpty ||
+    if (_companyNameController.text.isEmpty ||
+        _contactPersonController.text.isEmpty ||
         _phoneController.text.isEmpty ||
-        _addressController.text.isEmpty ||
-        _cityController.text.isEmpty ||
+        _streetLineController.text.isEmpty ||
+        _townCityController.text.isEmpty ||
+        _stateController.text.isEmpty ||
+        _countryController.text.isEmpty ||
         _pinCodeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all required fields")),
@@ -129,14 +134,14 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
       final appUser = AppUser(
         userTypeId: selectedUserType.id,
-        companyName: _nameController.text,
-        contactPerson: _nameController.text,
+        companyName: _companyNameController.text,
+        contactPerson: _contactPersonController.text,
         mobile: _phoneController.text,
-        email: "",
-        streetLine: _addressController.text,
-        townCity: _cityController.text,
-        state: "Andhra Pradesh",
-        country: "India",
+        email: _emailController.text,
+        streetLine: _streetLineController.text,
+        townCity: _townCityController.text,
+        state: _stateController.text,
+        country: _countryController.text,
         pincode: _pinCodeController.text,
         regionId: null,
         userType: UserType(
@@ -241,11 +246,18 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _companyNameController.dispose();
+    _contactPersonController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
-    _cityController.dispose();
+    _alternateNumberController.dispose();
+    _emailController.dispose();
+    _streetLineController.dispose();
+    _townCityController.dispose();
+    _stateController.dispose();
+    _countryController.dispose();
     _pinCodeController.dispose();
+    _gstController.dispose();
+    _panController.dispose();
     super.dispose();
   }
 
@@ -253,7 +265,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text('Edit Profi1le'),
         actions: [
           IconButton(
             icon: _isLoading
@@ -316,63 +328,47 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             ),
             const SizedBox(height: 24),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        if (await _saveProfile(context)) {
-                          Navigator.pop(context);
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(
-                        color: Colors.white,
-                      )
-                    : const Text(
-                        'Save',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 24),
+            _buildTextField("Company Name", _companyNameController),
+            const SizedBox(height: 16),
 
-            _buildTextField("Name", _nameController),
+            _buildTextField("Contact Person", _contactPersonController),
             const SizedBox(height: 16),
 
             _isLoadingPhone
                 ? const CircularProgressIndicator()
                 : _buildTextField(
-                    "Phone number",
+                    "Registered Number",
                     _phoneController,
                     readOnly: true,
                     textColor: Colors.grey,
                   ),
             const SizedBox(height: 16),
 
-            _buildTextField("Address", _addressController, maxLines: 3),
+            _buildTextField("Alternate Number", _alternateNumberController),
             const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(child: _buildTextField("City", _cityController)),
-                const SizedBox(width: 16),
-                Expanded(
-                    child: _buildTextField("Pin Code", _pinCodeController)),
-              ],
-            ),
+            _buildTextField("Email", _emailController),
+            const SizedBox(height: 16),
+
+            _buildTextField("Street Line", _streetLineController, maxLines: 3),
+            const SizedBox(height: 16),
+
+            _buildTextField("Town/City", _townCityController),
+            const SizedBox(height: 16),
+
+            _buildTextField("State", _stateController),
+            const SizedBox(height: 16),
+
+            _buildTextField("Country", _countryController),
+            const SizedBox(height: 16),
+
+            _buildTextField("Pin Code", _pinCodeController),
+            const SizedBox(height: 16),
+
+            _buildTextField("GST", _gstController),
+            const SizedBox(height: 16),
+
+            _buildTextField("PAN (Individual)", _panController),
             const SizedBox(height: 16),
 
             if (_selectedLocations.isNotEmpty) ...[
@@ -427,6 +423,67 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   backgroundColor: Colors.grey[200],
                 );
               }).toList(),
+            ),
+            const SizedBox(height: 24),
+
+            // Update and Cancel buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Cancel action
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            if (await _saveProfile(context)) {
+                              Navigator.pop(context);
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text(
+                            'Update',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
           ],

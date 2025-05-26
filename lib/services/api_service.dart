@@ -11,7 +11,7 @@ import 'package:steel_budy/models/region_model.dart';
 import 'package:steel_budy/models/app_user_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
   static final http.Client _client = http.Client();
 
   static Future<http.Response> _makeRequest({
