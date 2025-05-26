@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:steel_budy/models/Payment_term.dart';
+import 'package:steel_budy/models/delivery-terms.dart';
+import 'package:steel_budy/services/api_service.dart';
+
+import 'package:url_launcher/url_launcher.dart'; // Added import for url_launcher
 import 'add_product_popup.dart';
 
 class CreateEnquiryScreen extends StatefulWidget {
@@ -22,6 +27,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   Map<String, dynamic>? _productDetails;
 
   int _selectedIndex = 1; // Default to Enquiry tab
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,8 +39,6 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
     }
   }
 
-  final List<String> _paymentTerms = ['Advance', 'Advance Against Delivery', 'Credit'];
-  final List<String> _deliveryTerms = ['Delivered to', 'Self-Pickup Ex-Visakhapatnam'];
   final List<String> _deliveryConditions = ['Bend', 'Straight'];
   final List<String> _deliveryDates = ['Immediate', 'Within'];
 
@@ -61,10 +65,21 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
     }
   }
 
+  // Function to initiate a phone call
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not launch phone call')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Add your own AppBar with Back button here
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -107,17 +122,27 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                SizedBox(
+                  width: double.infinity, // Make the button full-width
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16), // Increase padding for better appearance
                     ),
-                  ),
-                  onPressed: () {},
-                  child: const Text(
-                    'Call Now',
-                    style: TextStyle(color: Colors.white),
+                    onPressed: () {
+                      _makePhoneCall('6305953196'); // Call the number when clicked
+                    },
+                    child: const Text(
+                      'Call Now',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -126,15 +151,47 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                ..._paymentTerms.map((term) {
-                  return RadioListTile<String>(
-                    title: Text(term),
-                    value: term,
-                    groupValue: _selectedPaymentTerm,
-                    onChanged: (value) => setState(() => _selectedPaymentTerm = value),
-                    activeColor: Colors.purple,
-                  );
-                }).toList(),
+                FutureBuilder<List<PaymentTerm>>(
+                  future: ApiService.getPaymentTerms(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      print('Loading payment terms...');
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      print('Error fetching payment terms: ${snapshot.error}');
+                      return Center(
+                        child: Column(
+                          children: [
+                            Text('Error: ${snapshot.error}'),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {}); // Retry by rebuilding the widget
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      print('No payment terms available: ${snapshot.data}');
+                      return const Center(child: Text('No payment terms available'));
+                    }
+
+                    final paymentTerms = snapshot.data!;
+                    print('Fetched payment terms: ${paymentTerms.map((term) => term.name).toList()}');
+                    return Column(
+                      children: paymentTerms.map((term) {
+                        return RadioListTile<String>(
+                          title: Text(term.name),
+                          value: term.name,
+                          groupValue: _selectedPaymentTerm,
+                          onChanged: (value) => setState(() => _selectedPaymentTerm = value),
+                          activeColor: Colors.purple,
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
                 if (_selectedPaymentTerm == 'Credit')
                   TextFormField(
                     decoration: const InputDecoration(
@@ -152,15 +209,47 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                ..._deliveryTerms.map((term) {
-                  return RadioListTile<String>(
-                    title: Text(term),
-                    value: term,
-                    groupValue: _selectedDeliveryTerm,
-                    onChanged: (value) => setState(() => _selectedDeliveryTerm = value),
-                    activeColor: Colors.purple,
-                  );
-                }).toList(),
+                FutureBuilder<List<DeliveryTerm>>(
+                  future: ApiService.getDeliveryTerms(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      print('Loading delivery terms...');
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      print('Error fetching delivery terms: ${snapshot.error}');
+                      return Center(
+                        child: Column(
+                          children: [
+                            Text('Error: ${snapshot.error}'),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {}); // Retry by rebuilding the widget
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      print('No delivery terms available: ${snapshot.data}');
+                      return const Center(child: Text('No delivery terms available'));
+                    }
+
+                    final deliveryTerms = snapshot.data!;
+                    print('Fetched delivery terms: ${deliveryTerms.map((term) => term.name).toList()}');
+                    return Column(
+                      children: deliveryTerms.map((term) {
+                        return RadioListTile<String>(
+                          title: Text(term.name),
+                          value: term.name,
+                          groupValue: _selectedDeliveryTerm,
+                          onChanged: (value) => setState(() => _selectedDeliveryTerm = value),
+                          activeColor: Colors.purple,
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'DELIVERY ADDRESS',

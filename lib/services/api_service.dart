@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:steel_budy/models/Payment_term.dart';
+import 'package:steel_budy/models/delivery-terms.dart';
 import 'dart:io';
 import 'package:steel_budy/models/product_model.dart';
 import 'package:steel_budy/models/role_model.dart';
@@ -9,6 +11,7 @@ import 'package:steel_budy/models/category_model.dart';
 import 'package:steel_budy/models/brand_model.dart';
 import 'package:steel_budy/models/region_model.dart';
 import 'package:steel_budy/models/app_user_model.dart';
+
 
 class ApiService {
   static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
@@ -138,6 +141,20 @@ class ApiService {
     );
   }
 
+  static Future<List<PaymentTerm>> getPaymentTerms() async {
+    return _get(
+      endpoint: '/payment-terms',
+      fromJson: PaymentTerm.fromJson,
+    );
+  }
+
+  static Future<List<DeliveryTerm>> getDeliveryTerms() async {
+    return _get(
+      endpoint: '/delivery-terms',
+      fromJson: DeliveryTerm.fromJson,
+    );
+  }
+
   static Future<AppUser> createAppUser(AppUser user) async {
     try {
       final response = await _makeRequest(
@@ -215,13 +232,17 @@ class ApiService {
         final decoded = json.decode(response.body);
         List<dynamic> data;
 
-        // Handle both direct list and nested structure (e.g., {"regions": [...]})
+        // Handle both direct list and nested structure (e.g., {"paymentTerms": [...]})
         if (decoded is List) {
           data = decoded;
         } else if (decoded is Map<String, dynamic>) {
-          // Try common keys like "regions", "data", or the endpoint name
+          // Try common keys: camelCase version of endpoint, "data", or the endpoint name
           final key = endpoint.replaceFirst('/', '');
-          data = decoded[key] ?? decoded['data'] ?? [];
+          final camelCaseKey = key.split('-').asMap().entries.map((entry) {
+            if (entry.key == 0) return entry.value.toLowerCase();
+            return entry.value[0].toUpperCase() + entry.value.substring(1).toLowerCase();
+          }).join();
+          data = decoded[camelCaseKey] ?? decoded[key] ?? decoded['data'] ?? [];
           if (data is! List) {
             throw HttpException('Expected a list in response for $endpoint\nResponse: ${response.body}');
           }

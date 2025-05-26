@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:steel_budy/features/screens/view_profile.dart';
 import '../../services/authentication.dart';
 import 'isi_information.dart'; // Import the IsiInformation screen
 
@@ -151,14 +152,17 @@ class ProfileScreen extends StatelessWidget {
           ),
 
           // Dealer Profile
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Dealer Profile'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Navigator.pushNamed(context, '/dealer_profile');
-            },
-          ),
+        ListTile(
+  leading: const Icon(Icons.person),
+  title: const Text('View Profile'),
+  trailing: const Icon(Icons.chevron_right),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ViewProfile()),
+    );
+  },
+),
 
           // ISI Information
           ListTile(

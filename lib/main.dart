@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/features/authentication/screens/optscreen.dart';
-import 'package:steel_budy/features/screens/dashboardscreen.dart';
-import 'package:steel_budy/features/screens/edit-profile.dart';
+import 'package:steel_budy/splash_screen.dart';
+import 'features/authentication/screens/optscreen.dart';
+import 'features/screens/dashboardscreen.dart';
+import 'features/screens/edit-profile.dart';
 import 'features/authentication/screens/login_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
 import 'features/screens/notifications.dart';
 import 'features/screens/profile.dart';
-import 'features/screens/create_enquiry_screen.dart'; // Add this import
-import 'splash_screen.dart';
+import 'features/screens/create_enquiry_screen.dart';
+import 'features/screens/view_profile.dart'; // Add this import for ViewProfile
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -32,8 +33,9 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardScreen(),
         '/edit-profile': (context) => const EditProfile(),
         '/notifications': (context) => const NotificationScreen(),
-        '/profile': (context) =>  ProfileScreen(),
-        '/create-enquiry': (context) => const CreateEnquiryScreen(), // Add this route
+        '/profile': (context) => ProfileScreen(),
+        '/create-enquiry': (context) => const CreateEnquiryScreen(),
+        '/dealer_profile': (context) => const ViewProfile(), // Add this route for ViewProfile
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
