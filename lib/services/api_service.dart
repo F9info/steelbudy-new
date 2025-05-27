@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:steel_budy/models/Payment_term.dart';
+import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/models/delivery-terms.dart';
 import 'dart:io';
 import 'package:steel_budy/models/product_model.dart';
@@ -219,19 +220,30 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> getApplicationSettings() async {
-    final response = await http.get(Uri.parse('$baseUrl/settings-by-value')); // Adjust endpoint
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      if (jsonResponse['success'] == true) {
-        return jsonResponse['data'];
-      } else {
-        throw Exception('Failed to load application settings: ${jsonResponse['message']}');
-      }
+
+
+static Future<ApplicationSettings> getApplicationSettings() async {
+  final response = await _client
+      .get(Uri.parse('$baseUrl/application-settings')) // Updated endpoint
+      .timeout(const Duration(seconds: 10));
+
+  if (response.statusCode == 200) {
+    final jsonResponse = jsonDecode(response.body);
+    if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
+      return ApplicationSettings.fromJson(jsonResponse['data']);
     } else {
-      throw Exception('Failed to load application settings: ${response.statusCode}');
+      throw HttpException('Failed to load application settings: ${jsonResponse['message']}');
     }
+  } else {
+    throw HttpException('Failed to load application settings: ${response.statusCode}');
   }
+}
+
+
+
+
+
+
 
   static Future<List<T>> _get<T>({
     required String endpoint,
