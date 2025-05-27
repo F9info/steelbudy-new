@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:steel_budy/models/Payment_term.dart';
 import 'package:steel_budy/models/delivery-terms.dart';
 import 'package:steel_budy/services/api_service.dart';
-
-import 'package:url_launcher/url_launcher.dart'; // Added import for url_launcher
+import 'package:url_launcher/url_launcher.dart';
 import 'add_product_popup.dart';
 
 class CreateEnquiryScreen extends StatefulWidget {
@@ -22,11 +21,41 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   String? _selectedDeliveryCondition;
   String? _selectedDeliveryDate;
   String? _withinDays;
+  String? _immediateHours; // Variable for hours when Immediate is selected
 
   List<String> _selectedProductNames = [];
   Map<String, dynamic>? _productDetails;
 
+  // Dynamic lists for delivery conditions and dates
+  List<String> _deliveryConditions = [];
+  List<String> _deliveryDates = [];
+
   int _selectedIndex = 1; // Default to Enquiry tab
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchApplicationSettings(); // Fetch settings when the screen initializes
+  }
+
+  // Fetch application settings and populate delivery conditions and dates
+  Future<void> _fetchApplicationSettings() async {
+    try {
+      final settings = await ApiService.getApplicationSettings();
+      setState(() {
+        // Split comma-separated strings into lists
+        _deliveryConditions = settings['delivery-conditions']?.split(',') ?? [];
+        _deliveryDates = settings['delivery-date']?.split(',') ?? [];
+      });
+      print('Fetched delivery conditions: $_deliveryConditions');
+      print('Fetched delivery dates: $_deliveryDates');
+    } catch (e) {
+      print('Error fetching application settings: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching settings: $e')),
+      );
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -38,9 +67,6 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
       Navigator.pushNamed(context, '/profile');
     }
   }
-
-  final List<String> _deliveryConditions = ['Bend', 'Straight'];
-  final List<String> _deliveryDates = ['Immediate', 'Within'];
 
   void _showAddProductPopup() async {
     final result = await showModalBottomSheet(
@@ -65,7 +91,6 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
     }
   }
 
-  // Function to initiate a phone call
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
     if (await canLaunchUrl(phoneUri)) {
@@ -123,17 +148,17 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
-                  width: double.infinity, // Make the button full-width
+                  width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16), // Increase padding for better appearance
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     onPressed: () {
-                      _makePhoneCall('6305953196'); // Call the number when clicked
+                      _makePhoneCall('6305953196');
                     },
                     child: const Text(
                       'Call Now',
@@ -165,7 +190,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                             Text('Error: ${snapshot.error}'),
                             ElevatedButton(
                               onPressed: () {
-                                setState(() {}); // Retry by rebuilding the widget
+                                setState(() {});
                               },
                               child: const Text('Retry'),
                             ),
@@ -223,7 +248,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                             Text('Error: ${snapshot.error}'),
                             ElevatedButton(
                               onPressed: () {
-                                setState(() {}); // Retry by rebuilding the widget
+                                setState(() {});
                               },
                               child: const Text('Retry'),
                             ),
@@ -250,62 +275,96 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'DELIVERY ADDRESS',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                if (_selectedDeliveryTerm == 'Delivered To') ...[
+                  const SizedBox(height: 16),
+                  const Text(
+                    'DELIVERY ADDRESS',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  initialValue: 'Self-Pickup Ex-Visakhapatnam',
-                  maxLines: 3,
-                  onChanged: (val) => _deliveryAddress = val,
-                ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    initialValue: 'Self-Pickup Ex-Visakhapatnam',
+                    maxLines: 3,
+                    onChanged: (val) => _deliveryAddress = val,
+                    validator: (val) =>
+                        val == null || val.isEmpty ? 'Enter delivery address' : null,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 const Text(
                   'DELIVERY CONDITION',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                ..._deliveryConditions.map((condition) {
-                  return RadioListTile<String>(
-                    title: Text(condition),
-                    value: condition,
-                    groupValue: _selectedDeliveryCondition,
-                    onChanged: (value) =>
-                        setState(() => _selectedDeliveryCondition = value),
-                    activeColor: Colors.purple,
-                  );
-                }).toList(),
+                // Use dynamic _deliveryConditions list
+                if (_deliveryConditions.isEmpty)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  ..._deliveryConditions.map((condition) {
+                    return RadioListTile<String>(
+                      title: Text(condition),
+                      value: condition,
+                      groupValue: _selectedDeliveryCondition,
+                      onChanged: (value) =>
+                          setState(() => _selectedDeliveryCondition = value),
+                      activeColor: Colors.purple,
+                    );
+                  }).toList(),
                 const SizedBox(height: 16),
                 const Text(
                   'DELIVERY DATE',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                ..._deliveryDates.map((date) {
-                  return RadioListTile<String>(
-                    title: Text(date),
-                    value: date,
-                    groupValue: _selectedDeliveryDate,
-                    onChanged: (value) => setState(() => _selectedDeliveryDate = value),
-                    activeColor: Colors.purple,
-                  );
-                }).toList(),
-                if (_selectedDeliveryDate == 'Within')
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Days',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) => _withinDays = val,
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'Enter days' : null,
-                  ),
+                // Use dynamic _deliveryDates list
+                if (_deliveryDates.isEmpty)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  ..._deliveryDates.map((date) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RadioListTile<String>(
+                          title: Text(date),
+                          value: date,
+                          groupValue: _selectedDeliveryDate,
+                          onChanged: (value) => setState(() => _selectedDeliveryDate = value),
+                          activeColor: Colors.purple,
+                        ),
+                        if (_selectedDeliveryDate == date && date == 'Within')
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+                            child: TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Days',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (val) => _withinDays = val,
+                              validator: (val) =>
+                                  val == null || val.isEmpty ? 'Enter days' : null,
+                            ),
+                          ),
+                        if (_selectedDeliveryDate == date && date == 'Immediate')
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+                            child: TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Hours',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (val) => _immediateHours = val,
+                              validator: (val) =>
+                                  val == null || val.isEmpty ? 'Enter hours' : null,
+                            ),
+                          ),
+                      ],
+                    );
+                  }).toList(),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,

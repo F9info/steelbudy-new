@@ -219,6 +219,20 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> getApplicationSettings() async {
+    final response = await http.get(Uri.parse('$baseUrl/settings-by-value')); // Adjust endpoint
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['success'] == true) {
+        return jsonResponse['data'];
+      } else {
+        throw Exception('Failed to load application settings: ${jsonResponse['message']}');
+      }
+    } else {
+      throw Exception('Failed to load application settings: ${response.statusCode}');
+    }
+  }
+
   static Future<List<T>> _get<T>({
     required String endpoint,
     T Function(Map<String, dynamic>)? fromJson,
