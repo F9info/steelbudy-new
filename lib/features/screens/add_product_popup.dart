@@ -15,6 +15,8 @@ class _AddProductPopupState extends State<AddProductPopup> {
   Map<String, String?> _quantities = {};
   Map<String, String?> _pieces = {};
   List<String> _brands = [];
+  Map<String, dynamic> _productIdMap = {}; // Store product name to ID mapping
+  Map<String, dynamic> _brandIdMap = {}; // Store brand name to ID mapping
   bool _isLoading = true;
 
   static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
@@ -25,7 +27,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
     _fetchData();
   }
 
-  // Fetch products
   Future<List<dynamic>> _getProducts() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/product-types'));
@@ -44,7 +45,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
     }
   }
 
-  // Fetch brands
   Future<Map<String, dynamic>> _getBrands() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/brands'));
@@ -67,19 +67,19 @@ class _AddProductPopupState extends State<AddProductPopup> {
     try {
       final productsData = await _getProducts();
       final products = productsData
-          .where((product) => product['publish'] == 1 && product.containsKey('name'))
-          .map((product) => product['name'] as String)
+          .where((product) => product['publish'] == 1 && product.containsKey('name') && product.containsKey('id'))
           .toList();
 
       final brandsData = await _getBrands();
       final brands = (brandsData['brands'] as List)
-          .where((brand) => brand['publish'] == 1 && brand.containsKey('name'))
-          .map((brand) => brand['name'] as String)
+          .where((brand) => brand['publish'] == 1 && brand.containsKey('name') && brand.containsKey('id'))
           .toList();
 
       setState(() {
-        _selectedProducts = {for (var product in products) product: false};
-        _brands = brands;
+        _selectedProducts = {for (var product in products) product['name'] as String: false};
+        _productIdMap = {for (var product in products) product['name'] as String: product['id']};
+        _brands = brands.map((brand) => brand['name'] as String).toList();
+        _brandIdMap = {for (var brand in brands) brand['name'] as String: brand['id']};
         _isLoading = false;
       });
     } catch (e) {
@@ -299,6 +299,8 @@ class _AddProductPopupState extends State<AddProductPopup> {
                       'brands': _selectedBrands,
                       'quantities': _quantities,
                       'pieces': _pieces,
+                      'productIds': _productIdMap,
+                      'brandIds': _brandIdMap,
                     });
                   },
                   child: const Text(

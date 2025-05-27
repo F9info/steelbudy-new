@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:steel_budy/models/Payment_term.dart';
 import 'package:steel_budy/models/delivery-terms.dart';
-import 'package:steel_budy/models/application_settings_model.dart'; // Add this import
+import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add_product_popup.dart';
@@ -27,7 +27,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   List<String> _selectedProductNames = [];
   Map<String, dynamic>? _productDetails;
 
-  ApplicationSettings? _settings; // Store settings
+  ApplicationSettings? _settings;
 
   int _selectedIndex = 1;
 
@@ -95,6 +95,127 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not launch phone call')),
       );
+    }
+  }
+
+  Future<void> _submitEnquiry() async {
+    if (_formKey.currentState!.validate()) {
+      // Validate that at least one product is selected
+      if (_selectedProductNames.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select at least one product')),
+        );
+        return;
+      }
+
+      try {
+        // Prepare the products array
+        List<Map<String, dynamic>> products = [];
+        if (_productDetails != null) {
+          final selectedProducts = _productDetails!['selectedProducts'] as Map<String, bool>;
+          final brands = _productDetails!['brands'] as Map<String, String?>;
+          final quantities = _productDetails!['quantities'] as Map<String, String?>;
+          final pieces = _productDetails!['pieces'] as Map<String, String?>;
+          final productIds = _productDetails!['productIds'] as Map<String, dynamic>;
+          final brandIds = _productDetails!['brandIds'] as Map<String, dynamic>;
+
+          for (var product in selectedProducts.keys) {
+            if (selectedProducts[product] == true) {
+              // Get product ID
+              final productId = productIds[product];
+              if (productId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Product ID not found for $product')),
+                );
+                return;
+              }
+
+              // Get brand ID
+              final brandName = brands[product];
+              if (brandName == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Please select a brand for $product')),
+                );
+                return;
+              }
+              final brandId = brandIds[brandName];
+              if (brandId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Brand ID not found for $brandName')),
+                );
+                return;
+              }
+
+              // Validate quantity
+              if (quantities[product] == null || quantities[product]!.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Please enter quantity for $product')),
+                );
+                return;
+              }
+
+              products.add({
+                'product_id': productId,
+                'brand_id': brandId,
+                'quantity': quantities[product],
+                'pieces': pieces[product],
+              });
+            }
+          }
+        }
+
+        // Validate required fields
+        if (_selectedPaymentTerm == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a payment term')),
+          );
+          return;
+        }
+        if (_selectedDeliveryTerm == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a delivery term')),
+          );
+          return;
+        }
+        if (_selectedDeliveryCondition == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a delivery condition')),
+          );
+          return;
+        }
+        if (_selectedDeliveryDate == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please select a delivery date')),
+          );
+          return;
+        }
+
+        // Prepare the payload
+        final payload = {
+          'app_user_id': '1', // Replace with actual user ID from auth
+          'payment_terms': _selectedPaymentTerm,
+          'delivery_terms': _selectedDeliveryTerm,
+          'delivery_address': _deliveryAddress ?? _settings?.supportAddress,
+          'delivery_condition': _selectedDeliveryCondition,
+          'delivery_date': _selectedDeliveryDate,
+          'payment_terms_description': _selectedPaymentTerm == 'Credit' ? _creditDays : null,
+          'delivery_date_hours': _selectedDeliveryDate == 'Immediate' ? _immediateHours : null,
+          'delivery_date_days': _selectedDeliveryDate == 'Within' ? _withinDays : null,
+          'products': products,
+        };
+
+        // Send the enquiry to the backend
+        await ApiService.submitEnquiry(payload);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Enquiry submitted successfully!')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error submitting enquiry: $e')),
+        );
+      }
     }
   }
 
@@ -358,14 +479,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Enquiry submitted!')),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
+                    onPressed: _submitEnquiry,
                     child: const Text(
                       'Submit Enquiry',
                       style: TextStyle(

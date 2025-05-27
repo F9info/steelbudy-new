@@ -240,6 +240,22 @@ static Future<ApplicationSettings> getApplicationSettings() async {
 }
 
 
+static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/customer-orders'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode == 201) {
+      // Success
+      return;
+    } else {
+      throw Exception('Failed to submit enquiry: ${response.statusCode}');
+    }
+  }
+
+
 
 
 

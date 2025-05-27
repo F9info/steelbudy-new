@@ -217,7 +217,7 @@ class _SearchfiltersState extends ConsumerState<Searchfilters> {
 
   void _showProductListPopup() {
     _showMultiSelectBottomSheet(
-      title: "Select Products",
+      title: "Select Categories",
       optionsAsync: ref.watch(productNamesProvider),
       selectedItems: widget.selectedProducts,
       filterType: 'Products',
@@ -255,7 +255,7 @@ class _SearchfiltersState extends ConsumerState<Searchfilters> {
             if (label == 'All') {
               widget.onFiltersApplied([], [], []);
               _searchController.clear();
-            } else if (label == 'Products') {
+            } else if (label == 'Categories') {
               _showProductListPopup();
             } else if (label == 'Brands') {
               _showBrandListPopup();
