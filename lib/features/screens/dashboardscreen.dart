@@ -212,27 +212,8 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
-            Center(
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center, // Centers the children horizontally
-    children: [
-      Container(
-        width: 16,
-        height: 16,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey, width: 1),
-        ),
-      ),
-      const SizedBox(width: 4),
-      Text(
-        brand ?? 'Unknown Brand',
-        style: TextStyle(color: Colors.grey[600], fontSize: 14),
-      ),
-    ],
-  ),
-),
+         
+  
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: name != null

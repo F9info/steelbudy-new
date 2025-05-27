@@ -311,7 +311,7 @@ class _SearchfiltersState extends ConsumerState<Searchfilters> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
               _buildCategoryChip('All', 0),
-              _buildCategoryChip('Products', 1),
+              _buildCategoryChip('Categories', 1),
               _buildCategoryChip('Brands', 2),
               _buildCategoryChip('Locations', 3),
             ],
