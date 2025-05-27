@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:steel_budy/models/application_settings_model.dart';
+import 'package:steel_budy/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,14 +13,34 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   bool _isValid = false;
-  bool _isLoading = false; // Added loading state
-  String? _error; // Added error state
+  bool _isLoading = false; // For login button
+  String? _error; // For login errors
   final String _allowedNumber = '1234567890'; // Allowed phone number
+
+  ApplicationSettings? _settings;
+  bool _isLogoLoading = true; // Separate loading state for logo fetch
+  String? _logoError; // Separate error state for logo fetch
 
   @override
   void initState() {
     super.initState();
     _phoneController.addListener(_validatePhone);
+    _fetchApplicationSettings();
+  }
+
+  Future<void> _fetchApplicationSettings() async {
+    try {
+      final settings = await ApiService.getApplicationSettings();
+      setState(() {
+        _settings = settings;
+        _isLogoLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _logoError = 'Error fetching logo: $e';
+        _isLogoLoading = false;
+      });
+    }
   }
 
   void _validatePhone() {
@@ -29,7 +50,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    // Made async for better handling
     if (!_isValid || _isLoading) return;
 
     setState(() {
@@ -39,12 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       if (_phoneController.text == _allowedNumber) {
-        // Use named route instead of direct navigation
         if (mounted) {
           Navigator.pushReplacementNamed(
             context,
             '/otp',
-            arguments: _phoneController.text, // Pass phone number as argument
+            arguments: _phoneController.text,
           );
         }
       } else {
@@ -89,10 +108,36 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40),
                 // Logo
                 Center(
-                  child: SvgPicture.asset(
-                    'assets/images/logo.svg',
-                    height: 70,
-                  ),
+                  child: _isLogoLoading
+                      ? const CircularProgressIndicator()
+                      : _logoError != null
+                          ? const Icon(
+                              Icons.image_not_supported,
+                              size: 70,
+                              color: Colors.grey,
+                            )
+                          : _settings != null && _settings!.logo.isNotEmpty
+                              ? Image.network(
+                                  _settings!.logo,
+                                  height: 70,
+                                  fit: BoxFit.contain,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const CircularProgressIndicator();
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.error,
+                                      size: 70,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                )
+                              : const Icon(
+                                  Icons.image_not_supported,
+                                  size: 70,
+                                  color: Colors.grey,
+                                ),
                 ),
                 const SizedBox(height: 48),
                 // Welcome Text
