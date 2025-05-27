@@ -92,18 +92,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
     }
   }
 
-  double _calculateQuantityFromPieces(String pieces, String product) {
-    if (pieces.isEmpty) return 0.0;
-    final piecesNum = double.tryParse(pieces) ?? 0.0;
-    return piecesNum / 1000; // Example: 1000 pieces = 1 ton
-  }
-
-  int _calculatePiecesFromQuantity(String quantity, String product) {
-    if (quantity.isEmpty) return 0;
-    final quantityNum = double.tryParse(quantity) ?? 0.0;
-    return (quantityNum * 1000).round(); // Example: 1 ton = 1000 pieces
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -175,8 +163,8 @@ class _AddProductPopupState extends State<AddProductPopup> {
                       final isSelected = _selectedProducts[product] ?? false;
                       final quantityValue = _quantities[product] ?? '';
                       final piecesValue = _pieces[product] ?? '';
-                      final isQuantityEditable = isSelected && piecesValue.isEmpty;
-                      final isPiecesEditable = isSelected && quantityValue.isEmpty && !product.contains('MS Binding Wire') && !product.contains('Nails');
+                      final isQuantityEditable = isSelected;
+                      final isPiecesEditable = isSelected && !product.contains('MS Binding Wire') && !product.contains('Nails');
 
                       return TableRow(
                         children: [
@@ -228,11 +216,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
                               readOnly: !isQuantityEditable,
                               keyboardType: TextInputType.number,
                               style: const TextStyle(fontSize: 13),
-                              controller: TextEditingController(
-                                text: piecesValue.isNotEmpty
-                                    ? _calculateQuantityFromPieces(piecesValue, product).toStringAsFixed(2)
-                                    : quantityValue,
-                              ),
+                              controller: TextEditingController(text: quantityValue),
                               decoration: InputDecoration(
                                 isDense: true,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -254,11 +238,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                               onChanged: (value) {
                                 setState(() {
                                   _quantities[product] = value;
-                                  if (value.isNotEmpty) {
-                                    _pieces[product] = _calculatePiecesFromQuantity(value, product).toString();
-                                  } else {
-                                    _pieces[product] = null;
-                                  }
                                 });
                               },
                             ),
@@ -272,11 +251,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
                                     readOnly: !isPiecesEditable,
                                     keyboardType: TextInputType.number,
                                     style: const TextStyle(fontSize: 13),
-                                    controller: TextEditingController(
-                                      text: quantityValue.isNotEmpty
-                                          ? _calculatePiecesFromQuantity(quantityValue, product).toString()
-                                          : piecesValue,
-                                    ),
+                                    controller: TextEditingController(text: piecesValue),
                                     decoration: InputDecoration(
                                       isDense: true,
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -298,11 +273,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                                     onChanged: (value) {
                                       setState(() {
                                         _pieces[product] = value;
-                                        if (value.isNotEmpty) {
-                                          _quantities[product] = _calculateQuantityFromPieces(value, product).toStringAsFixed(2);
-                                        } else {
-                                          _quantities[product] = null;
-                                        }
                                       });
                                     },
                                   ),
