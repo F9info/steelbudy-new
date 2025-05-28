@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/authentication.dart';
-import '../../dashboard/screens/dashboardscreen.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:steel_budy/models/application_settings_model.dart';
+import 'package:steel_budy/services/api_service.dart';
+import '../../screens/role_selection_screen.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -28,13 +29,17 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     6,
     (index) => FocusNode(),
   );
-  final AuthService _authService = AuthService(); // Initialize AuthService
+  final AuthService _authService = AuthService();
   bool _isButtonEnabled = false;
   bool _isLoading = false;
   String? _error;
   int _resendTimer = 30;
   bool _canResend = false;
-  final String _correctOtp = '123456'; // Simulated correct OTP
+  final String _correctOtp = '123456';
+
+  ApplicationSettings? _settings;
+  bool _isLogoLoading = true; // Separate loading state for logo fetch
+  String? _logoError; // Separate error state for logo fetch
 
   @override
   void initState() {
@@ -43,6 +48,22 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       controller.addListener(_checkOtpCompletion);
     }
     _startResendTimer();
+    _fetchApplicationSettings();
+  }
+
+  Future<void> _fetchApplicationSettings() async {
+    try {
+      final settings = await ApiService.getApplicationSettings();
+      setState(() {
+        _settings = settings;
+        _isLogoLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _logoError = 'Error fetching logo: $e';
+        _isLogoLoading = false;
+      });
+    }
   }
 
   void _startResendTimer() {
@@ -89,14 +110,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       String otp = _controllers.map((c) => c.text).join();
 
       if (otp == _correctOtp) {
-        // Set login state with phone number
         await _authService.setLoggedIn(true,
             phoneNumber: '+91${widget.phoneNumber}');
 
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
           );
         }
       } else {
@@ -124,7 +144,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     });
 
     try {
-      // Simulate API call for resending OTP
       await Future.delayed(const Duration(seconds: 1));
 
       if (mounted) {
@@ -186,10 +205,36 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: SvgPicture.asset(
-                  'assets/images/logo.svg',
-                  height: 70,
-                ),
+                child: _isLogoLoading
+                    ? const CircularProgressIndicator()
+                    : _logoError != null
+                        ? const Icon(
+                            Icons.image_not_supported,
+                            size: 70,
+                            color: Colors.grey,
+                          )
+                        : _settings != null && _settings!.logo.isNotEmpty
+                            ? Image.network(
+                                _settings!.logo,
+                                height: 70,
+                                fit: BoxFit.contain,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const CircularProgressIndicator();
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.error,
+                                    size: 70,
+                                    color: Colors.red,
+                                  );
+                                },
+                              )
+                            : const Icon(
+                                Icons.image_not_supported,
+                                size: 70,
+                                color: Colors.grey,
+                              ),
               ),
               const SizedBox(height: 40),
               Text(

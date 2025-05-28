@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:steel_budy/features/screens/support-help.dart';
+import 'splash_screen.dart';
 import 'features/authentication/screens/optscreen.dart';
-import 'features/dashboard/screens/dashboardscreen.dart';
+import 'features/screens/dashboardscreen.dart';
+import 'features/screens/edit-profile.dart';
 import 'features/authentication/screens/login_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
-import 'features/dashboard/screens/edit-profile.dart';
-import 'features/dashboard/screens/notifications.dart';
-import 'splash_screen.dart';
+import 'features/screens/notifications.dart';
+import 'features/screens/profile.dart';
+import 'features/screens/create_enquiry_screen.dart';
+import 'features/screens/view_profile.dart';
+import 'features/screens/view_enquiries.dart'; // Add this import for ViewEnquiries
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -29,7 +34,12 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/edit-profile': (context) => const EditProfile(),
-        '/notifications': (context) => const Notifications(),
+        '/notifications': (context) => const NotificationScreen(),
+        '/profile': (context) => ProfileScreen(),
+        '/create-enquiry': (context) => const CreateEnquiryScreen(),
+        '/dealer_profile': (context) => const ViewProfile(),
+        '/support': (context) => const SupportHelp(),
+        '/view-enquiries': (context) => const ViewEnquiries(), // Add this route
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

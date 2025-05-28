@@ -14,15 +14,17 @@ class MainBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
-      onTap: onTap, // Directly use the onTap function for all items
-      selectedItemColor: Colors.blue, // Color for the selected icon and label
-      unselectedItemColor: Colors.grey, // Color for unselected icons and labels
-      showUnselectedLabels: true, // Show labels for unselected items
-      type: BottomNavigationBarType.fixed, // Ensures all items are visible
+      onTap: onTap,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
+      showUnselectedLabels: true,
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      elevation: 8,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
+          icon: Icon(Icons.dashboard),
+          label: 'Dashboard',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.message),
@@ -30,7 +32,7 @@ class MainBottomBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
-          label: 'Me',
+          label: 'Profile',
         ),
       ],
     );
