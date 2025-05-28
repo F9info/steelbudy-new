@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
   ApplicationSettings? _settings;
   bool _isLogoLoading = true; // Separate loading state for logo fetch
   String? _logoError; // Separate error state for logo fetch
+
+  int? _resendToken; // Store resend token for OTP resending
 
   @override
   void initState() {
@@ -57,25 +60,59 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
+    final String phoneNumber = '+91${_phoneController.text}';
+    print('Attempting to verify: $phoneNumber'); // Debug print
+
+    // Extra validation before calling Firebase
+    if (_phoneController.text.isEmpty || _phoneController.text.length != 10) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Please enter a valid 10-digit mobile number.';
+      });
+      return;
+    }
+
     try {
-      if (_phoneController.text == _allowedNumber) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(
-            context,
-            '/otp',
-            arguments: _phoneController.text,
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        forceResendingToken: _resendToken,
+        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationFailed: (FirebaseAuthException e) {
+          setState(() {
+            _error = e.message ?? 'Verification failed';
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_error!),
+              backgroundColor: Colors.red,
+            ),
           );
-        }
-      } else {
-        throw 'Invalid phone number. Please enter the correct number.';
-      }
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _resendToken = resendToken;
+          });
+          if (mounted) {
+            Navigator.pushReplacementNamed(
+              context,
+              '/otp',
+              arguments: {
+                'phoneNumber': _phoneController.text,
+                'verificationId': verificationId,
+                'resendToken': resendToken,
+              },
+            );
+          }
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
     } catch (e) {
       setState(() {
         _error = e.toString();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_error!),
+          content: Text(_error ?? 'Error'),
           backgroundColor: Colors.red,
         ),
       );
