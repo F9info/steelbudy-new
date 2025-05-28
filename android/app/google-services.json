@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "817314131539",
+    "project_id": "steelbuddy-v1",
+    "storage_bucket": "steelbuddy-v1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817314131539:android:a5bdde1810ad274ed5a0a6",
+        "android_client_info": {
+          "package_name": "com.example.steel_budy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUY3Repw6bkgmuxvC-8diLxvVKL2RcctQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817314131539:android:1bf974c94b96d969d5a0a6",
+        "android_client_info": {
+          "package_name": "com.steelbuddy.steel_buddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUY3Repw6bkgmuxvC-8diLxvVKL2RcctQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
