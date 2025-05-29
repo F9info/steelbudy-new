@@ -220,7 +220,6 @@ class ApiService {
     }
   }
 
-<<<<<<< HEAD
 
 
 static Future<ApplicationSettings> getApplicationSettings() async {
@@ -262,7 +261,6 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
 
 
 
-=======
       Future<Map<String, dynamic>> fetchCustomerOrderDetails(int orderId) async {
         final response = await http.get(Uri.parse('$baseUrl/customer-orders/$orderId'));
 
@@ -294,7 +292,6 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     }
   }
 
->>>>>>> c4163beaed28e926d667371e1d825f79b9699a54
   static Future<List<T>> _get<T>({
     required String endpoint,
     T Function(Map<String, dynamic>)? fromJson,
