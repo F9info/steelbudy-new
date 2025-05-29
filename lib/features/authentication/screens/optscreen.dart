@@ -7,13 +7,18 @@ import '../../../services/authentication.dart';
 import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
 import '../../screens/role_selection_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
+  final String verificationId;
+  final int? resendToken;
 
   const OtpScreen({
     super.key,
     required this.phoneNumber,
+    required this.verificationId,
+    this.resendToken,
   });
 
   @override
@@ -41,12 +46,15 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   bool _isLogoLoading = true; // Separate loading state for logo fetch
   String? _logoError; // Separate error state for logo fetch
 
+  String? _currentVerificationId;
+
   @override
   void initState() {
     super.initState();
     for (var controller in _controllers) {
       controller.addListener(_checkOtpCompletion);
     }
+    _currentVerificationId = widget.verificationId;
     _startResendTimer();
     _fetchApplicationSettings();
   }
@@ -67,18 +75,18 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   void _startResendTimer() {
-    setState(() {
-      _resendTimer = 30;
-      _canResend = false;
-    });
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted && _resendTimer > 0) {
         setState(() {
           _resendTimer--;
         });
-        if (_resendTimer > 0) {
-          _startResendTimer();
-        } else {
+        _startResendTimer();
+      } else if (mounted && _resendTimer == 0) {
+        // Ensure we only set _canResend to true once when the timer reaches 0
+        // and the component is mounted.
+        // This also prevents infinite loops if mounted becomes false unexpectedly.
+        if (!_canResend) {
+
           setState(() {
             _canResend = true;
           });
@@ -108,23 +116,21 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
     try {
       String otp = _controllers.map((c) => c.text).join();
-
-      if (otp == _correctOtp) {
-        await _authService.setLoggedIn(true,
-            phoneNumber: '+91${widget.phoneNumber}');
-
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
-          );
-        }
-      } else {
-        throw 'Invalid OTP';
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: _currentVerificationId!,
+        smsCode: otp,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+        );
       }
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = 'Invalid OTP or verification failed.';
       });
     } finally {
       if (mounted) {
@@ -144,20 +150,39 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     });
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('OTP resent successfully!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        _startResendTimer();
-      }
+      final String phoneNumber = '+91${widget.phoneNumber}';
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        forceResendingToken: widget.resendToken,
+        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationFailed: (FirebaseAuthException e) {
+          setState(() {
+            _error = e.message ?? 'Verification failed';
+          });
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _currentVerificationId = verificationId;
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('OTP resent successfully!'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            _startResendTimer();
+          }
+          setState(() {
+            _resendTimer = 30;
+            _canResend = false;
+          });
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = 'Failed to resend OTP.';
       });
     } finally {
       if (mounted) {

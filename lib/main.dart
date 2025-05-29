@@ -12,8 +12,12 @@ import 'features/screens/profile.dart';
 import 'features/screens/create_enquiry_screen.dart';
 import 'features/screens/view_profile.dart';
 import 'features/screens/view_enquiries.dart'; // Add this import for ViewEnquiries
+import 'package:firebase_core/firebase_core.dart';
+import 'features/screens/post_quotation_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -39,13 +43,21 @@ class MyApp extends StatelessWidget {
         '/create-enquiry': (context) => const CreateEnquiryScreen(),
         '/dealer_profile': (context) => const ViewProfile(),
         '/support': (context) => const SupportHelp(),
+        '/qoutation': (context) => const QuotationScreen(),
         '/view-enquiries': (context) => const ViewEnquiries(), // Add this route
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
-          final phoneNumber = settings.arguments as String? ?? '';
+          final args = settings.arguments as Map<String, dynamic>?;
+          final phoneNumber = args?['phoneNumber'] as String? ?? '';
+          final verificationId = args?['verificationId'] as String? ?? '';
+          final resendToken = args?['resendToken'] as int?;
           return MaterialPageRoute(
-            builder: (_) => OtpScreen(phoneNumber: phoneNumber),
+            builder: (_) => OtpScreen(
+              phoneNumber: phoneNumber,
+              verificationId: verificationId,
+              resendToken: resendToken,
+            ),
           );
         }
         return null;
