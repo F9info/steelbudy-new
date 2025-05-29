@@ -149,6 +149,32 @@ class ApiService {
     );
   }
 
+  Future<void> postQuotation(Map<String, dynamic> payload) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/dealer-quotations'),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authentication headers if required, e.g., 'Authorization': 'Bearer <token>'
+        },
+        body: jsonEncode(payload),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['message'] == 'Quotation created successfully') {
+          return;
+        } else {
+          throw Exception('Unexpected response: ${response.body}');
+        }
+      } else {
+        throw Exception('Failed to post quotation: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error posting quotation: $e');
+    }
+  }
+
   static Future<List<DeliveryTerm>> getDeliveryTerms() async {
     return _get(
       endpoint: '/delivery-terms',
