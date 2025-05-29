@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:steel_budy/models/Payment_term.dart';
+import 'package:steel_budy/models/payment_term.dart';
 import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/models/delivery-terms.dart';
 import 'dart:io';

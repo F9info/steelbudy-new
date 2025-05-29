@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:steel_budy/models/Payment_term.dart';
 import 'package:steel_budy/models/delivery-terms.dart';
+import 'package:steel_budy/models/payment_term.dart';
 import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';

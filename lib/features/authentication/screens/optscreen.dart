@@ -75,18 +75,18 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   }
 
   void _startResendTimer() {
-    setState(() {
-      _resendTimer = 30;
-      _canResend = false;
-    });
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted && _resendTimer > 0) {
         setState(() {
           _resendTimer--;
         });
-        if (_resendTimer > 0) {
-          _startResendTimer();
-        } else {
+        _startResendTimer();
+      } else if (mounted && _resendTimer == 0) {
+        // Ensure we only set _canResend to true once when the timer reaches 0
+        // and the component is mounted.
+        // This also prevents infinite loops if mounted becomes false unexpectedly.
+        if (!_canResend) {
+
           setState(() {
             _canResend = true;
           });
@@ -173,6 +173,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             );
             _startResendTimer();
           }
+          setState(() {
+            _resendTimer = 30;
+            _canResend = false;
+          });
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
       );

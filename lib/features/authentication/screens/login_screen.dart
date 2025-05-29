@@ -76,7 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         forceResendingToken: _resendToken,
-        verificationCompleted: (PhoneAuthCredential credential) {},
+        verificationCompleted: (PhoneAuthCredential credential) {
+          print('Firebase: verificationCompleted');
+        },
         verificationFailed: (FirebaseAuthException e) {
           setState(() {
             _error = e.message ?? 'Verification failed';
@@ -88,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         },
+
         codeSent: (String verificationId, int? resendToken) {
           setState(() {
             _resendToken = resendToken;
@@ -103,7 +106,9 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             );
           }
+          print('Firebase: codeSent');
         },
+
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
