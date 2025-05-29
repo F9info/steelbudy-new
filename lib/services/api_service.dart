@@ -220,6 +220,7 @@ class ApiService {
     }
   }
 
+<<<<<<< HEAD
 
 
 static Future<ApplicationSettings> getApplicationSettings() async {
@@ -261,6 +262,39 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
 
 
 
+=======
+      Future<Map<String, dynamic>> fetchCustomerOrderDetails(int orderId) async {
+        final response = await http.get(Uri.parse('$baseUrl/customer-orders/$orderId'));
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          return data;
+        } else {
+          throw Exception('Failed to load customer order details');
+        }
+      }
+
+
+  Future<List<dynamic>> fetchCustomerOrders() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/customer-orders'));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['customerOrders'] != null) {
+          return data['customerOrders'] as List<dynamic>;
+        } else {
+          throw Exception('No customer orders found in response');
+        }
+      } else {
+        throw Exception('Failed to load customer orders: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching customer orders: $e');
+    }
+  }
+
+>>>>>>> c4163beaed28e926d667371e1d825f79b9699a54
   static Future<List<T>> _get<T>({
     required String endpoint,
     T Function(Map<String, dynamic>)? fromJson,

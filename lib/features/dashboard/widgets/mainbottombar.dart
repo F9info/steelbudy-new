@@ -30,9 +30,14 @@ class MainBottomBar extends StatelessWidget {
           icon: Icon(Icons.message),
           label: 'Enquiry',
         ),
+
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Profile',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.description), // Added for Quotation
+          label: 'Quotation',
         ),
       ],
     );
