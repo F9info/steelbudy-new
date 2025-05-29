@@ -5,6 +5,7 @@ import 'package:steel_budy/features/screens/dashboardscreen.dart';
 import 'package:steel_budy/features/screens/enquiry.dart';
 import 'package:steel_budy/features/screens/profile.dart';
 import 'package:steel_budy/features/screens/notifications.dart';
+import 'package:steel_budy/features/screens/quotation_screen.dart';
 
 class Layout extends StatefulWidget {
   final Widget child;
@@ -56,6 +57,10 @@ class _LayoutState extends State<Layout> {
       case 2:
         newScreen = ProfileScreen();
         newTitle = 'Profile';
+        break;
+      case 3:
+        newScreen = const QuotationScreen(); // Add QuotationScreen case
+        newTitle = 'Quotation';
         break;
       default:
         return;
