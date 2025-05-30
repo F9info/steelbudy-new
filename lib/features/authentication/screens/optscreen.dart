@@ -8,6 +8,7 @@ import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
 import '../../screens/role_selection_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -122,22 +123,31 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
       await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
-        );
+
+      // --- Call backend via ApiService after OTP verification ---
+      final response = await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
+      if (response['status'] == 'existing') {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else if (response['status'] == 'new') {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        Navigator.pushReplacementNamed(context, '/select-role');
+      } else {
+        setState(() {
+          _error = 'Unexpected response from server.';
+        });
       }
     } catch (e) {
       setState(() {
-        _error = 'Invalid OTP or verification failed.';
+        _error = 'Login failed: $e';
       });
+      print('Error during OTP verification: $e');
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

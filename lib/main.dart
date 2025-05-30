@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:steel_budy/features/layout/layout.dart';
+import 'package:steel_budy/features/screens/role_selection_screen.dart';
 import 'package:steel_budy/features/screens/support-help.dart';
 import 'splash_screen.dart';
 import 'features/authentication/screens/optscreen.dart';
@@ -14,15 +16,23 @@ import 'features/screens/view_profile.dart';
 import 'features/screens/view_enquiries.dart'; // Add this import for ViewEnquiries
 import 'package:firebase_core/firebase_core.dart';
 import 'features/screens/post_quotation_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const ProviderScope(child: MyApp()));
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  runApp(
+    ProviderScope(
+      child: MyApp(isLoggedIn: isLoggedIn),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +41,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      // initialRoute: isLoggedIn ? '/dashboard' : '/',
+      home: isLoggedIn ? Layout(
+                            appBarTitle: 'Dashboard',
+                            child: const DashboardScreen(),
+                          ) : SplashScreen(),
       routes: {
-        '/': (context) => const SplashScreen(),
+        // '/': (context) => const SplashScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
@@ -44,7 +58,8 @@ class MyApp extends StatelessWidget {
         '/dealer_profile': (context) => const ViewProfile(),
         '/support': (context) => const SupportHelp(),
         '/qoutation': (context) => const QuotationScreen(),
-        '/view-enquiries': (context) => const ViewEnquiries(), // Add this route
+        '/view-enquiries': (context) => const ViewEnquiries(),
+        '/select-role': (context) => const RoleSelectionScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {
