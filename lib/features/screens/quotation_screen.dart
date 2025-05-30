@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:steel_budy/services/api_service.dart';
 import 'package:steel_budy/features/screens/quotation_details.dart';
