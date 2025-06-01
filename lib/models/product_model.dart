@@ -28,20 +28,21 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'] as int,
-      name: json['product_name'] as String,
-      description: json['description'] as String,
-      image: json['product_photo'] as String,
-      categoryId: json['category_id'] as int,
-      brandId: json['brand_id'] as int,
-      regionId: json['region_id'] as int,
-      price: (json['price'] as num).toDouble(),
-      publish: (json['publish'] as int) == 1,
-      brand: json['brand']['name'] as String,
-      category: json['category']['name'] as String,
-      location: json['region']['name'] as String,
-    );
+   return Product(
+    id: json['id'] as int,
+    name: json['product_name'] as String? ?? '',
+    description: json['description'] as String? ?? '',
+    image: json['product_photo'] as String? ?? '',
+    categoryId: json['category_id'] is int ? json['category_id'] as int : 0,
+    brandId: json['brand_id'] is int ? json['brand_id'] as int : 0,
+    regionId: json['region_id'] is int ? json['region_id'] as int : 0,
+    price: (json['price'] as num?)?.toDouble() ?? 0.0,
+    publish: (json['publish'] as int?) == 1,
+    brand: json['brand']?['name']?.toString() ?? '',
+    category: json['category']?['name']?.toString() ?? '',
+    location: json['region']?['name']?.toString() ?? '',
+  );
+
   }
 
   Map<String, dynamic> toMap() {

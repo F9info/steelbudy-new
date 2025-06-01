@@ -15,7 +15,7 @@ import 'package:steel_budy/models/app_user_model.dart';
 
 
 class ApiService {
-  static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
   static final http.Client _client = http.Client();
 
   static Future<http.Response> _makeRequest({
@@ -367,6 +367,20 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
 
   static void dispose() {
     _client.close();
+  }
+
+  static Future<Map<String, dynamic>> checkOrRegisterAppUser(String mobile) async {
+    final response = await _client.post(
+      Uri.parse('$baseUrl/app-users/check-or-register'),
+      headers: {'Accept': 'application/json'},
+      body: {'mobile': mobile},
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return data;
+    } else {
+      throw Exception(data['error'] ?? 'Server error');
+    }
   }
 }
 

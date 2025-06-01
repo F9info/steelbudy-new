@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/authentication.dart';
 import 'isi_information.dart'; // Import the IsiInformation screen
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatelessWidget {
   final AuthService _authService = AuthService();
@@ -19,9 +20,12 @@ class ProfileScreen extends StatelessWidget {
 
       await _authService.logout();
 
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
       if (context.mounted) {
         Navigator.pop(context); // Close loading dialog
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     } catch (e) {
       if (context.mounted) {
