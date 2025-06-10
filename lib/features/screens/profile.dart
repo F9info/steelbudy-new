@@ -64,7 +64,7 @@ class ProfileScreen extends StatelessWidget {
                   radius: 40,
                   backgroundColor: Colors.blue,
                   child: Image.asset(
-                    'assets/images/vizag_logo.png',
+                    'assets/images/logo.svg',
                     width: 60,
                     height: 60,
                     errorBuilder: (context, error, stackTrace) {

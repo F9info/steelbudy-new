@@ -9,6 +9,7 @@ import 'package:steel_budy/services/api_service.dart';
 import '../../screens/role_selection_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../providers/auth_provider.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -129,10 +130,28 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       if (response['status'] == 'existing') {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+
+        // Fetch user details from backend
+        print('Fetching user by mobile: ${widget.phoneNumber}');
+        final userDetails = await ApiService.getUserByMobile(widget.phoneNumber, '');
+        print('User details fetched: $userDetails');
+        final userRole = userDetails?['user_type_id']?.toString();
+
+        // Store userId in SharedPreferences and update provider state
+        final userId = userDetails?['id']?.toString();
+        if (userId != null) {
+          await prefs.setString('userId', userId);
+          ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
+        }
+
+        print('Calling authProvider.login for existing user with role: $userRole');
+        await ref.read(authProvider.notifier).login(widget.phoneNumber, userRole);
+
         Navigator.pushReplacementNamed(context, '/dashboard');
       } else if (response['status'] == 'new') {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+        // Do NOT call authProvider.login here; wait for role selection
         Navigator.pushReplacementNamed(context, '/select-role');
       } else {
         setState(() {

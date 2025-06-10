@@ -10,12 +10,14 @@ class AuthState {
   final String? phoneNumber;
   final String role;
   final String? userId;
+  final String? companyName;
 
   const AuthState({
     this.isAuthenticated = false,
     this.phoneNumber,
     required this.role,
     this.userId,
+    this.companyName,
   });
 
   AuthState copyWith({
@@ -23,12 +25,14 @@ class AuthState {
     String? phoneNumber,
     String? role,
     String? userId,
+    String? companyName,
   }) {
     return AuthState(
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
       userId: userId ?? this.userId,
+      companyName: companyName ?? this.companyName,
     );
   }
 }
@@ -49,11 +53,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final phoneNumber = prefs.getString('phoneNumber');
       final role = prefs.getString('role') ?? '';
       final userId = prefs.getString('userId');
+      final companyName = prefs.getString('companyName');
       state = AuthState(
         isAuthenticated: isAuthenticated,
         phoneNumber: phoneNumber,
         role: role,
         userId: userId,
+        companyName: companyName,
       );
     } catch (e) {
       debugPrint('Error initializing auth state: $e');
@@ -100,15 +106,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       final createdUser = await ApiService.createAppUser(appUser);
 
-      // Store userId in SharedPreferences
+      // Store userId and companyName in SharedPreferences
       await prefs.setString('userId', createdUser.id.toString());
+      await prefs.setString('companyName', createdUser.companyName ?? '');
 
-      // Update auth state with user ID
+      // Update auth state with user ID and companyName
       state = state.copyWith(
         isAuthenticated: true,
         phoneNumber: phoneNumber,
         role: role ?? '',
         userId: createdUser.id.toString(),
+        companyName: createdUser.companyName ?? '',
       );
     } catch (e) {
       debugPrint('Error creating user: $e');
@@ -122,6 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         phoneNumber: phoneNumber,
         role: role ?? '',
         userId: null,
+        companyName: null,
       );
     }
   }
@@ -135,10 +144,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
         phoneNumber: null,
         role: '',
         userId: null,
+        companyName: null,
       );
     } catch (e) {
       debugPrint('Error during logout: $e');
     }
+  }
+
+  Future<String> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('userId');
+    if (token != null && token.isNotEmpty) {
+      return token;
+    }
+    throw Exception('No token found');
+  }
+
+  Future<void> setUserDetails({required String userId, required String companyName}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
+    await prefs.setString('companyName', companyName);
+    state = state.copyWith(userId: userId, companyName: companyName);
   }
 }
 

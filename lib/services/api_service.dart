@@ -369,6 +369,7 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     _client.close();
   }
 
+  // Check or register user
   static Future<Map<String, dynamic>> checkOrRegisterAppUser(String mobile) async {
     final response = await _client.post(
       Uri.parse('$baseUrl/app-users/check-or-register'),
@@ -381,6 +382,55 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     } else {
       throw Exception(data['error'] ?? 'Server error');
     }
+  }
+
+  // Update user role
+  static Future<bool> updateUserRole(String userId, int userTypeId, String token) async {
+    final response = await _client.post(
+      Uri.parse('$baseUrl/app-users/$userId/update-role'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+      body: {'user_type_id': userTypeId.toString()},
+    );
+    return response.statusCode == 200;
+  }
+
+  // Get user profile by mobile
+  static Future<Map<String, dynamic>?> getUserByMobile(String mobile, String token) async {
+    final response = await _client.get(
+      Uri.parse('$baseUrl/app-user-by-mobile?mobile=$mobile'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+    print('API getUserByMobile status: ${response.statusCode}');
+    print('API getUserByMobile body: ${response.body}');
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['user'];
+    }
+    return null;
+  }
+
+  // Update user profile
+  static Future<bool> updateUserProfile(String userId, Map<String, dynamic> data, String token) async {
+    //add dubug print statements
+    print('API updateUserProfile userId: $userId');
+    print('API updateUserProfile data: $data');
+    print('API updateUserProfile token: $token');
+    final response = await _client.put(
+      Uri.parse('$baseUrl/app-users/$userId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+      body: data,
+    );
+    print('API updateUserProfile status: ${response.statusCode}');
+    print('API updateUserProfile body: ${response.body}');
+    return response.statusCode == 200;
   }
 }
 

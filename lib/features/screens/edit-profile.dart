@@ -43,11 +43,22 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   List<String> _selectedLocations = [];
   List<String> _availableLocations = [];
 
+  bool _isListenerSet = false;
+  bool _hasFetchedProfile = false;
+
   @override
   void initState() {
     super.initState();
     _fetchPhoneNumber();
     _fetchAvailableLocations();
+    print("EditProfile initState called");
+    // Only fetch profile if userId is available and not already loaded
+    _fetchAndFillUserProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // didChangeDependencies removed; ref.listen will be in build
   }
 
   Future<void> _fetchPhoneNumber() async {
@@ -87,6 +98,36 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     });
   }
 
+  Future<void> _fetchAndFillUserProfile() async {
+    final authState = ref.read(authProvider);
+    final userId = authState.userId;
+    print('Fetching user profile for userId: $userId');
+    if (userId == null) return;
+    try {
+      final user = await ApiService.getAppUser(int.parse(userId));
+      print('Fetched user: $user');
+      setState(() {
+        _companyNameController.text = user.companyName ?? '';
+        _contactPersonController.text = user.contactPerson ?? '';
+        _phoneController.text = user.mobile ?? '';
+        _alternateNumberController.text = user.alternateNumber ?? '';
+        _emailController.text = user.email ?? '';
+        _streetLineController.text = user.streetLine ?? '';
+        _townCityController.text = user.townCity ?? '';
+        _stateController.text = user.state ?? '';
+        _countryController.text = user.country ?? '';
+        _pinCodeController.text = user.pincode ?? '';
+        _gstController.text = user.gstin ?? '';
+        _panController.text = user.pan ?? '';
+        if (user.regions != null) {
+          _selectedLocations = List<String>.from(user.regions!);
+        }
+      });
+    } catch (e) {
+      debugPrint('Error fetching user profile: $e');
+    }
+  }
+
   Future<bool> _saveProfile(BuildContext context) async {
     setState(() {
       _isLoading = true;
@@ -122,81 +163,49 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     }
 
     try {
-      final userType = await ApiService.getUserTypes();
-      final selectedUserType = userType.firstWhere(
-        (role) => role.value == authState.role,
-        orElse: () => Role.fromValues(
-          id: 0,
-          name: "",
-          value: authState.role,
-        ),
-      );
-
-      final appUser = AppUser(
-        userTypeId: selectedUserType.id,
-        companyName: _companyNameController.text,
-        contactPerson: _contactPersonController.text,
-        mobile: _phoneController.text,
-        email: _emailController.text,
-        streetLine: _streetLineController.text,
-        townCity: _townCityController.text,
-        state: _stateController.text,
-        country: _countryController.text,
-        pincode: _pinCodeController.text,
-        regionId: null,
-        userType: UserType(
-          id: selectedUserType.id,
-          name: selectedUserType.name,
-          publish: 1,
-        ),
-        regions: _selectedLocations.isNotEmpty ? _selectedLocations : null,
-      );
-
-      try {
-        if (authState.userId != null) {
-          // Update existing user
-          try {
-            final userId = int.parse(authState.userId!);
-            await ApiService.updateAppUser(userId, appUser);
-          } catch (e) {
-            throw Exception("Invalid user ID format: ${authState.userId}");
-          }
-        } else {
-          // Create new user
-          final createdUser = await ApiService.createAppUser(appUser);
-          // Update auth state with new user ID
-          ref.read(authProvider.notifier).update((state) => state.copyWith(
-                userId: createdUser.id.toString(),
-              ));
-        }
-
+      // Get userId and token from provider (update as per your provider)
+      final userId = authState.userId;
+      final token = await ref.read(authProvider.notifier).getToken(); // Implement getToken if needed
+      final formData = {
+        'company_name': _companyNameController.text,
+        'contact_person': _contactPersonController.text,
+        'mobile': _phoneController.text,
+        'alternate_number': _alternateNumberController.text,
+        'email': _emailController.text,
+        'street_line': _streetLineController.text,
+        'town_city': _townCityController.text,
+        'state': _stateController.text,
+        'country': _countryController.text,
+        'pincode': _pinCodeController.text,
+        'gstin': _gstController.text,
+        'pan': _panController.text,
+        // Add other fields as needed
+      };
+      final success = await ApiService.updateUserProfile(userId!, formData, token);
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Profile saved successfully!"),
             backgroundColor: Colors.green,
           ),
         );
-        setState(() {
-          _isLoading = false;
-        });
+        Navigator.pushReplacementNamed(context, '/dashboard');
         return true;
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error saving profile: $e")),
+          const SnackBar(content: Text("Failed to save profile")),
         );
         return false;
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error saving profile: $e")),
+      );
+      return false;
+    } finally {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching user types: $e")),
-      );
-      return false;
     }
   }
 
@@ -263,6 +272,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profi1le'),

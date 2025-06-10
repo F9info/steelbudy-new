@@ -191,31 +191,28 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                       _isLoading = true;
                                       _error = null;
                                     });
-
                                     try {
-                                      await ref
-                                          .read(authProvider.notifier)
-                                          .login(
-                                            authState.phoneNumber!,
-                                            _selectedRole!,
-                                          );
-
-                                      if (mounted) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Layout(
-                                              appBarTitle: 'Edit Profile',
-                                              initialIndex: 2,
-                                              child: const EditProfile(),
-                                            ),
-                                          ),
-                                        );
+                                      // Get userId and token from provider (update as per your provider)
+                                      final userId = authState.userId;
+                                      final token = await ref.read(authProvider.notifier).getToken(); // Implement getToken if needed
+                                      final selectedRoleId = _roles.firstWhere((role) => role.value == _selectedRole).id;
+                                      final success = await ApiService.updateUserRole(userId!, selectedRoleId, token);
+                                      if (success) {
+                                        // Call authProvider.login with the selected role
+                                        print('Calling authProvider.login after role selection: ${authState.phoneNumber}');
+                                        await ref.read(authProvider.notifier).login(authState.phoneNumber!, _selectedRole);
+                                        Navigator.pushReplacementNamed(context, '/edit-profile');
+                                      } else {
+                                        setState(() {
+                                          _error = 'Failed to update role';
+                                        });
                                       }
                                     } catch (e) {
                                       setState(() {
-                                        _error =
-                                            'Failed to login: ${e.toString()}';
+                                        _error = 'Error: $e';
+                                      });
+                                    } finally {
+                                      setState(() {
                                         _isLoading = false;
                                       });
                                     }
@@ -239,7 +236,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                     ),
                                   )
                                 : const Text(
-                                    'Submit',
+                                    'Continue',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:steel_budy/features/layout/layout.dart';
 import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
@@ -47,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        MaterialPageRoute(builder: (context) => Layout(appBarTitle: 'Dashboard', child: const DashboardScreen())),
       );
     } else {
       Navigator.pushReplacement(

@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
         // '/': (context) => const SplashScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         '/login': (context) => const LoginScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
+        '/dashboard': (context) => Layout(appBarTitle: 'Dashboard', child: const DashboardScreen()),
         '/edit-profile': (context) => const EditProfile(),
         '/notifications': (context) => const NotificationScreen(),
         '/profile': (context) => ProfileScreen(),
