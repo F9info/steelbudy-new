@@ -151,6 +151,14 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       } else if (response['status'] == 'new') {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+
+        // Store userId in SharedPreferences and update provider state
+        final userId = response['user']?['id']?.toString();
+        if (userId != null) {
+          await prefs.setString('userId', userId);
+          ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
+        }
+
         // Do NOT call authProvider.login here; wait for role selection
         Navigator.pushReplacementNamed(context, '/select-role');
       } else {
