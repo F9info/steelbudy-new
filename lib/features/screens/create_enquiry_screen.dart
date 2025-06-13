@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/models/delivery-terms.dart';
 import 'package:steel_budy/models/payment_term.dart';
 import 'package:steel_budy/models/application_settings_model.dart';
 import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_budy/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add_product_popup.dart';
+import 'package:flutter/services.dart';
 
-class CreateEnquiryScreen extends StatefulWidget {
+class CreateEnquiryScreen extends ConsumerStatefulWidget {
   const CreateEnquiryScreen({Key? key}) : super(key: key);
 
   @override
-  State<CreateEnquiryScreen> createState() => _CreateEnquiryScreenState();
+  ConsumerState<CreateEnquiryScreen> createState() => _CreateEnquiryScreenState();
 }
 
-class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
+class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedPaymentTerm;
   String? _creditDays;
@@ -24,29 +27,37 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   String? _withinDays;
   String? _immediateHours;
 
-  List<String> _selectedProductNames = [];
-  Map<String, dynamic>? _productDetails;
+  List<Map<String, dynamic>> _selectedProducts = [];
 
   ApplicationSettings? _settings;
+
+  List<PaymentTerm>? _paymentTerms;
+  List<DeliveryTerm>? _deliveryTerms;
+  List<String>? _deliveryConditions;
+  List<String>? _deliveryDates;
 
   int _selectedIndex = 1;
 
   @override
   void initState() {
     super.initState();
-    _fetchApplicationSettings();
+    _fetchInitialData();
   }
 
-  Future<void> _fetchApplicationSettings() async {
+  Future<void> _fetchInitialData() async {
     try {
       final settings = await ApiService.getApplicationSettings();
+      final paymentTerms = await ApiService.getPaymentTerms();
+      final deliveryTerms = await ApiService.getDeliveryTerms();
       setState(() {
         _settings = settings;
+        _paymentTerms = paymentTerms;
+        _deliveryTerms = deliveryTerms;
+        _deliveryConditions = settings.deliveryConditions;
+        _deliveryDates = settings.deliveryDates;
       });
-      print('Fetched delivery conditions: ${settings.deliveryConditions}');
-      print('Fetched delivery dates: ${settings.deliveryDates}');
     } catch (e) {
-      print('Error fetching application settings: $e');
+      print('Error fetching initial data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching settings: $e')),
       );
@@ -74,15 +85,18 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
       ),
     );
 
-    if (result != null) {
+    if (result != null && result is List) {
       setState(() {
-        _productDetails = result;
-        _selectedProductNames = [];
-        result['selectedProducts'].forEach((product, isSelected) {
-          if (isSelected) {
-            _selectedProductNames.add(product);
+        // Avoid duplicates by product+brand
+        for (final newProduct in result) {
+          final exists = _selectedProducts.any((p) =>
+            p['productId'] == newProduct['productId'] &&
+            p['brandId'] == newProduct['brandId']
+          );
+          if (!exists) {
+            _selectedProducts.add(newProduct);
           }
-        });
+        }
       });
     }
   }
@@ -101,9 +115,58 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
   Future<void> _submitEnquiry() async {
     if (_formKey.currentState!.validate()) {
       // Validate that at least one product is selected
-      if (_selectedProductNames.isEmpty) {
+      if (_selectedProducts.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please select at least one product')),
+        );
+        return;
+      }
+      // Validate required fields
+      if (_selectedPaymentTerm == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a payment term')),
+        );
+        return;
+      }
+      if (_selectedPaymentTerm == 'Credit' && (_creditDays == null || _creditDays!.isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter credit days')),
+        );
+        return;
+      }
+      if (_selectedDeliveryTerm == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a delivery term')),
+        );
+        return;
+      }
+      if (_selectedDeliveryTerm == 'Delivered To' && (_deliveryAddress == null || _deliveryAddress!.isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter delivery address')),
+        );
+        return;
+      }
+      if (_selectedDeliveryCondition == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a delivery condition')),
+        );
+        return;
+      }
+      if (_selectedDeliveryDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a delivery date')),
+        );
+        return;
+      }
+      if (_selectedDeliveryDate == 'Immediate' && (_immediateHours == null || _immediateHours!.isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter no of hours')),
+        );
+        return;
+      }
+      if (_selectedDeliveryDate == 'Within' && (_withinDays == null || _withinDays!.isEmpty)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter no of days')),
         );
         return;
       }
@@ -111,92 +174,26 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
       try {
         // Prepare the products array
         List<Map<String, dynamic>> products = [];
-        if (_productDetails != null) {
-          final selectedProducts = _productDetails!['selectedProducts'] as Map<String, bool>;
-          final brands = _productDetails!['brands'] as Map<String, String?>;
-          final quantities = _productDetails!['quantities'] as Map<String, String?>;
-          final pieces = _productDetails!['pieces'] as Map<String, String?>;
-          final productIds = _productDetails!['productIds'] as Map<String, dynamic>;
-          final brandIds = _productDetails!['brandIds'] as Map<String, dynamic>;
-
-          for (var product in selectedProducts.keys) {
-            if (selectedProducts[product] == true) {
-              // Get product ID
-              final productId = productIds[product];
-              if (productId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Product ID not found for $product')),
-                );
-                return;
-              }
-
-              // Get brand ID
-              final brandName = brands[product];
-              if (brandName == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Please select a brand for $product')),
-                );
-                return;
-              }
-              final brandId = brandIds[brandName];
-              if (brandId == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Brand ID not found for $brandName')),
-                );
-                return;
-              }
-
-              // Validate quantity
-              if (quantities[product] == null || quantities[product]!.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Please enter quantity for $product')),
-                );
-                return;
-              }
-
-              products.add({
-                'product_id': productId,
-                'brand_id': brandId,
-                'quantity': quantities[product],
-                'pieces': pieces[product],
-              });
-            }
-          }
+        for (var product in _selectedProducts) {
+          products.add({
+            'product_id': product['productId'],
+            'brand_id': product['brandId'],
+            'quantity': product['qty'],
+            'pieces': product['pieces'],
+          });
         }
 
-        // Validate required fields
-        if (_selectedPaymentTerm == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please select a payment term')),
-          );
-          return;
-        }
-        if (_selectedDeliveryTerm == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please select a delivery term')),
-          );
-          return;
-        }
-        if (_selectedDeliveryCondition == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please select a delivery condition')),
-          );
-          return;
-        }
-        if (_selectedDeliveryDate == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please select a delivery date')),
-          );
-          return;
-        }
+        // Get user ID from auth provider
+        final authState = ref.read(authProvider);
+        final userId = authState.userId;
 
         // Prepare the payload
         final payload = {
-          'app_user_id': '1', // Replace with actual user ID from auth
+          'app_user_id': userId,
           'payment_terms': _selectedPaymentTerm,
           'delivery_terms': _selectedDeliveryTerm,
-          'delivery_address': _deliveryAddress ?? _settings?.supportAddress,
           'delivery_condition': _selectedDeliveryCondition,
+          'delivery_address': _selectedDeliveryTerm == 'Delivered To' ? _deliveryAddress : null,
           'delivery_date': _selectedDeliveryDate,
           'payment_terms_description': _selectedPaymentTerm == 'Credit' ? _creditDays : null,
           'delivery_date_hours': _selectedDeliveryDate == 'Immediate' ? _immediateHours : null,
@@ -206,6 +203,8 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
 
         // Send the enquiry to the backend
         await ApiService.submitEnquiry(payload);
+
+        print(payload);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Enquiry submitted successfully!')),
@@ -221,6 +220,7 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = _paymentTerms == null || _deliveryTerms == null || _deliveryConditions == null || _deliveryDates == null;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -230,271 +230,332 @@ class _CreateEnquiryScreenState extends State<CreateEnquiryScreen> {
         title: const Text('Your Enquiry'),
         backgroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedProductNames.isEmpty
-                          ? 'No products selected'
-                          : '${_selectedProductNames.length} product${_selectedProductNames.length > 1 ? 's' : ''} selected',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: _showAddProductPopup,
-                      child: const Text(
-                        'Add Product',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: () {
-                      _makePhoneCall(_settings?.supportNumber ?? '6305953196');
-                    },
-                    child: const Text(
-                      'Call Now',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'PAYMENT TERMS',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                FutureBuilder<List<PaymentTerm>>(
-                  future: ApiService.getPaymentTerms(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          children: [
-                            Text('Error: ${snapshot.error}'),
-                            ElevatedButton(
-                              onPressed: () => setState(() {}),
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No payment terms available'));
-                    }
-
-                    final paymentTerms = snapshot.data!;
-                    return Column(
-                      children: paymentTerms.map((term) {
-                        return RadioListTile<String>(
-                          title: Text(term.name),
-                          value: term.name,
-                          groupValue: _selectedPaymentTerm,
-                          onChanged: (value) => setState(() => _selectedPaymentTerm = value),
-                          activeColor: Colors.purple,
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                if (_selectedPaymentTerm == 'Credit')
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Days',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) => _creditDays = val,
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'Enter credit days' : null,
-                  ),
-                const SizedBox(height: 16),
-                const Text(
-                  'DELIVERY TERMS',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                FutureBuilder<List<DeliveryTerm>>(
-                  future: ApiService.getDeliveryTerms(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          children: [
-                            Text('Error: ${snapshot.error}'),
-                            ElevatedButton(
-                              onPressed: () => setState(() {}),
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No delivery terms available'));
-                    }
-
-                    final deliveryTerms = snapshot.data!;
-                    return Column(
-                      children: deliveryTerms.map((term) {
-                        return RadioListTile<String>(
-                          title: Text(term.name),
-                          value: term.name,
-                          groupValue: _selectedDeliveryTerm,
-                          onChanged: (value) => setState(() => _selectedDeliveryTerm = value),
-                          activeColor: Colors.purple,
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                if (_selectedDeliveryTerm == 'Delivered To') ...[
-                  const SizedBox(height: 16),
-                  const Text(
-                    'DELIVERY ADDRESS',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                    initialValue: _settings?.supportAddress ?? 'Self-Pickup Ex-Visakhapatnam',
-                    maxLines: 3,
-                    onChanged: (val) => _deliveryAddress = val,
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'Enter delivery address' : null,
-                  ),
-                ],
-                const SizedBox(height: 16),
-                const Text(
-                  'DELIVERY CONDITION',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                if (_settings == null || _settings!.deliveryConditions.isEmpty)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  ..._settings!.deliveryConditions.map((condition) {
-                    return RadioListTile<String>(
-                      title: Text(condition),
-                      value: condition,
-                      groupValue: _selectedDeliveryCondition,
-                      onChanged: (value) =>
-                          setState(() => _selectedDeliveryCondition = value),
-                      activeColor: Colors.purple,
-                    );
-                  }).toList(),
-                const SizedBox(height: 16),
-                const Text(
-                  'DELIVERY DATE',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                if (_settings == null || _settings!.deliveryDates.isEmpty)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  ..._settings!.deliveryDates.map((date) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        RadioListTile<String>(
-                          title: Text(date),
-                          value: date,
-                          groupValue: _selectedDeliveryDate,
-                          onChanged: (value) => setState(() => _selectedDeliveryDate = value),
-                          activeColor: Colors.purple,
-                        ),
-                        if (_selectedDeliveryDate == date && date == 'Within')
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Days',
-                                border: OutlineInputBorder(),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedProducts.isEmpty
+                                ? 'No products selected'
+                                : '${_selectedProducts.length} product${_selectedProducts.length > 1 ? 's' : ''} selected',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              keyboardType: TextInputType.number,
-                              onChanged: (val) => _withinDays = val,
-                              validator: (val) =>
-                                  val == null || val.isEmpty ? 'Enter days' : null,
+                            ),
+                            onPressed: _showAddProductPopup,
+                            child: Text(
+                              'Add Product',
+                              style: const TextStyle(color: Colors.white),
                             ),
                           ),
-                        if (_selectedDeliveryDate == date && date == 'Immediate')
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-                            child: TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: 'Hours',
-                                border: OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.number,
-                              onChanged: (val) => _immediateHours = val,
-                              validator: (val) =>
-                                  val == null || val.isEmpty ? 'Enter hours' : null,
+                        ],
+                      ),
+                      if (_selectedProducts.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Table(
+                          border: TableBorder.all(color: Colors.grey),
+                          columnWidths: const {
+                            0: FlexColumnWidth(2),
+                            1: FlexColumnWidth(2),
+                            2: FlexColumnWidth(1.5),
+                            3: FlexColumnWidth(1.5),
+                            4: FlexColumnWidth(1),
+                          },
+                          children: [
+                            const TableRow(
+                              decoration: BoxDecoration(color: Color(0xFFE0E0E0)),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text('Product', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text('Brand', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text('Qty', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text('Pieces', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                                SizedBox(),
+                              ],
                             ),
-                          ),
+                            ..._selectedProducts.asMap().entries.map((entry) {
+                              final i = entry.key;
+                              final p = entry.value;
+                              return TableRow(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(p['product']?.toString() ?? ''),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(p['brand']?.toString() ?? ''),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(p['qty']?.toString() ?? ''),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(p['pieces']?.toString() ?? ''),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedProducts.removeAt(i);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ],
+                        ),
                       ],
-                    );
-                  }).toList(),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          onPressed: () {
+                            _makePhoneCall(_settings?.supportNumber ?? '6305953196');
+                          },
+                          child: const Text(
+                            'Call Now',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    onPressed: _submitEnquiry,
-                    child: const Text(
-                      'Submit Enquiry',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16),
+                      const Text(
+                        'PAYMENT TERMS',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      Column(
+                        children: [
+                          ..._paymentTerms!.map((term) {
+                            return RadioListTile<String>(
+                              title: Text(term.name),
+                              value: term.name,
+                              groupValue: _selectedPaymentTerm,
+                              onChanged: (value) => setState(() => _selectedPaymentTerm = value),
+                              activeColor: Colors.purple,
+                            );
+                          }).toList(),
+                          if (_selectedPaymentTerm == 'Credit')
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+                              child: TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Days',
+                                  border: OutlineInputBorder(),
+                                ),
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                onChanged: (val) => _creditDays = val,
+                                validator: (val) {
+                                  if (_selectedPaymentTerm == 'Credit') {
+                                    if (val == null || val.isEmpty) {
+                                      return 'Enter credit days';
+                                    }
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'DELIVERY TERMS',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Column(
+                        children: [
+                          ..._deliveryTerms!.map((term) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RadioListTile<String>(
+                                  title: Text(term.name),
+                                  value: term.name,
+                                  groupValue: _selectedDeliveryTerm,
+                                  onChanged: (value) => setState(() => _selectedDeliveryTerm = value),
+                                  activeColor: Colors.purple,
+                                ),
+                                if (_selectedDeliveryTerm == 'Delivered To' && term.name == 'Delivered To')
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 32.0, right: 16.0, bottom: 8.0),
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: 'Delivery Address',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      initialValue: _deliveryAddress ?? _settings?.supportAddress ?? 'Self-Pickup Ex-Visakhapatnam',
+                                      maxLines: 3,
+                                      onChanged: (val) => _deliveryAddress = val,
+                                      validator: (val) {
+                                        if (_selectedDeliveryTerm == 'Delivered To') {
+                                          if (val == null || val.isEmpty) {
+                                            return 'Enter delivery address';
+                                          }
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'DELIVERY CONDITION',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Column(
+                        children: _deliveryConditions!.map((condition) {
+                          final trimmedCondition = condition.trim();
+                          return RadioListTile<String>(
+                            title: Text(trimmedCondition),
+                            value: trimmedCondition,
+                            groupValue: _selectedDeliveryCondition?.trim(),
+                            onChanged: (value) => setState(() => _selectedDeliveryCondition = value),
+                            activeColor: Colors.purple,
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'DELIVERY DATE',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ..._deliveryDates!.map((date) {
+                            final trimmedDate = date.trim();
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                RadioListTile<String>(
+                                  title: Text(trimmedDate),
+                                  value: trimmedDate,
+                                  groupValue: _selectedDeliveryDate?.trim(),
+                                  onChanged: (value) => setState(() => _selectedDeliveryDate = value),
+                                  activeColor: Colors.purple,
+                                ),
+                                if (_selectedDeliveryDate?.trim() == trimmedDate && trimmedDate == 'Within')
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 32.0, right: 16.0, bottom: 8.0),
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: 'No of Days',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      onChanged: (val) => _withinDays = val,
+                                      validator: (val) {
+                                        if (_selectedDeliveryDate?.trim() == 'Within') {
+                                          if (val == null || val.isEmpty) {
+                                            return 'Enter no of days';
+                                          }
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                if (_selectedDeliveryDate?.trim() == trimmedDate && trimmedDate == 'Immediate')
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 32.0, right: 16.0, bottom: 8.0),
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: 'No of Hours',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      onChanged: (val) => _immediateHours = val,
+                                      validator: (val) {
+                                        if (_selectedDeliveryDate?.trim() == 'Immediate') {
+                                          if (val == null || val.isEmpty) {
+                                            return 'Enter no of hours';
+                                          }
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: _submitEnquiry,
+                          child: const Text(
+                            'Submit Enquiry',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

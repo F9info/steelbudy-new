@@ -12,6 +12,7 @@ import 'package:steel_budy/models/category_model.dart';
 import 'package:steel_budy/models/brand_model.dart';
 import 'package:steel_budy/models/region_model.dart';
 import 'package:steel_budy/models/app_user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ApiService {
@@ -272,7 +273,10 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
-
+    print('API submitEnquiry URL: ${Uri.parse('$baseUrl/customer-orders')}');
+    print('API submitEnquiry payload: $payload');
+    print('API submitEnquiry status: ${response.statusCode}');
+    print('API submitEnquiry body: ${response.body}');
     if (response.statusCode == 201) {
       // Success
       return;
@@ -431,6 +435,50 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     print('API updateUserProfile status: ${response.statusCode}');
     print('API updateUserProfile body: ${response.body}');
     return response.statusCode == 200;
+  }
+
+  static Future<List<dynamic>> getCustomerOrdersForCurrentUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId'); // Use the correct key and type
+
+      if (userId == null) {
+        throw Exception('User ID not found in shared preferences');
+      }
+
+      final response = await _client.get(
+        Uri.parse('$baseUrl/enquiries?user_id=$userId'),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data != null) {
+          return data as List<dynamic>;
+        } else {
+          throw Exception('No customer orders found in response');
+        }
+      } else {
+        throw Exception('Failed to load customer orders: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching customer orders: $e');
+    }
+  }
+
+  static Future<List<dynamic>> getProductTypes() async {
+    final response = await _client.get(Uri.parse('$baseUrl/product-types')).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data is List) {
+        return data;
+      } else if (data is Map && data['productTypes'] is List) {
+        return data['productTypes'];
+      } else {
+        throw Exception('Invalid product types response');
+      }
+    } else {
+      throw Exception('Failed to load product types: ${response.statusCode}');
+    }
   }
 }
 

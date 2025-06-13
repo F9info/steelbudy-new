@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:steel_budy/services/api_service.dart';
 
 class AddProductPopup extends StatefulWidget {
   const AddProductPopup({super.key});
@@ -14,10 +15,13 @@ class _AddProductPopupState extends State<AddProductPopup> {
   Map<String, String?> _selectedBrands = {};
   Map<String, String?> _quantities = {};
   Map<String, String?> _pieces = {};
-  List<String> _brands = [];
+  List<String> _allBrands = [];
   Map<String, dynamic> _productIdMap = {}; // Store product name to ID mapping
   Map<String, dynamic> _brandIdMap = {}; // Store brand name to ID mapping
   bool _isLoading = true;
+
+  final Map<String, TextEditingController> _quantityControllers = {};
+  final Map<String, TextEditingController> _piecesControllers = {};
 
   static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
 
@@ -27,60 +31,31 @@ class _AddProductPopupState extends State<AddProductPopup> {
     _fetchData();
   }
 
-  Future<List<dynamic>> _getProducts() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/product-types'));
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse is List) {
-          return jsonResponse;
-        } else {
-          throw Exception('Invalid product data format');
-        }
-      } else {
-        throw Exception('Failed to load products: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to load products: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> _getBrands() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/brands'));
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('brands')) {
-          return jsonResponse;
-        } else {
-          throw Exception('Invalid brand data format');
-        }
-      } else {
-        throw Exception('Failed to load brands: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to load brands: $e');
-    }
-  }
-
   Future<void> _fetchData() async {
     try {
-      final productsData = await _getProducts();
+      final productsData = await ApiService.getProductTypes();
       final products = productsData
           .where((product) => product['publish'] == 1 && product.containsKey('name') && product.containsKey('id'))
           .toList();
 
-      final brandsData = await _getBrands();
-      final brands = (brandsData['brands'] as List)
-          .where((brand) => brand['publish'] == 1 && brand.containsKey('name') && brand.containsKey('id'))
+      final brandsData = await ApiService.getBrands();
+      final brands = (brandsData as List)
+          .where((brand) => brand.name != null && brand.id != null)
           .toList();
 
       setState(() {
         _selectedProducts = {for (var product in products) product['name'] as String: false};
         _productIdMap = {for (var product in products) product['name'] as String: product['id']};
-        _brands = brands.map((brand) => brand['name'] as String).toList();
-        _brandIdMap = {for (var brand in brands) brand['name'] as String: brand['id']};
+        _allBrands = brands.map((brand) => brand.name as String).toList();
+        _brandIdMap = {for (var brand in brands) brand.name as String: brand.id};
         _isLoading = false;
+        // Reset selected brands if not in the new _allBrands
+        _selectedBrands.updateAll((product, brand) => _allBrands.contains(brand) ? brand : null);
+        // Initialize controllers
+        for (var product in _selectedProducts.keys) {
+          _quantityControllers[product] = TextEditingController(text: _quantities[product] ?? '');
+          _piecesControllers[product] = TextEditingController(text: _pieces[product] ?? '');
+        }
       });
     } catch (e) {
       setState(() {
@@ -90,6 +65,18 @@ class _AddProductPopupState extends State<AddProductPopup> {
         SnackBar(content: Text('Error fetching data: $e')),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers
+    for (var controller in _quantityControllers.values) {
+      controller.dispose();
+    }
+    for (var controller in _piecesControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -161,8 +148,6 @@ class _AddProductPopupState extends State<AddProductPopup> {
                     ),
                     ..._selectedProducts.keys.map((product) {
                       final isSelected = _selectedProducts[product] ?? false;
-                      final quantityValue = _quantities[product] ?? '';
-                      final piecesValue = _pieces[product] ?? '';
                       final isQuantityEditable = isSelected;
                       final isPiecesEditable = isSelected && !product.contains('MS Binding Wire') && !product.contains('Nails');
 
@@ -177,6 +162,8 @@ class _AddProductPopupState extends State<AddProductPopup> {
                                   if (!value!) {
                                     _quantities[product] = null;
                                     _pieces[product] = null;
+                                    _quantityControllers[product]?.text = '';
+                                    _piecesControllers[product]?.text = '';
                                   }
                                 });
                               },
@@ -194,7 +181,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
                               isExpanded: true,
                               hint: const Text('Select Brand', style: TextStyle(fontSize: 13)),
                               value: _selectedBrands[product],
-                              items: _brands.map((brand) {
+                              items: _allBrands.map((brand) {
                                 return DropdownMenuItem(
                                   value: brand,
                                   child: Text(brand, style: const TextStyle(fontSize: 13)),
@@ -214,9 +201,9 @@ class _AddProductPopupState extends State<AddProductPopup> {
                             child: TextFormField(
                               enabled: isQuantityEditable,
                               readOnly: !isQuantityEditable,
-                              keyboardType: TextInputType.number,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               style: const TextStyle(fontSize: 13),
-                              controller: TextEditingController(text: quantityValue),
+                              controller: _quantityControllers[product],
                               decoration: InputDecoration(
                                 isDense: true,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -238,6 +225,10 @@ class _AddProductPopupState extends State<AddProductPopup> {
                               onChanged: (value) {
                                 setState(() {
                                   _quantities[product] = value;
+                                  if (value.isNotEmpty) {
+                                    _pieces[product] = null;
+                                    _piecesControllers[product]?.text = '';
+                                  }
                                 });
                               },
                             ),
@@ -249,9 +240,9 @@ class _AddProductPopupState extends State<AddProductPopup> {
                                 : TextFormField(
                                     enabled: isPiecesEditable,
                                     readOnly: !isPiecesEditable,
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                     style: const TextStyle(fontSize: 13),
-                                    controller: TextEditingController(text: piecesValue),
+                                    controller: _piecesControllers[product],
                                     decoration: InputDecoration(
                                       isDense: true,
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -273,6 +264,10 @@ class _AddProductPopupState extends State<AddProductPopup> {
                                     onChanged: (value) {
                                       setState(() {
                                         _pieces[product] = value;
+                                        if (value.isNotEmpty) {
+                                          _quantities[product] = null;
+                                          _quantityControllers[product]?.text = '';
+                                        }
                                       });
                                     },
                                   ),
@@ -294,14 +289,47 @@ class _AddProductPopupState extends State<AddProductPopup> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pop(context, {
-                      'selectedProducts': _selectedProducts,
-                      'brands': _selectedBrands,
-                      'quantities': _quantities,
-                      'pieces': _pieces,
-                      'productIds': _productIdMap,
-                      'brandIds': _brandIdMap,
-                    });
+                    // Validation
+                    final selected = _selectedProducts.entries.where((e) => e.value).map((e) => e.key).toList();
+                    if (selected.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please select at least one product.')),
+                      );
+                      return;
+                    }
+                    for (final product in selected) {
+                      final brand = _selectedBrands[product];
+                      final qty = _quantities[product];
+                      final pcs = _pieces[product];
+                      if (brand == null || brand.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please select a brand for $product.')),
+                        );
+                        return;
+                      }
+                      if ((qty == null || qty.isEmpty) && (pcs == null || pcs.isEmpty)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please enter quantity or pieces for $product.')),
+                        );
+                        return;
+                      }
+                      if ((qty != null && qty.isNotEmpty) && (pcs != null && pcs.isNotEmpty)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Please enter either quantity or pieces for $product, not both.')),
+                        );
+                        return;
+                      }
+                    }
+                    // Prepare selected products list
+                    final List<Map<String, dynamic>> selectedProducts = selected.map((product) => {
+                      'product': product,
+                      'brand': _selectedBrands[product],
+                      'qty': _quantities[product],
+                      'pieces': _pieces[product],
+                      'productId': _productIdMap[product],
+                      'brandId': _brandIdMap[_selectedBrands[product]],
+                    }).toList();
+                    Navigator.pop(context, selectedProducts);
                   },
                   child: const Text(
                     'Apply',

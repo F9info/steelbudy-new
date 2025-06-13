@@ -152,15 +152,15 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     }
 
     final authState = ref.read(authProvider);
-    if (authState.role.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a role first")),
-      );
-      setState(() {
-        _isLoading = false;
-      });
-      return false;
-    }
+    // if (authState.role.isEmpty) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text("Please select a role first")),
+    //   );
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    //   return false;
+    // }
 
     try {
       // Get userId and token from provider (update as per your provider)
