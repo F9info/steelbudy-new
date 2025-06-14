@@ -204,12 +204,10 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         // Send the enquiry to the backend
         await ApiService.submitEnquiry(payload);
 
-        print(payload);
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Enquiry submitted successfully!')),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error submitting enquiry: $e')),

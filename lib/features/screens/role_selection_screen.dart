@@ -6,6 +6,7 @@ import '../../models/application_settings_model.dart';
 import '../../providers/auth_provider.dart';
 import 'package:steel_budy/features/layout/layout.dart';
 import 'package:steel_budy/features/screens/edit-profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -192,15 +193,15 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                       _error = null;
                                     });
                                     try {
-                                      // Get userId and token from provider (update as per your provider)
+                                      final prefs = await SharedPreferences.getInstance();
                                       final userId = authState.userId;
-                                      final token = await ref.read(authProvider.notifier).getToken(); // Implement getToken if needed
+                                      final token = authState.token ?? await ref.read(authProvider.notifier).getToken();
                                       final selectedRoleId = _roles.firstWhere((role) => role.value == _selectedRole).id;
-                                      final success = await ApiService.updateUserRole(userId!, selectedRoleId, token);
+                                      final success = await ApiService.updateUserRole(userId!.toString(), selectedRoleId, token);
                                       if (success) {
-                                        // Call authProvider.login with the selected role
-                                        print('Calling authProvider.login after role selection: ${authState.phoneNumber}');
-                                        await ref.read(authProvider.notifier).login(authState.phoneNumber!, _selectedRole);
+                                        await prefs.setString('role', _selectedRole!);
+                                        ref.read(authProvider.notifier).update((state) => state.copyWith(role: _selectedRole));
+                                        await ref.read(authProvider.notifier).login(authState.phoneNumber!, _selectedRole, token: token);
                                         Navigator.pushReplacementNamed(context, '/edit-profile');
                                       } else {
                                         setState(() {

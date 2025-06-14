@@ -13,6 +13,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTabIndex = 0;
+  late Future<List<dynamic>> _enquiriesFuture;
 
   @override
   void initState() {
@@ -25,6 +26,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
         });
       }
     });
+    _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
   }
 
   @override
@@ -59,13 +61,18 @@ class _EnquiryScreenState extends State<EnquiryScreen>
           child: SizedBox(
             width: double.infinity, // Full width button
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const CreateEnquiryScreen(),
                   ),
                 );
+                if (result == true) {
+                  setState(() {
+                    _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                  });
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
@@ -92,7 +99,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
             children: [
               // New tab: pending or inprogress
               FutureBuilder<List<dynamic>>(
-                future: ApiService.getCustomerOrdersForCurrentUser(),
+                future: _enquiriesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -135,7 +142,6 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                         final location = order['location'] ?? 'Location';
                         final createdAt = order['created_at'] ?? '';
                         final products = (order['custom_order_products'] ?? []) as List;
-                        print('custom_order_products for order ID ${order['id']}: ' + products.toString());
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
                           elevation: 0,
@@ -203,10 +209,14 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 12),
                                 // Other fields
-                                Text('Payment Terms: ${order['payment_terms'] ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text('Payment Terms: ${order['payment_terms'] ?? ''}'),
                                 SizedBox(height: 10),
                                 Text('Delivery Terms: ${order['delivery_terms'] ?? ''}'),
                                 SizedBox(height: 10),
+                                if (order['delivery_terms'] == 'Delivered To') ...[
+                                  Text('Delivery Address: ${order['delivery_address'] ?? ''}'),
+                                  SizedBox(height: 10),
+                                ],
                                 Text('Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
                                 SizedBox(height: 10),
                                 Text('Delivery Date: ${order['delivery_date'] ?? ''}'),
@@ -226,18 +236,35 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 8),
                                 // Cancel Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Handle cancel
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          await ApiService.cancelEnquiry(order['id']);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Enquiry cancelled')),
+                                          );
+                                          if (mounted) {
+                                            setState(() {
+                                              _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                              _tabController.index = 2; // Switch to Expired tab
+                                            });
+                                          }
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Failed to cancel enquiry')),
+                                          );
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: Text('Cancel', style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text('Cancel', style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ),
@@ -250,7 +277,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
               ),
               // Finalized tab: done
               FutureBuilder<List<dynamic>>(
-                future: ApiService.getCustomerOrdersForCurrentUser(),
+                future: _enquiriesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -293,7 +320,6 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                         final location = order['location'] ?? 'Location';
                         final createdAt = order['created_at'] ?? '';
                         final products = (order['custom_order_products'] ?? []) as List;
-                        print('custom_order_products for order ID ${order['id']}: ' + products.toString());
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
                           elevation: 0,
@@ -384,18 +410,35 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 8),
                                 // Cancel Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Handle cancel
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          await ApiService.cancelEnquiry(order['id']);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Enquiry cancelled')),
+                                          );
+                                          if (mounted) {
+                                            setState(() {
+                                              _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                              _tabController.index = 2; // Switch to Expired tab
+                                            });
+                                          }
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Failed to cancel enquiry')),
+                                          );
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: Text('Cancel', style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text('Cancel', style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ),
@@ -408,7 +451,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
               ),
               // Expired tab: expired
               FutureBuilder<List<dynamic>>(
-                future: ApiService.getCustomerOrdersForCurrentUser(),
+                future: _enquiriesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -426,7 +469,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     );
                   }
                   final orders = snapshot.data!;
-                  final expiredOrders = orders.where((order) => order['status'] == 'expired').toList();
+                  final expiredOrders = orders.where((order) => order['status'] == 'expired' || order['status'] == 'cancelled').toList();
                   Widget buildOrderList(List<dynamic> filteredOrders) {
                     if (filteredOrders.isEmpty) {
                       return const Center(
@@ -451,7 +494,6 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                         final location = order['location'] ?? 'Location';
                         final createdAt = order['created_at'] ?? '';
                         final products = (order['custom_order_products'] ?? []) as List;
-                        print('custom_order_products for order ID ${order['id']}: ' + products.toString());
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
                           elevation: 0,
@@ -529,6 +571,14 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 SizedBox(height: 10),
                                 Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
                                 SizedBox(height: 10),
+                                Text(
+                                  order['status'] == 'cancelled' ? 'Status: Cancelled' : 'Status: Expired',
+                                  style: TextStyle(
+                                    color: order['status'] == 'cancelled' ? Colors.red : Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
                                 // No Quotations Button
                                 SizedBox(
                                   width: double.infinity,
@@ -542,18 +592,35 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 8),
                                 // Cancel Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Handle cancel
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          await ApiService.cancelEnquiry(order['id']);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Enquiry cancelled')),
+                                          );
+                                          if (mounted) {
+                                            setState(() {
+                                              _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                              _tabController.index = 2; // Switch to Expired tab
+                                            });
+                                          }
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Failed to cancel enquiry')),
+                                          );
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                      ),
+                                      child: Text('Cancel', style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text('Cancel', style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                           ),

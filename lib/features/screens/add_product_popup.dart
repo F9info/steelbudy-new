@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:steel_budy/services/api_service.dart';
+import 'package:flutter/services.dart';
 
 class AddProductPopup extends StatefulWidget {
   const AddProductPopup({super.key});
@@ -18,6 +19,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
   List<String> _allBrands = [];
   Map<String, dynamic> _productIdMap = {}; // Store product name to ID mapping
   Map<String, dynamic> _brandIdMap = {}; // Store brand name to ID mapping
+  Map<String, int> _productPiecesMap = {}; // Store product name to pieces field
   bool _isLoading = true;
 
   final Map<String, TextEditingController> _quantityControllers = {};
@@ -48,6 +50,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
         _productIdMap = {for (var product in products) product['name'] as String: product['id']};
         _allBrands = brands.map((brand) => brand.name as String).toList();
         _brandIdMap = {for (var brand in brands) brand.name as String: brand.id};
+        _productPiecesMap = {for (var product in products) product['name'] as String: product['pieces'] ?? 1};
         _isLoading = false;
         // Reset selected brands if not in the new _allBrands
         _selectedBrands.updateAll((product, brand) => _allBrands.contains(brand) ? brand : null);
@@ -149,7 +152,8 @@ class _AddProductPopupState extends State<AddProductPopup> {
                     ..._selectedProducts.keys.map((product) {
                       final isSelected = _selectedProducts[product] ?? false;
                       final isQuantityEditable = isSelected;
-                      final isPiecesEditable = isSelected && !product.contains('MS Binding Wire') && !product.contains('Nails');
+                      final showPiecesInput = _productPiecesMap[product] != 0;
+                      final isPiecesEditable = isSelected && showPiecesInput;
 
                       return TableRow(
                         children: [
@@ -204,6 +208,9 @@ class _AddProductPopupState extends State<AddProductPopup> {
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               style: const TextStyle(fontSize: 13),
                               controller: _quantityControllers[product],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*')),
+                              ],
                               decoration: InputDecoration(
                                 isDense: true,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -235,7 +242,7 @@ class _AddProductPopupState extends State<AddProductPopup> {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: product.contains('MS Binding Wire') || product.contains('Nails')
+                            child: !showPiecesInput
                                 ? const Center(child: Text('N/A', style: TextStyle(fontSize: 13)))
                                 : TextFormField(
                                     enabled: isPiecesEditable,
@@ -243,6 +250,9 @@ class _AddProductPopupState extends State<AddProductPopup> {
                                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                     style: const TextStyle(fontSize: 13),
                                     controller: _piecesControllers[product],
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*')),
+                                    ],
                                     decoration: InputDecoration(
                                       isDense: true,
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),

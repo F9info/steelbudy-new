@@ -14,9 +14,9 @@ class AppUser {
   final String? pincode;
   final String? gstin;
   final String? pan;
-  final int? regionId;
   final String? createdAt;
   final UserType? userType;
+  final List<String>? regionIds;
   final List<String>? regions;
 
   AppUser({
@@ -35,13 +35,25 @@ class AppUser {
     this.pincode,
     this.gstin,
     this.pan,
-    this.regionId,
     this.createdAt,
     this.userType,
+    this.regionIds,
     this.regions,
   });
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
+    List<String>? regionIds;
+    if (json['region_id'] != null) {
+      if (json['region_id'] is List) {
+        regionIds = (json['region_id'] as List).map((e) => e.toString()).toList();
+      } else if (json['region_id'] is String) {
+        regionIds = (json['region_id'] as String).split(',').where((e) => e.isNotEmpty).toList();
+      }
+    }
+    List<String>? regions;
+    if (json['regions'] != null && json['regions'] is List) {
+      regions = (json['regions'] as List).map((e) => e.toString()).toList();
+    }
     return AppUser(
       id: json['id'] as int?,
       userTypeId: json['user_type_id'] as int?,
@@ -58,14 +70,12 @@ class AppUser {
       pincode: json['pincode'] as String?,
       gstin: json['gstin'] as String?,
       pan: json['pan'] as String?,
-      regionId: json['region_id'] as int?,
       createdAt: json['created_at'] as String?,
       userType: json['user_type'] != null
           ? UserType.fromJson(json['user_type'] as Map<String, dynamic>)
           : null,
-      regions: json['regions'] != null
-          ? List<String>.from(json['regions'] as List)
-          : null,
+      regionIds: regionIds,
+      regions: regions,
     );
   }
 
@@ -85,8 +95,7 @@ class AppUser {
       'pincode': pincode,
       'gstin': gstin,
       'pan': pan,
-      'region_id': regionId,
-      'regions': regions,
+      'region_id': regionIds?.join(','),
     };
   }
 }

@@ -118,53 +118,83 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
     try {
       String otp = _controllers.map((c) => c.text).join();
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _currentVerificationId!,
-        smsCode: otp,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
-
-      // --- Call backend via ApiService after OTP verification ---
-      final response = await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
-      if (response['status'] == 'existing') {
+      // Dev bypass: if verificationId is 'test-verification-id', skip Firebase verification
+      if (_currentVerificationId == 'test-verification-id') {
+        await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
+        // --- Call backend via ApiService after OTP verification ---
+        final response = await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('phoneNumber', widget.phoneNumber);
+        ref.read(authProvider.notifier).update((state) => state.copyWith(phoneNumber: widget.phoneNumber));
+        final userId = response['user_id']?.toString();
+        final token = response['token']?.toString();
+        final role = response['role']?.toString() ?? '';
 
-        // Fetch user details from backend
-        print('Fetching user by mobile: ${widget.phoneNumber}');
-        final userDetails = await ApiService.getUserByMobile(widget.phoneNumber, '');
-        print('User details fetched: $userDetails');
-        final userRole = userDetails?['user_type_id']?.toString();
-
-        // Store userId in SharedPreferences and update provider state
-        final userId = userDetails?['id']?.toString();
         if (userId != null) {
           await prefs.setString('userId', userId);
           ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
         }
-
-        print('Calling authProvider.login for existing user with role: $userRole');
-        await ref.read(authProvider.notifier).login(widget.phoneNumber, userRole);
-
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else if (response['status'] == 'new') {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-
-        // Store userId in SharedPreferences and update provider state
-        final userId = response['user']?['id']?.toString();
-        if (userId != null) {
-          await prefs.setString('userId', userId);
-          ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
+        if (token != null) {
+          await prefs.setString('token', token);
+          ref.read(authProvider.notifier).update((state) => state.copyWith(token: token));
         }
+        await prefs.setString('role', role);
+        ref.read(authProvider.notifier).update((state) => state.copyWith(role: role));
 
-        // Do NOT call authProvider.login here; wait for role selection
-        Navigator.pushReplacementNamed(context, '/select-role');
+        if (response['status'] == 'existing') {
+          await prefs.setBool('isLoggedIn', true);
+          await ref.read(authProvider.notifier).login(widget.phoneNumber, role, token: token);
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        } else if (response['status'] == 'new') {
+          await prefs.setBool('isLoggedIn', true);
+          // Do NOT call login yet; wait for role selection
+          Navigator.pushReplacementNamed(context, '/select-role');
+        } else {
+          setState(() {
+            _error = 'Unexpected response from server.';
+          });
+        }
       } else {
-        setState(() {
-          _error = 'Unexpected response from server.';
-        });
+        PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: _currentVerificationId!,
+          smsCode: otp,
+        );
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
+
+        // --- Call backend via ApiService after OTP verification ---
+        final response = await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('phoneNumber', widget.phoneNumber);
+        ref.read(authProvider.notifier).update((state) => state.copyWith(phoneNumber: widget.phoneNumber));
+        final userId = response['user_id']?.toString();
+        final token = response['token']?.toString();
+        final role = response['role']?.toString() ?? '';
+
+        if (userId != null) {
+          await prefs.setString('userId', userId);
+          ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
+        }
+        if (token != null) {
+          await prefs.setString('token', token);
+          ref.read(authProvider.notifier).update((state) => state.copyWith(token: token));
+        }
+        await prefs.setString('role', role);
+        ref.read(authProvider.notifier).update((state) => state.copyWith(role: role));
+
+        if (response['status'] == 'existing') {
+          await prefs.setBool('isLoggedIn', true);
+          await ref.read(authProvider.notifier).login(widget.phoneNumber, role, token: token);
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        } else if (response['status'] == 'new') {
+          await prefs.setBool('isLoggedIn', true);
+          // Do NOT call login yet; wait for role selection
+          Navigator.pushReplacementNamed(context, '/select-role');
+        } else {
+          setState(() {
+            _error = 'Unexpected response from server.';
+          });
+        }
       }
     } catch (e) {
       setState(() {

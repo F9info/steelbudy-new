@@ -70,16 +70,10 @@ class _QuotationScreenState extends State<QuotationScreen> with SingleTickerProv
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          // Log error for debugging
-          print('Error fetching orders: ${snapshot.error}');
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          print('No data received from API');
           return const Center(child: Text('No orders found'));
         }
-
-        // Log raw data for debugging
-        print('Raw API data: ${snapshot.data}');
 
         final customerOrders = snapshot.data!;
 
