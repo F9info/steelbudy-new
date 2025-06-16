@@ -50,6 +50,23 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  Future<Map<String, String?>> _fetchProfileHeaderInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+    if (userId == null) {
+      return {'companyName': 'Company', 'profilePic': null};
+    }
+    try {
+      final user = await ApiService.getAppUser(userId);
+      return {
+        'companyName': user.companyName ?? 'Company',
+        'profilePic': user.profilePic,
+      };
+    } catch (e) {
+      return {'companyName': 'Company', 'profilePic': null};
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -59,64 +76,64 @@ class ProfileScreen extends StatelessWidget {
           // Profile Header
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.blue,
-                  child: Image.asset(
-                    'assets/images/logo.svg',
-                    width: 60,
-                    height: 60,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.white,
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: FutureBuilder<Map<String, String?>> (
+              future: _fetchProfileHeaderInfo(),
+              builder: (context, snapshot) {
+                final companyName = snapshot.data?['companyName'] ?? 'Company';
+                final profilePic = snapshot.data?['profilePic'];
+                return Row(
                   children: [
-                    const Text(
-                      'Vizag Profiles',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.blue,
+                      backgroundImage: (profilePic != null && profilePic.isNotEmpty)
+                          ? NetworkImage(profilePic)
+                          : null,
+                      child: (profilePic == null || profilePic.isEmpty)
+                          ? const Icon(Icons.person, size: 40, color: Colors.white)
+                          : null,
                     ),
-                    const SizedBox(height: 4),
-                    FutureBuilder<String>(
-                      future: _fetchPhoneNumber(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text(
-                            'Error: ${snapshot.error}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          );
-                        } else {
-                          return Text(
-                            snapshot.data ?? 'Phone number not available',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          );
-                        }
-                      },
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          companyName,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        FutureBuilder<String>(
+                          future: _fetchPhoneNumber(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              );
+                            } else {
+                              return Text(
+                                snapshot.data ?? 'Phone number not available',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                );
+              },
             ),
           ),
           const Divider(),
