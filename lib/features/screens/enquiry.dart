@@ -630,31 +630,8 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                   ),
                                 ),
                                 SizedBox(height: 10),
-                                // Remove the No Quotations button if dealer_quotations is present and not empty
-                                if ((order['dealer_quotations'] ?? []).isNotEmpty) ...[
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        final result = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ViewQuotationsList(orderId: order['id']),
-                                          ),
-                                        );
-                                        if (result == true) {
-                                          setState(() {
-                                            _tabController.index = 1; // Switch to Finalized tab (adjust index if needed)
-                                            _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
-                                          });
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                      child: Text('View Quotations', style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                ] else ...[
+                                // Do not show 'View Quotations' button for expired/cancelled orders
+                                if ((order['dealer_quotations'] ?? []).isEmpty) ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
