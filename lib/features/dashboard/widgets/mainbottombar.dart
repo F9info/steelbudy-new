@@ -35,10 +35,6 @@ class MainBottomBar extends StatelessWidget {
           icon: Icon(Icons.person),
           label: 'Profile',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.description), // Added for Quotation
-          label: 'Quotation',
-        ),
       ],
     );
   }

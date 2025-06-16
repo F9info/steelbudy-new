@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/features/layout/layout.dart';
+import 'package:steel_budy/features/screens/enquiry.dart';
 import 'package:steel_budy/features/screens/role_selection_screen.dart';
 import 'package:steel_budy/features/screens/support-help.dart';
 import 'splash_screen.dart';
@@ -13,11 +14,10 @@ import 'features/screens/notifications.dart';
 import 'features/screens/profile.dart';
 import 'features/screens/create_enquiry_screen.dart';
 import 'features/screens/view_profile.dart';
-import 'features/screens/view_enquiries.dart'; // Add this import for ViewEnquiries
 import 'package:firebase_core/firebase_core.dart';
-import 'features/screens/post_quotation_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steel_budy/providers/auth_provider.dart';
+import 'features/screens/dealer_enquiry_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -109,9 +109,26 @@ class MyApp extends ConsumerWidget {
         '/create-enquiry': (context) => const CreateEnquiryScreen(),
         '/dealer_profile': (context) => const ViewProfile(),
         '/support': (context) => const SupportHelp(),
-        '/qoutation': (context) => const QuotationScreen(),
-        '/view-enquiries': (context) => const ViewEnquiries(),
         '/select-role': (context) => const RoleSelectionScreen(),
+        '/enquiries': (context) => FutureBuilder<String?>(
+              future: SharedPreferences.getInstance().then((prefs) => prefs.getString('role')),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Scaffold(body: Center(child: CircularProgressIndicator()));
+                }
+                final role = snapshot.data ?? '';
+                final screen = (role.toLowerCase().contains('dealer') ||
+                                role.toLowerCase().contains('retailer') ||
+                                role.toLowerCase().contains('builder'))
+                    ? const DealerEnquiryScreen()
+                    : const EnquiryScreen();
+                return Layout(
+                  appBarTitle: 'Enquiries',
+                  child: screen,
+                  initialIndex: 1,
+                );
+              },
+            ),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp') {

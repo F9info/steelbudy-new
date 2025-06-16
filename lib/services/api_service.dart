@@ -17,7 +17,8 @@ import 'package:image_picker/image_picker.dart';
 
 
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  // static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
   static final http.Client _client = http.Client();
 
   static Future<http.Response> _makeRequest({
@@ -231,12 +232,15 @@ class ApiService {
   }
 
   Future<void> postQuotation(Map<String, dynamic> payload) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/dealer-quotations'),
         headers: {
           'Content-Type': 'application/json',
-          // Add authentication headers if required, e.g., 'Authorization': 'Bearer <token>'
+          'Accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
         },
         body: jsonEncode(payload),
       );
@@ -564,6 +568,28 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     }
     final response = await _client.get(
       Uri.parse('$baseUrl/enquiries?user_id=$userId'),
+      headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data != null) {
+        return data as List<dynamic>;
+      } else {
+        throw Exception('No customer orders found in response');
+      }
+    } else {
+      throw Exception('Failed to load customer orders: ${response.statusCode}');
+    }
+  }
+
+  static Future<List<dynamic>> getAllCustomerOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await _client.get(
+      Uri.parse('$baseUrl/enquiries'),
       headers: {
         if (token != null) 'Authorization': 'Bearer $token',
         'Accept': 'application/json',

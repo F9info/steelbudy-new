@@ -126,7 +126,7 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Enquiries'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              Navigator.pushNamed(context, '/view-enquiries');
+              Navigator.pushNamed(context, '/enquiries');
             },
           ),
 
