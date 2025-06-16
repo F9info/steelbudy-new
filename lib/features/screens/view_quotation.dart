@@ -142,14 +142,15 @@ class _ViewQuotationState extends State<ViewQuotation> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => _callCustomer(order['app_user']?['mobile']),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: const Text('Call Customer', style: TextStyle(color: Colors.white)),
+                if ((myQuotation['status'] ?? '').toString().toLowerCase() == 'finalized')
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _callCustomer(order['app_user']?['mobile']),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: const Text('Call Customer', style: TextStyle(color: Colors.white)),
+                    ),
                   ),
-                ),
               ],
             ),
           );

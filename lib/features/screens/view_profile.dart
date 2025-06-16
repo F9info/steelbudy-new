@@ -90,6 +90,10 @@ class _ViewProfileState extends State<ViewProfile> {
                           ),
                           const SizedBox(height: 24),
 
+                          // Show Role
+                          _buildInfoCard('Role', _getRoleDisplayName(_user?.userType?.name ?? '')),
+                          const SizedBox(height: 16),
+                          
                           _buildInfoCard('Company Name', _user!.companyName ?? ''),
                           const SizedBox(height: 16),
 
@@ -196,5 +200,22 @@ class _ViewProfileState extends State<ViewProfile> {
         ],
       ),
     );
+  }
+
+  String _getRoleDisplayName(String role) {
+    switch (role.toLowerCase().replaceAll(' ', '').replaceAll('/', '').replaceAll('_', '')) {
+      case 'manufacturer':
+        return 'Manufacturer';
+      case 'distributor':
+        return 'Distributor';
+      case 'dealerretailerbuilder':
+        return 'Dealer/Retailer/Builder';
+      case 'enduser':
+        return 'End User';
+      case 'others':
+        return 'Others';
+      default:
+        return role;
+    }
   }
 }

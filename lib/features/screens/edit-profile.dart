@@ -416,6 +416,17 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             ),
             const SizedBox(height: 24),
 
+            // Show selected role (view only, disabled)
+            if (authState.role.isNotEmpty) ...[
+              DropdownButtonFormField<String>(
+                value: _getRoleDisplayName(authState.role),
+                items: [DropdownMenuItem(value: _getRoleDisplayName(authState.role), child: Text(_getRoleDisplayName(authState.role)))],
+                onChanged: null, // disables the dropdown
+                decoration: const InputDecoration(labelText: 'Role'),
+              ),
+              const SizedBox(height: 16),
+            ],
+
             _buildTextField("Company Name *", _companyNameController),
             const SizedBox(height: 16),
 
@@ -443,7 +454,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             _buildTextField("Email *", _emailController, keyboardType: TextInputType.emailAddress),
             const SizedBox(height: 16),
 
-            _buildTextField("Street Line *", _streetLineController, maxLines: 3),
+            _buildTextField("Street Line *", _streetLineController),
             const SizedBox(height: 16),
 
             _buildTextField("Town/City *", _townCityController),
@@ -621,5 +632,24 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         ),
       ),
     );
+  }
+
+  String _getRoleDisplayName(String role) {
+    switch (role) {
+      case 'manufacturer':
+        return 'Manufacturer';
+      case 'distributor':
+        return 'Distributor';
+      case 'dealer_retailer_builder':
+      case 'dealerretailerbuilder':
+        return 'Dealer/Retailer/Builder';
+      case 'end_user':
+      case 'enduser':
+        return 'End User';
+      case 'others':
+        return 'Others';
+      default:
+        return role;
+    }
   }
 }
