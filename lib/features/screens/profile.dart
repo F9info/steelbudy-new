@@ -99,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
           // Profile Header
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: FutureBuilder<Map<String, String?>> (
+            child: FutureBuilder<Map<String, String?>>(
               future: _fetchProfileHeaderInfo(),
               builder: (context, snapshot) {
                 final companyName = snapshot.data?['companyName'] ?? 'Company';
@@ -109,11 +109,13 @@ class ProfileScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.blue,
-                      backgroundImage: (profilePic != null && profilePic.isNotEmpty)
-                          ? NetworkImage(profilePic)
-                          : null,
+                      backgroundImage:
+                          (profilePic != null && profilePic.isNotEmpty)
+                              ? NetworkImage(profilePic)
+                              : null,
                       child: (profilePic == null || profilePic.isEmpty)
-                          ? const Icon(Icons.person, size: 40, color: Colors.white)
+                          ? const Icon(Icons.person,
+                              size: 40, color: Colors.white)
                           : null,
                     ),
                     const SizedBox(width: 16),
@@ -131,7 +133,8 @@ class ProfileScreen extends StatelessWidget {
                         FutureBuilder<String>(
                           future: _fetchPhoneNumber(),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
                               return const CircularProgressIndicator();
                             } else if (snapshot.hasError) {
                               return Text(
@@ -245,7 +248,8 @@ class ProfileScreen extends StatelessWidget {
 
           // Delete Profile Button
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () async {
@@ -253,10 +257,16 @@ class ProfileScreen extends StatelessWidget {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text('Delete Profile'),
-                    content: Text('Are you sure you want to permanently delete your profile? This cannot be undone.'),
+                    content: Text(
+                        'Are you sure you want to permanently delete your profile? This cannot be undone.'),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel')),
-                      TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: TextStyle(color: Colors.red))),
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('Cancel')),
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text('Delete',
+                              style: TextStyle(color: Colors.red))),
                     ],
                   ),
                 );
@@ -265,26 +275,33 @@ class ProfileScreen extends StatelessWidget {
                     showDialog(
                       context: context,
                       barrierDismissible: false,
-                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                      builder: (context) =>
+                          const Center(child: CircularProgressIndicator()),
                     );
                     await ApiService.deleteProfile();
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.clear();
                     if (context.mounted) {
                       Navigator.pop(context); // Close loading dialog
-                      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/login', (route) => false);
                     }
                   } catch (e) {
                     if (context.mounted) {
                       Navigator.pop(context); // Close loading dialog
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to delete profile: $e'), backgroundColor: Colors.red),
+                        SnackBar(
+                            content: Text('Failed to delete profile: $e'),
+                            backgroundColor: Colors.red),
                       );
                     }
                   }
                 }
               },
-              child: Text('Delete Profile'),
+              child: Text(
+                'Delete Profile',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
 

@@ -50,26 +50,50 @@ class _ViewQuotationState extends State<ViewQuotation> {
           if (myQuotation == null) {
             return const Center(child: Text('No quotation found for you.'));
           }
-          final dqProducts = myQuotation['dealer_quotation_products'] as List<dynamic>? ?? [];
+          final dqProducts =
+              myQuotation['dealer_quotation_products'] as List<dynamic>? ?? [];
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Order ID: ${order['id']}', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Text('Company: ${order['app_user']?['company_name'] ?? ''}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                        'Company: ${order['app_user']?['company_name'] ?? ''}'),
+                    Text(
+                      'Order ID: ${order['id']}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
-                Text('Products:', style: Theme.of(context).textTheme.titleSmall),
+                Text('Products:',
+                    style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
-                    headingRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-                      return Colors.blue; // Blue background for header
-                    }),
-                    headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    border: TableBorder(
+                      top: BorderSide(width: 1, color: Colors.grey),
+                      bottom: BorderSide(width: 1, color: Colors.grey),
+                      left: BorderSide(width: 1, color: Colors.grey),
+                      right: BorderSide(width: 1, color: Colors.grey),
+                      horizontalInside:
+                          BorderSide(width: 1, color: Colors.grey),
+                      verticalInside: BorderSide(width: 1, color: Colors.grey),
+                    ),
+                    headingRowColor: MaterialStateProperty.resolveWith<Color?>(
+                      (Set<MaterialState> states) {
+                        return Colors.blue; // Blue background for header
+                      },
+                    ),
+                    headingTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                     columns: const [
                       DataColumn(label: Text('S.No')),
                       DataColumn(label: Text('Product Type')),
@@ -92,11 +116,12 @@ class _ViewQuotationState extends State<ViewQuotation> {
                             DataCell(Text('${p['pieces'] ?? '-'}')),
                             DataCell(Text('₹${p['cost'] ?? '-'}')),
                             p['pieces'] != null
-                                ? DataCell(Text('₹${(p['cost']).toStringAsFixed(2)}'))
+                                ? DataCell(
+                                    Text('₹${(p['cost']).toStringAsFixed(2)}'))
                                 : p['quantity'] != null
-                                    ? DataCell(Text('₹${(p['quantity'] * p['cost']).toStringAsFixed(2)}'))
-                                    :
-                            DataCell(Text('₹${p['cost'] ?? '-'}')),
+                                    ? DataCell(Text(
+                                        '₹${(p['quantity'] * p['cost']).toStringAsFixed(2)}'))
+                                    : DataCell(Text('₹${p['cost'] ?? '-'}')),
                           ],
                         );
                       },
@@ -104,51 +129,241 @@ class _ViewQuotationState extends State<ViewQuotation> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: Table(
+                      border: TableBorder.all(
+                          color: const Color.fromARGB(255, 205, 205, 205),
+                          width: 1.0), // Adds border to the table
+                      columnWidths: const {
+                        0: FlexColumnWidth(3), // Title column
+                        1: FlexColumnWidth(2), // Value column
+                      },
                       children: [
-                        Text('Bending Charges: ₹${myQuotation['bending_charges'] ?? '-'}'),
-                        Text('Transportation Charges: ₹${myQuotation['transport_charges'] ?? '-'}'),
-                        Text('GST Amount: ₹${myQuotation['gst_amount'] ?? '-'}'),
-                        Text('Total Quotation: ₹${myQuotation['total_amount'] ?? '-'}'),
-                        Text('Status: ${myQuotation['status'] ?? '-'}'),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                'Bending Charges',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                '₹${myQuotation['bending_charges'] ?? '-'}',
+                                textAlign:
+                                    TextAlign.right, // Right-align the value
+                              ),
+                            ),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                'Transportation Charges',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                '₹${myQuotation['transport_charges'] ?? '-'}',
+                                textAlign:
+                                    TextAlign.right, // Right-align the value
+                              ),
+                            ),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                'GST Amount',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                '₹${myQuotation['gst_amount'] ?? '-'}',
+                                textAlign:
+                                    TextAlign.right, // Right-align the value
+                              ),
+                            ),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                'Total Quotation',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                '₹${myQuotation['total_amount'] ?? '-'}',
+                                textAlign:
+                                    TextAlign.right, // Right-align the value
+                              ),
+                            ),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                'Status',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0, horizontal: 8.0),
+                              child: Text(
+                                '${myQuotation['status'] ?? '-'}',
+                                textAlign:
+                                    TextAlign.right, // Right-align the value
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
-                    ),
+                    )),
+                SizedBox(height: 24),
+                Text(
+                  'Order Details',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue, // Blue color for the title
                   ),
                 ),
-                Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 4),
+                Table(
+                  border: TableBorder.all(
+                      color: Colors.grey,
+                      width: 1.0), // Adds border to the table
+                  columnWidths: const {
+                    0: FlexColumnWidth(3), // Title column
+                    1: FlexColumnWidth(2), // Value column
+                  },
+                  children: [
+                    // Payment Terms row
+                    TableRow(
                       children: [
-                        Text('Order Details:', style: Theme.of(context).textTheme.titleSmall),
-                        const SizedBox(height: 8),
-                        Text.rich(TextSpan(children: [TextSpan(text: 'Payment Terms: ', style: const TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: '${order['payment_terms'] ?? '-'}')])),
-                        Text.rich(TextSpan(children: [TextSpan(text: 'Delivery Terms: ', style: const TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: '${order['delivery_terms'] ?? '-'}')])),
-                        
-                        if(order['delivery_terms'] == 'Delivered To')
-                          Text.rich(TextSpan(children: [TextSpan(text: 'Delivery Address: ', style: const TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: '${order['delivery_address'] ?? '-'}')])),
-
-                        Text.rich(TextSpan(children: [TextSpan(text: 'Delivery Conditions: ', style: const TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: '${order['delivery_conditions'] ?? '-'}')])),
-                        Text.rich(TextSpan(children: [TextSpan(text: 'Delivery Date: ', style: const TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: '${order['delivery_date'] ?? '-'}')])),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            'Payment Terms',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            '${order['payment_terms'] ?? '-'}',
+                            textAlign: TextAlign.right, // Right-align the value
+                          ),
+                        ),
                       ],
                     ),
-                  ),
+                    // Delivery Terms row
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            'Delivery Terms',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            '${order['delivery_terms'] ?? '-'}',
+                            textAlign: TextAlign.right, // Right-align the value
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Delivery Conditions row
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            'Delivery Conditions',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            '${order['delivery_conditions'] ?? '-'}',
+                            textAlign: TextAlign.right, // Right-align the value
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Delivery Date row
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            'Delivery Date',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            '${order['delivery_date'] ?? '-'}',
+                            textAlign: TextAlign.right, // Right-align the value
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                if ((myQuotation['status'] ?? '').toString().toLowerCase() == 'finalized')
+                if ((myQuotation['status'] ?? '').toString().toLowerCase() ==
+                    'finalized')
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _callCustomer(order['app_user']?['mobile']),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: const Text('Call Customer', style: TextStyle(color: Colors.white)),
+                      onPressed: () =>
+                          _callCustomer(order['app_user']?['mobile']),
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: const Text('Call Customer',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
               ],
@@ -167,4 +382,4 @@ class _ViewQuotationState extends State<ViewQuotation> {
       await launchUrl(uri);
     }
   }
-} 
+}
