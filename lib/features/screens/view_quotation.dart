@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steel_budy/services/api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ViewQuotation extends StatefulWidget {
   final int orderId;
@@ -140,11 +141,29 @@ class _ViewQuotationState extends State<ViewQuotation> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _callCustomer(order['app_user']?['mobile']),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('Call Customer', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
               ],
             ),
           );
         },
       ),
     );
+  }
+
+  void _callCustomer(String? mobile) async {
+    print(mobile);
+    if (mobile == null || mobile.isEmpty) return;
+    final uri = Uri.parse('tel:$mobile');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
   }
 } 

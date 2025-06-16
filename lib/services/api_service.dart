@@ -646,6 +646,52 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
       throw Exception('Failed to cancel enquiry');
     }
   }
+
+  static Future<void> finalizeQuotation(int orderId, int quotationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    // Update enquiry status
+    final enquiryResponse = await http.post(
+      Uri.parse('$baseUrl/enquiries/$orderId/finalize'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+    if (enquiryResponse.statusCode != 200) {
+      throw Exception('Failed to finalize enquiry');
+    }
+    // Update quotation status
+    final quotationResponse = await http.post(
+      Uri.parse('$baseUrl/dealer-quotations/$quotationId/finalize'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+    if (quotationResponse.statusCode != 200) {
+      throw Exception('Failed to finalize quotation');
+    }
+  }
+
+  static Future<void> deleteProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final userId = prefs.getString('userId');
+    final response = await http.delete(
+      Uri.parse('$baseUrl/user/delete?id=$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete profile');
+    }
+  }
 }
 
 

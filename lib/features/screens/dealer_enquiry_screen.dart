@@ -502,7 +502,23 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                     SizedBox(height: 10),
                                     Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
                                     SizedBox(height: 10),
-                                    // No Post Quotation Button here
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ViewQuotation(orderId: order['id']),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                        ),
+                                        child: const Text('View My Quotation', style: TextStyle(color: Colors.white)),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:steel_budy/features/screens/create_enquiry_screen.dart';
 import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_budy/features/screens/view_quotations_list.dart';
 
 class EnquiryScreen extends StatefulWidget {
   const EnquiryScreen({super.key});
@@ -223,18 +224,43 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 SizedBox(height: 10),
                                 Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
                                 SizedBox(height: 10),
-                                // No Quotations Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey[300],
+                                // Remove the No Quotations button if dealer_quotations is present and not empty
+                                if ((order['dealer_quotations'] ?? []).isNotEmpty) ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ViewQuotationsList(orderId: order['id']),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          setState(() {
+                                            _tabController.index = 1; // Switch to Finalized tab (adjust index if needed)
+                                            _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                          });
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                                      child: Text('View Quotations', style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text('No Quotations', style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
-                                SizedBox(height: 8),
+                                  SizedBox(height: 8),
+                                ] else ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: null,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.grey[300],
+                                      ),
+                                      child: Text('No Quotations', style: TextStyle(color: Colors.white)),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                ],
                                 // Cancel Button
                                 if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
                                   SizedBox(
@@ -295,7 +321,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     );
                   }
                   final orders = snapshot.data!;
-                  final finalizedOrders = orders.where((order) => order['status'] == 'done').toList();
+                  final finalizedOrders = orders.where((order) => order['status'] == 'finalized').toList();
                   Widget buildOrderList(List<dynamic> filteredOrders) {
                     if (filteredOrders.isEmpty) {
                       return const Center(
@@ -397,18 +423,43 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 SizedBox(height: 10),
                                 Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
                                 SizedBox(height: 10),
-                                // No Quotations Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey[300],
+                                // Remove the No Quotations button if dealer_quotations is present and not empty
+                                if ((order['dealer_quotations'] ?? []).isNotEmpty) ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ViewQuotationsList(orderId: order['id']),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          setState(() {
+                                            _tabController.index = 1; // Switch to Finalized tab (adjust index if needed)
+                                            _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                          });
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                                      child: Text('View Quotations', style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text('No Quotations', style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
-                                SizedBox(height: 8),
+                                  SizedBox(height: 8),
+                                ] else ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: null,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.grey[300],
+                                      ),
+                                      child: Text('No Quotations', style: TextStyle(color: Colors.white)),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                ],
                                 // Cancel Button
                                 if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
                                   SizedBox(
@@ -579,18 +630,43 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                   ),
                                 ),
                                 SizedBox(height: 10),
-                                // No Quotations Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey[300],
+                                // Remove the No Quotations button if dealer_quotations is present and not empty
+                                if ((order['dealer_quotations'] ?? []).isNotEmpty) ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ViewQuotationsList(orderId: order['id']),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          setState(() {
+                                            _tabController.index = 1; // Switch to Finalized tab (adjust index if needed)
+                                            _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                          });
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                                      child: Text('View Quotations', style: TextStyle(color: Colors.white)),
                                     ),
-                                    child: Text('No Quotations', style: TextStyle(color: Colors.white)),
                                   ),
-                                ),
-                                SizedBox(height: 8),
+                                  SizedBox(height: 8),
+                                ] else ...[
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: null,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.grey[300],
+                                      ),
+                                      child: Text('No Quotations', style: TextStyle(color: Colors.white)),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                ],
                                 // Cancel Button
                                 if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
                                   SizedBox(

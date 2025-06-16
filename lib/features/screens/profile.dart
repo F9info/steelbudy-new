@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/authentication.dart';
 import 'isi_information.dart'; // Import the IsiInformation screen
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/api_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   final AuthService _authService = AuthService();
@@ -175,6 +176,51 @@ class ProfileScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const IsiInformation()),
               );
             },
+          ),
+
+          // Delete Profile Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Delete Profile'),
+                    content: Text('Are you sure you want to permanently delete your profile? This cannot be undone.'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, false), child: Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.pop(context, true), child: Text('Delete', style: TextStyle(color: Colors.red))),
+                    ],
+                  ),
+                );
+                if (confirmed == true) {
+                  try {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                    );
+                    await ApiService.deleteProfile();
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    if (context.mounted) {
+                      Navigator.pop(context); // Close loading dialog
+                      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      Navigator.pop(context); // Close loading dialog
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to delete profile: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  }
+                }
+              },
+              child: Text('Delete Profile'),
+            ),
           ),
 
           // Help & Logout Section Header
