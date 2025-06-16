@@ -16,8 +16,10 @@ class PostQuotation extends StatefulWidget {
 
 class _PostQuotationState extends State<PostQuotation> {
   late Future<Map<String, dynamic>> _quotationDetailsFuture;
-  final TextEditingController _bendingChargesController = TextEditingController();
-  final TextEditingController _transportationChargesController = TextEditingController();
+  final TextEditingController _bendingChargesController =
+      TextEditingController();
+  final TextEditingController _transportationChargesController =
+      TextEditingController();
   List<TextEditingController> _costControllers = [];
   double _bendingCharges = 0.0;
   double _transportationCharges = 0.0;
@@ -25,7 +27,8 @@ class _PostQuotationState extends State<PostQuotation> {
   @override
   void initState() {
     super.initState();
-    _quotationDetailsFuture = ApiService().fetchCustomerOrderDetails(widget.orderId);
+    _quotationDetailsFuture =
+        ApiService().fetchCustomerOrderDetails(widget.orderId);
     _bendingChargesController.addListener(_updateCharges);
     _transportationChargesController.addListener(_updateCharges);
   }
@@ -33,11 +36,13 @@ class _PostQuotationState extends State<PostQuotation> {
   void _updateCharges() {
     setState(() {
       _bendingCharges = double.tryParse(_bendingChargesController.text) ?? 0.0;
-      _transportationCharges = double.tryParse(_transportationChargesController.text) ?? 0.0;
+      _transportationCharges =
+          double.tryParse(_transportationChargesController.text) ?? 0.0;
     });
   }
 
-  Future<void> _postQuotation(BuildContext context, List<dynamic> products) async {
+  Future<void> _postQuotation(
+      BuildContext context, List<dynamic> products) async {
     try {
       // Calculate total product price and prepare product data
       double totalProductPrice = 0.0;
@@ -56,7 +61,8 @@ class _PostQuotationState extends State<PostQuotation> {
           totalProductPrice += price;
         }
         productData.add({
-          'product_type_id': product['product_type']['id'] ?? 0, // Use ID for backend
+          'product_type_id':
+              product['product_type']['id'] ?? 0, // Use ID for backend
           'brand_id': product['brand']['id'] ?? 0, // Use ID for backend
           'quantity': quantity,
           'pieces': pieces,
@@ -65,7 +71,8 @@ class _PostQuotationState extends State<PostQuotation> {
       }
 
       // Calculate taxable amount and GST
-      final double taxableAmount = totalProductPrice + _bendingCharges + _transportationCharges;
+      final double taxableAmount =
+          totalProductPrice + _bendingCharges + _transportationCharges;
       final double gstAmount = taxableAmount * 0.18;
       final double totalAmount = taxableAmount + gstAmount;
 
@@ -74,7 +81,8 @@ class _PostQuotationState extends State<PostQuotation> {
       final userId = prefs.getString('userId');
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User ID not found. Please log in again.')),
+          const SnackBar(
+              content: Text('User ID not found. Please log in again.')),
         );
         return;
       }
@@ -142,7 +150,8 @@ class _PostQuotationState extends State<PostQuotation> {
           if (_costControllers.length != products.length) {
             _costControllers = List.generate(
               products.length,
-              (index) => TextEditingController()..addListener(() => setState(() {})),
+              (index) =>
+                  TextEditingController()..addListener(() => setState(() {})),
             );
           }
 
@@ -161,7 +170,8 @@ class _PostQuotationState extends State<PostQuotation> {
           }
 
           // Calculate taxable amount and GST
-          final double taxableAmount = totalProductPrice + _bendingCharges + _transportationCharges;
+          final double taxableAmount =
+              totalProductPrice + _bendingCharges + _transportationCharges;
           final double gstAmount = taxableAmount * 0.18;
           final double totalAmount = taxableAmount + gstAmount;
 
@@ -178,7 +188,8 @@ class _PostQuotationState extends State<PostQuotation> {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
-                    headingRowColor: MaterialStateColor.resolveWith((states) => Colors.blue),
+                    headingRowColor:
+                        MaterialStateColor.resolveWith((states) => Colors.blue),
                     dataRowHeight: 60, // Increased height for better spacing
                     columnSpacing: 16, // Space between columns
                     rows: products.asMap().entries.map((entry) {
@@ -194,69 +205,145 @@ class _PostQuotationState extends State<PostQuotation> {
                           : pieces != null
                               ? "$pieces (Pieces)"
                               : "N/A";
-                      final price = quantity != null ? quantity * cost : (pieces != null ? cost : 0.0);
+                      final price = quantity != null
+                          ? quantity * cost
+                          : (pieces != null ? cost : 0.0);
 
                       return DataRow(
                         cells: [
                           DataCell(
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text('$index'),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                '$index',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                           DataCell(
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(product['product_type']['name'] ?? ''),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                product['product_type']['name'] ?? '',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                           DataCell(
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(product['brand']['name'] ?? ''),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                product['brand']['name'] ?? '',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                           DataCell(
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(displayQty),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                displayQty,
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                           DataCell(
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               child: SizedBox(
                                 width: 100,
                                 child: TextFormField(
                                   controller: controller,
-                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*'))],
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      decimal: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9]*\.?[0-9]*'))
+                                  ],
                                   decoration: const InputDecoration(
                                     hintText: 'Enter cost',
                                     border: OutlineInputBorder(),
                                     prefixText: '₹ ',
                                     isDense: true,
                                   ),
+                                  style: const TextStyle(fontSize: 12),
                                 ),
                               ),
                             ),
                           ),
                           DataCell(
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text('₹${price.toStringAsFixed(2)}'),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                '₹${price.toStringAsFixed(2)}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ),
                         ],
                       );
                     }).toList(),
                     columns: const [
-                      DataColumn(label: Text('S.No')),
-                      DataColumn(label: Text('Product Type')),
-                      DataColumn(label: Text('Brand')),
-                      DataColumn(label: Text('Quantity')),
-                      DataColumn(label: Text('Cost')),
-                      DataColumn(label: Text('Price')),
+                      DataColumn(
+                        label: Text(
+                          'S.No',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Product Type',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Brand',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Quantity',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Cost',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          'Price',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -274,19 +361,29 @@ class _PostQuotationState extends State<PostQuotation> {
                       width: 150,
                       child: Text(
                         "Bending Charges:",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                     Expanded(
                       child: TextFormField(
                         controller: _bendingChargesController,
-                        keyboardType: TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*'))],
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^[0-9]*\.?[0-9]*'))
+                        ],
                         decoration: const InputDecoration(
                           hintText: 'Enter bending charges',
                           border: OutlineInputBorder(),
                           prefixText: '₹ ',
+                          hintStyle: TextStyle(fontSize: 12),
                         ),
+                        style: const TextStyle(
+                            fontSize: 12), // Font size for input text
                       ),
                     ),
                   ],
@@ -298,19 +395,28 @@ class _PostQuotationState extends State<PostQuotation> {
                       width: 150,
                       child: Text(
                         "Transportation Charges:",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                     Expanded(
                       child: TextFormField(
                         controller: _transportationChargesController,
-                        keyboardType: TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*'))],
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^[0-9]*\.?[0-9]*'))
+                        ],
                         decoration: const InputDecoration(
                           hintText: 'Enter transportation charges',
                           border: OutlineInputBorder(),
                           prefixText: '₹ ',
+                          hintStyle: TextStyle(fontSize: 12),
                         ),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ],
@@ -333,11 +439,16 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Payment Terms:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text(order['payment_terms'] ?? 'N/A'),
+                          child: Text(
+                            order['payment_terms'] ?? 'N/A',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400, fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -349,11 +460,15 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Delivery Terms:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text(order['delivery_terms'] ?? 'N/A'),
+                          child: Text(
+                            order['delivery_terms'] ?? 'N/A',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -366,11 +481,15 @@ class _PostQuotationState extends State<PostQuotation> {
                             width: 150,
                             child: Text(
                               "Delivery Address:",
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 12),
                             ),
                           ),
                           Expanded(
-                            child: Text(order['delivery_address'] ?? 'N/A'),
+                            child: Text(
+                              order['delivery_address'] ?? 'N/A',
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                         ],
                       ),
@@ -383,11 +502,15 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Delivery Conditions:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text(order['delivery_conditions'] ?? 'N/A'),
+                          child: Text(
+                            order['delivery_conditions'] ?? 'N/A',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -399,11 +522,13 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Delivery Date:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text("${order['delivery_date']}"),
+                          child: Text("${order['delivery_date']}",
+                              style: TextStyle(fontSize: 12)),
                         ),
                       ],
                     ),
@@ -426,11 +551,15 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Subtotal:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text('₹${totalProductPrice.toStringAsFixed(2)}'),
+                          child: Text(
+                            '₹${totalProductPrice.toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -441,11 +570,15 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Bending Charges:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text('₹${_bendingCharges.toStringAsFixed(2)}'),
+                          child: Text(
+                            '₹${_bendingCharges.toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -456,16 +589,19 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Transportation Charges:",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text('₹${_transportationCharges.toStringAsFixed(2)}'),
+                          child: Text(
+                            '₹${_transportationCharges.toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                   
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -473,11 +609,15 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "GST (18%):",
-                            style: TextStyle(fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600, fontSize: 12),
                           ),
                         ),
                         Expanded(
-                          child: Text('₹${gstAmount.toStringAsFixed(2)}'),
+                          child: Text(
+                            '₹${gstAmount.toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -488,13 +628,15 @@ class _PostQuotationState extends State<PostQuotation> {
                           width: 150,
                           child: Text(
                             "Total Amount:",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
                         Expanded(
                           child: Text(
                             '₹${totalAmount.toStringAsFixed(2)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
                       ],
@@ -504,14 +646,23 @@ class _PostQuotationState extends State<PostQuotation> {
                       onPressed: () async {
                         // Fetch products from the snapshot to pass to _postQuotation
                         final snapshot = await _quotationDetailsFuture;
-                        _postQuotation(context, snapshot['products'] as List<dynamic>);
+                        _postQuotation(
+                            context, snapshot['products'] as List<dynamic>);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Matches table header color
-                        minimumSize: const Size(double.infinity, 50), // Full-width button
-                        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        backgroundColor:
+                            Colors.blue, // Matches table header color
+                        minimumSize: const Size(
+                            double.infinity, 50), // Full-width button
+                        textStyle: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      child: const Text('Post Quotation'),
+                      child: const Text(
+                        'Post Quotation',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
