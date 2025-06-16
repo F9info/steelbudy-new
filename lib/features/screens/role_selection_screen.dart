@@ -6,6 +6,7 @@ import '../../models/application_settings_model.dart';
 import '../../providers/auth_provider.dart';
 import 'package:steel_budy/features/layout/layout.dart';
 import 'package:steel_budy/features/screens/edit-profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -191,31 +192,28 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                       _isLoading = true;
                                       _error = null;
                                     });
-
                                     try {
-                                      await ref
-                                          .read(authProvider.notifier)
-                                          .login(
-                                            authState.phoneNumber!,
-                                            _selectedRole!,
-                                          );
-
-                                      if (mounted) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Layout(
-                                              appBarTitle: 'Edit Profile',
-                                              initialIndex: 2,
-                                              child: const EditProfile(),
-                                            ),
-                                          ),
-                                        );
+                                      final prefs = await SharedPreferences.getInstance();
+                                      final userId = authState.userId;
+                                      final token = authState.token ?? await ref.read(authProvider.notifier).getToken();
+                                      final selectedRoleId = _roles.firstWhere((role) => role.value == _selectedRole).id;
+                                      final success = await ApiService.updateUserRole(userId!.toString(), selectedRoleId, token);
+                                      if (success) {
+                                        await prefs.setString('role', _selectedRole!);
+                                        ref.read(authProvider.notifier).update((state) => state.copyWith(role: _selectedRole));
+                                        await ref.read(authProvider.notifier).login(authState.phoneNumber!, _selectedRole, token: token);
+                                        Navigator.pushReplacementNamed(context, '/edit-profile');
+                                      } else {
+                                        setState(() {
+                                          _error = 'Failed to update role';
+                                        });
                                       }
                                     } catch (e) {
                                       setState(() {
-                                        _error =
-                                            'Failed to login: ${e.toString()}';
+                                        _error = 'Error: $e';
+                                      });
+                                    } finally {
+                                      setState(() {
                                         _isLoading = false;
                                       });
                                     }
@@ -239,7 +237,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                     ),
                                   )
                                 : const Text(
-                                    'Submit',
+                                    'Continue',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,

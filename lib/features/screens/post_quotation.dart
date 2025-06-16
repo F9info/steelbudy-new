@@ -2,17 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:steel_budy/services/api_service.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class QuotationDetailsScreen extends StatefulWidget {
+class PostQuotation extends StatefulWidget {
   final int orderId;
 
-  const QuotationDetailsScreen({Key? key, required this.orderId}) : super(key: key);
+  const PostQuotation({Key? key, required this.orderId}) : super(key: key);
 
   @override
-  State<QuotationDetailsScreen> createState() => _QuotationDetailsScreenState();
+  State<PostQuotation> createState() => _PostQuotationState();
 }
 
-class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
+class _PostQuotationState extends State<PostQuotation> {
   late Future<Map<String, dynamic>> _quotationDetailsFuture;
   final TextEditingController _bendingChargesController = TextEditingController();
   final TextEditingController _transportationChargesController = TextEditingController();
@@ -67,10 +69,20 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
       final double gstAmount = taxableAmount * 0.18;
       final double totalAmount = taxableAmount + gstAmount;
 
+      // Fetch logged-in user id
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User ID not found. Please log in again.')),
+        );
+        return;
+      }
+
       // Prepare payload
       final Map<String, dynamic> payload = {
         'custom_order_id': widget.orderId,
-        'app_user_id': 1, // Replace with actual user ID from auth system
+        'app_user_id': int.tryParse(userId) ?? userId, // Use actual user ID
         'products': productData,
         'bending_charges': _bendingCharges,
         'transport_charges': _transportationCharges,
@@ -85,6 +97,8 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Quotation posted successfully!')),
       );
+      await Future.delayed(const Duration(milliseconds: 500));
+      Navigator.of(context).pop(true);
     } catch (e) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -215,7 +229,8 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
                                 width: 100,
                                 child: TextFormField(
                                   controller: controller,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*'))],
                                   decoration: const InputDecoration(
                                     hintText: 'Enter cost',
                                     border: OutlineInputBorder(),
@@ -265,7 +280,8 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _bendingChargesController,
-                        keyboardType: TextInputType.number,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*'))],
                         decoration: const InputDecoration(
                           hintText: 'Enter bending charges',
                           border: OutlineInputBorder(),
@@ -288,7 +304,8 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _transportationChargesController,
-                        keyboardType: TextInputType.number,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*'))],
                         decoration: const InputDecoration(
                           hintText: 'Enter transportation charges',
                           border: OutlineInputBorder(),
@@ -341,6 +358,24 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    if (order['delivery_terms'] == 'Delivered To') ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            width: 150,
+                            child: Text(
+                              "Delivery Address:",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(order['delivery_address'] ?? 'N/A'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -368,7 +403,7 @@ class _QuotationDetailsScreenState extends State<QuotationDetailsScreen> {
                           ),
                         ),
                         Expanded(
-                          child: Text("${order['delivery_date_days'] ?? 'N/A'} day(s)"),
+                          child: Text("${order['delivery_date']}"),
                         ),
                       ],
                     ),

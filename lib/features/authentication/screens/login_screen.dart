@@ -61,7 +61,23 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final String phoneNumber = '+91${_phoneController.text}';
-    print('Attempting to verify: $phoneNumber'); // Debug print
+
+    // Dev bypass for test number
+    if (_phoneController.text == '2345678901' || _phoneController.text == '2345678902') {
+      Navigator.pushReplacementNamed(
+        context,
+        '/otp',
+        arguments: {
+          'phoneNumber': _phoneController.text,
+          'verificationId': 'test-verification-id',
+          'resendToken': 0,
+        },
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     // Extra validation before calling Firebase
     if (_phoneController.text.isEmpty || _phoneController.text.length != 10) {

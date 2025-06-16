@@ -5,7 +5,8 @@ import 'package:steel_budy/features/screens/dashboardscreen.dart';
 import 'package:steel_budy/features/screens/enquiry.dart';
 import 'package:steel_budy/features/screens/profile.dart';
 import 'package:steel_budy/features/screens/notifications.dart';
-import 'package:steel_budy/features/screens/quotation_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:steel_budy/features/screens/dealer_enquiry_screen.dart';
 
 class Layout extends StatefulWidget {
   final Widget child;
@@ -32,7 +33,7 @@ class _LayoutState extends State<Layout> {
     selectedIndex = widget.initialIndex;
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
     if (selectedIndex == index) {
       Navigator.popUntil(context, (route) => route.isFirst);
       return;
@@ -51,16 +52,22 @@ class _LayoutState extends State<Layout> {
         newTitle = 'Dashboard';
         break;
       case 1:
-        newScreen = const EnquiryScreen();
+        // Check user role from SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        print(prefs.getString('role'));
+        final role = prefs.getString('role') ?? '';
+        if (role.toLowerCase().contains('dealer') ||
+            role.toLowerCase().contains('retailer') ||
+            role.toLowerCase().contains('builder')) {
+          newScreen = const DealerEnquiryScreen();
+        } else {
+          newScreen = const EnquiryScreen();
+        }
         newTitle = 'Enquiry';
         break;
       case 2:
         newScreen = ProfileScreen();
         newTitle = 'Profile';
-        break;
-      case 3:
-        newScreen = const QuotationScreen(); // Add QuotationScreen case
-        newTitle = 'Quotation';
         break;
       default:
         return;

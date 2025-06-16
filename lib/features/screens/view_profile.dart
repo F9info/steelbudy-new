@@ -1,26 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_budy/models/app_user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ViewProfile extends StatelessWidget {
+class ViewProfile extends StatefulWidget {
   const ViewProfile({super.key});
 
-  // Static profile data
-  static const String _companyName = 'Vizag Profiles';
-  static const String _contactPerson = 'John Doe';
-  static const String _phone = '+91 98765 43210';
-  static const String _alternateNumber = '+91 91234 56789';
-  static const String _email = 'contact@vizagprofiles.com';
-  static const String _streetLine = '123 Steel Road, Industrial Area';
-  static const String _townCity = 'Visakhapatnam';
-  static const String _state = 'Andhra Pradesh';
-  static const String _country = 'India';
-  static const String _pinCode = '530001';
-  static const String _gst = '27AAECV1234F1Z5';
-  static const String _pan = 'ABCDE1234F';
-  static const List<String> _selectedLocations = [
-    'Visakhapatnam',
-    'Hyderabad',
-    'Chennai'
-  ];
+  @override
+  State<ViewProfile> createState() => _ViewProfileState();
+}
+
+class _ViewProfileState extends State<ViewProfile> {
+  AppUser? _user;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+      if (userId == null) {
+        setState(() {
+          _error = 'User not found';
+          _isLoading = false;
+        });
+        return;
+      }
+      final user = await ApiService.getAppUser(userId);
+      setState(() {
+        _user = user;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load profile: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,97 +64,102 @@ class ViewProfile extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile photo
-            Center(
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: const AssetImage('assets/images/vizag_logo.png'),
-                backgroundColor: Colors.grey[300],
-                child: const Icon(
-                  Icons.person,
-                  size: 50,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(child: Text(_error!))
+              : _user == null
+                  ? const Center(child: Text('No profile data'))
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Profile photo
+                          Center(
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage: _user!.profilePic != null && _user!.profilePic!.isNotEmpty
+                                  ? NetworkImage(_user!.profilePic!)
+                                  : null,
+                              backgroundColor: Colors.grey[300],
+                              child: (_user!.profilePic == null || _user!.profilePic!.isEmpty)
+                                  ? const Icon(Icons.person, size: 50, color: Colors.white)
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
 
-            // Profile details
-            _buildInfoCard('Company Name', _companyName),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Company Name', _user!.companyName ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Contact Person', _contactPerson),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Contact Person', _user!.contactPerson ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Registered Number', _phone, textColor: Colors.grey),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Registered Number', _user!.mobile ?? '', textColor: Colors.grey),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Alternate Number', _alternateNumber),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Alternate Number', _user!.alternateNumber ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Email', _email),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Email', _user!.email ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Street Line', _streetLine, maxLines: 3),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Street Line', _user!.streetLine ?? '', maxLines: 3),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Town/City', _townCity),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Town/City', _user!.townCity ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('State', _state),
-            const SizedBox(height: 16),
+                          _buildInfoCard('State', _user!.state ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Country', _country),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Country', _user!.country ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('Pin Code', _pinCode),
-            const SizedBox(height: 16),
+                          _buildInfoCard('Pin Code', _user!.pincode ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('GST', _gst),
-            const SizedBox(height: 16),
+                          _buildInfoCard('GST', _user!.gstin ?? ''),
+                          const SizedBox(height: 16),
 
-            _buildInfoCard('PAN (Individual)', _pan),
-            const SizedBox(height: 16),
+                          _buildInfoCard('PAN (Individual)', _user!.pan ?? ''),
+                          const SizedBox(height: 16),
 
-            // Selected locations
-            if (_selectedLocations.isNotEmpty) ...[
-              const Text(
-                'Selected Locations',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _selectedLocations.map((location) {
-                    return Chip(
-                      label: Text(location),
-                      backgroundColor: Colors.blue[100],
-                      labelStyle: const TextStyle(color: Colors.black),
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ],
-        ),
-      ),
+                          // Selected locations
+                          if (_user!.regions != null && _user!.regions!.isNotEmpty) ...[
+                            const Text(
+                              'Selected Locations',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _user!.regions!.map((location) {
+                                  return Chip(
+                                    label: Text(location),
+                                    backgroundColor: Colors.blue[100],
+                                    labelStyle: const TextStyle(color: Colors.black),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+                        ],
+                      ),
+                    ),
     );
   }
 

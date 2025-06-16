@@ -8,6 +8,11 @@ import '../../services/api_service.dart';
 import '../../models/app_user_model.dart';
 import '../../models/role_model.dart';
 import '../../providers/auth_provider.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'dart:math';
+import 'package:path_provider/path_provider.dart';
 
 class EditProfile extends ConsumerStatefulWidget {
   const EditProfile({super.key});
@@ -22,6 +27,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   final ImagePicker _picker = ImagePicker();
 
   XFile? _profileImage;
+  String? _profileImageUrl;
 
   final TextEditingController _companyNameController = TextEditingController();
   final TextEditingController _contactPersonController =
@@ -43,11 +49,23 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   List<String> _selectedLocations = [];
   List<String> _availableLocations = [];
 
+  bool _isListenerSet = false;
+  bool _hasFetchedProfile = false;
+
+  Map<String, int> _regionNameToId = {};
+
   @override
   void initState() {
     super.initState();
     _fetchPhoneNumber();
     _fetchAvailableLocations();
+    _fetchAndFillUserProfile();
+    _countryController.text = 'India'; // Always set to India
+  }
+
+  @override
+  void didChangeDependencies() {
+    // didChangeDependencies removed; ref.listen will be in build
   }
 
   Future<void> _fetchPhoneNumber() async {
@@ -60,13 +78,17 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   Future<void> _fetchAvailableLocations() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
       final regions = await ApiService.getRegions();
       setState(() {
         _availableLocations = regions.map((region) => region.name).toList();
+        _regionNameToId = {for (var region in regions) region.name: region.id};
         _availableLocations
             .removeWhere((location) => _selectedLocations.contains(location));
       });
     } catch (e) {
+      print('Error fetching regions: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching regions: $e")),
       );
@@ -76,15 +98,42 @@ class _EditProfileState extends ConsumerState<EditProfile> {
   void _addLocation(String location) {
     setState(() {
       _selectedLocations.add(location);
-      _availableLocations.remove(location);
     });
   }
 
   void _removeLocation(String location) {
     setState(() {
       _selectedLocations.remove(location);
-      _availableLocations.add(location);
     });
+  }
+
+  Future<void> _fetchAndFillUserProfile() async {
+    final authState = ref.read(authProvider);
+    final userId = authState.userId;
+    if (userId == null) return;
+    try {
+      final user = await ApiService.getAppUser(userId);
+      setState(() {
+        _companyNameController.text = user.companyName ?? '';
+        _contactPersonController.text = user.contactPerson ?? '';
+        _phoneController.text = user.mobile ?? '';
+        _alternateNumberController.text = user.alternateNumber ?? '';
+        _emailController.text = user.email ?? '';
+        _streetLineController.text = user.streetLine ?? '';
+        _townCityController.text = user.townCity ?? '';
+        _stateController.text = user.state ?? '';
+        _countryController.text = 'India'; // Always set to India
+        _pinCodeController.text = user.pincode ?? '';
+        _gstController.text = user.gstin ?? '';
+        _panController.text = user.pan ?? '';
+        if (user.regions != null) {
+          _selectedLocations = List<String>.from(user.regions!);
+        }
+        _profileImageUrl = user.profilePic;
+      });
+    } catch (e) {
+      debugPrint('Error fetching user profile: $e');
+    }
   }
 
   Future<bool> _saveProfile(BuildContext context) async {
@@ -100,7 +149,9 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         _townCityController.text.isEmpty ||
         _stateController.text.isEmpty ||
         _countryController.text.isEmpty ||
-        _pinCodeController.text.isEmpty) {
+        _pinCodeController.text.isEmpty ||
+        _alternateNumberController.text.isEmpty ||
+        _emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all required fields")),
       );
@@ -109,103 +160,136 @@ class _EditProfileState extends ConsumerState<EditProfile> {
       });
       return false;
     }
-
-    final authState = ref.read(authProvider);
-    if (authState.role.isEmpty) {
+    // Email validation
+    final email = _emailController.text;
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a role first")),
+        const SnackBar(content: Text("Please enter a valid email address")),
       );
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() { _isLoading = false; });
+      return false;
+    }
+    // Alternate number numeric
+    if (!RegExp(r'^\d+$').hasMatch(_alternateNumberController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Alternate number must be numeric")),
+      );
+      setState(() { _isLoading = false; });
+      return false;
+    }
+    // Pincode numeric
+    if (!RegExp(r'^\d+$').hasMatch(_pinCodeController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Pin Code must be numeric")),
+      );
+      setState(() { _isLoading = false; });
+      return false;
+    }
+    // GST validation (only if not empty)
+    final gst = _gstController.text;
+    final gstRegex = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+    if (gst.isNotEmpty && !gstRegex.hasMatch(gst)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a valid GSTIN")),
+      );
+      setState(() { _isLoading = false; });
+      return false;
+    }
+    // PAN validation (only if not empty)
+    final pan = _panController.text;
+    final panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
+    if (pan.isNotEmpty && !panRegex.hasMatch(pan)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a valid PAN")),
+      );
+      setState(() { _isLoading = false; });
       return false;
     }
 
+    final authState = ref.read(authProvider);
+
     try {
-      final userType = await ApiService.getUserTypes();
-      final selectedUserType = userType.firstWhere(
-        (role) => role.value == authState.role,
-        orElse: () => Role.fromValues(
-          id: 0,
-          name: "",
-          value: authState.role,
-        ),
+      // Get userId and token from provider (update as per your provider)
+      final userId = authState.userId;
+      final token = await ref.read(authProvider.notifier).getToken(); // Implement getToken if needed
+      final selectedRegionIds = _selectedLocations
+          .map((name) => _regionNameToId[name])
+          .where((id) => id != null)
+          .toList();
+      final formData = {
+        'company_name': _companyNameController.text,
+        'contact_person': _contactPersonController.text,
+        'mobile': _phoneController.text,
+        'alternate_number': _alternateNumberController.text,
+        'email': _emailController.text,
+        'street_line': _streetLineController.text,
+        'town_city': _townCityController.text,
+        'state': _stateController.text,
+        'country': _countryController.text,
+        'pincode': _pinCodeController.text,
+        'gstin': _gstController.text,
+        'pan': _panController.text,
+        'region_id': selectedRegionIds.join(','),
+        'api': 'true'
+        // Add other fields as needed
+      };
+      final success = await ApiService.updateUserProfile(
+        userId!.toString(),
+        formData,
+        token,
+        profileImage: _profileImage,
       );
-
-      final appUser = AppUser(
-        userTypeId: selectedUserType.id,
-        companyName: _companyNameController.text,
-        contactPerson: _contactPersonController.text,
-        mobile: _phoneController.text,
-        email: _emailController.text,
-        streetLine: _streetLineController.text,
-        townCity: _townCityController.text,
-        state: _stateController.text,
-        country: _countryController.text,
-        pincode: _pinCodeController.text,
-        regionId: null,
-        userType: UserType(
-          id: selectedUserType.id,
-          name: selectedUserType.name,
-          publish: 1,
-        ),
-        regions: _selectedLocations.isNotEmpty ? _selectedLocations : null,
-      );
-
-      try {
-        if (authState.userId != null) {
-          // Update existing user
-          try {
-            final userId = int.parse(authState.userId!);
-            await ApiService.updateAppUser(userId, appUser);
-          } catch (e) {
-            throw Exception("Invalid user ID format: ${authState.userId}");
-          }
-        } else {
-          // Create new user
-          final createdUser = await ApiService.createAppUser(appUser);
-          // Update auth state with new user ID
-          ref.read(authProvider.notifier).update((state) => state.copyWith(
-                userId: createdUser.id.toString(),
-              ));
-        }
-
+      if (success) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('profile_complete', true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Profile saved successfully!"),
             backgroundColor: Colors.green,
           ),
         );
-        setState(() {
-          _isLoading = false;
-        });
+        Navigator.pushReplacementNamed(context, '/dashboard');
         return true;
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error saving profile: $e")),
+          const SnackBar(content: Text("Failed to save profile")),
         );
         return false;
       }
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error saving profile: $e")),
+      );
+      return false;
+    } finally {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching user types: $e")),
-      );
-      return false;
     }
+  }
+
+  Future<XFile?> compressImage(XFile file) async {
+    final dir = await getTemporaryDirectory();
+    final rand = Random().nextInt(100000);
+    final targetPath = '${dir.path}/profile_compressed_$rand.jpg';
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.path,
+      targetPath,
+      quality: 80,
+      minWidth: 800,
+      minHeight: 800,
+    );
+    return result != null ? XFile(result.path) : null;
   }
 
   Future<void> _pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
+        final compressed = await compressImage(pickedFile);
         setState(() {
-          _profileImage = pickedFile;
+          _profileImage = compressed ?? pickedFile;
         });
       }
     } catch (e) {
@@ -263,6 +347,8 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profi1le'),
@@ -295,9 +381,11 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                   radius: 50,
                   backgroundImage: _profileImage != null
                       ? FileImage(File(_profileImage!.path))
-                      : null,
+                      : (_profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                          ? NetworkImage(_profileImageUrl!)
+                          : null),
                   backgroundColor: Colors.grey[300],
-                  child: _profileImage == null
+                  child: _profileImage == null && (_profileImageUrl == null || _profileImageUrl!.isEmpty)
                       ? const Icon(Icons.person, size: 50, color: Colors.white)
                       : null,
                 ),
@@ -328,41 +416,57 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             ),
             const SizedBox(height: 24),
 
-            _buildTextField("Company Name", _companyNameController),
+            _buildTextField("Company Name *", _companyNameController),
             const SizedBox(height: 16),
 
-            _buildTextField("Contact Person", _contactPersonController),
+            _buildTextField("Contact Person *", _contactPersonController),
             const SizedBox(height: 16),
 
             _isLoadingPhone
                 ? const CircularProgressIndicator()
                 : _buildTextField(
-                    "Registered Number",
+                    "Registered Number *",
                     _phoneController,
                     readOnly: true,
                     textColor: Colors.grey,
                   ),
             const SizedBox(height: 16),
 
-            _buildTextField("Alternate Number", _alternateNumberController),
+            _buildTextField(
+              "Alternate Number *",
+              _alternateNumberController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
             const SizedBox(height: 16),
 
-            _buildTextField("Email", _emailController),
+            _buildTextField("Email *", _emailController, keyboardType: TextInputType.emailAddress),
             const SizedBox(height: 16),
 
-            _buildTextField("Street Line", _streetLineController, maxLines: 3),
+            _buildTextField("Street Line *", _streetLineController, maxLines: 3),
             const SizedBox(height: 16),
 
-            _buildTextField("Town/City", _townCityController),
+            _buildTextField("Town/City *", _townCityController),
             const SizedBox(height: 16),
 
-            _buildTextField("State", _stateController),
+            _buildTextField("State *", _stateController),
             const SizedBox(height: 16),
 
-            _buildTextField("Country", _countryController),
+            // Country dropdown (readonly, only India)
+            DropdownButtonFormField<String>(
+              value: 'India',
+              items: [DropdownMenuItem(value: 'India', child: Text('India'))],
+              onChanged: null, // disables the dropdown
+              decoration: const InputDecoration(labelText: 'Country *'),
+            ),
             const SizedBox(height: 16),
 
-            _buildTextField("Pin Code", _pinCodeController),
+            _buildTextField(
+              "Pin Code *",
+              _pinCodeController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            ),
             const SizedBox(height: 16),
 
             _buildTextField("GST", _gstController),
@@ -415,14 +519,16 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _availableLocations.map((location) {
-                return ActionChip(
-                  label: Text(location),
-                  avatar: const Icon(Icons.add, size: 18),
-                  onPressed: () => _addLocation(location),
-                  backgroundColor: Colors.grey[200],
-                );
-              }).toList(),
+              children: _availableLocations
+                  .where((location) => !_selectedLocations.contains(location))
+                  .map((location) {
+                    return ActionChip(
+                      label: Text(location),
+                      avatar: const Icon(Icons.add, size: 18),
+                      onPressed: () => _addLocation(location),
+                      backgroundColor: Colors.grey[200],
+                    );
+                  }).toList(),
             ),
             const SizedBox(height: 24),
 
@@ -458,9 +564,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                     onPressed: _isLoading
                         ? null
                         : () async {
-                            if (await _saveProfile(context)) {
-                              Navigator.pop(context);
-                            }
+                            await _saveProfile(context);
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
@@ -498,12 +602,16 @@ class _EditProfileState extends ConsumerState<EditProfile> {
     int maxLines = 1,
     bool readOnly = false,
     Color? textColor,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
       readOnly: readOnly,
       style: TextStyle(color: textColor ?? Colors.black),
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         labelText: label,
         filled: true,
