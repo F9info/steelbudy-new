@@ -17,8 +17,8 @@ import 'package:image_picker/image_picker.dart';
 
 
 class ApiService {
-  // static const String baseUrl = 'http://127.0.0.1:8000/api';
-  static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  // static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
   static final http.Client _client = http.Client();
 
   static Future<http.Response> _makeRequest({
