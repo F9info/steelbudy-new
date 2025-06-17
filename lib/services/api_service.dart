@@ -15,10 +15,9 @@ import 'package:steel_budy/models/app_user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class ApiService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
-  // static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
+  // static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
   static final http.Client _client = http.Client();
 
   static Future<http.Response> _makeRequest({
@@ -28,11 +27,13 @@ class ApiService {
     Object? body,
   }) async {
     try {
-      final response = await _client.send(
-        http.Request(method, Uri.parse(url))
-          ..headers.addAll(headers ?? {})
-          ..bodyBytes = body != null ? utf8.encode(json.encode(body)) : [],
-      ).timeout(const Duration(seconds: 10));
+      final response = await _client
+          .send(
+            http.Request(method, Uri.parse(url))
+              ..headers.addAll(headers ?? {})
+              ..bodyBytes = body != null ? utf8.encode(json.encode(body)) : [],
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 302) {
         final redirectUrl = response.headers['location'];
@@ -49,7 +50,8 @@ class ApiService {
       return http.Response.fromStream(response);
     } catch (e) {
       if (e is SocketException) {
-        throw HttpException('Could not connect to the server. Please check if the server is running.');
+        throw HttpException(
+            'Could not connect to the server. Please check if the server is running.');
       }
       throw HttpException('Error making request: $e');
     }
@@ -75,10 +77,12 @@ class ApiService {
         // Handle both direct list and nested userTypes field
         if (decoded is List) {
           userTypes = decoded;
-        } else if (decoded is Map<String, dynamic> && decoded.containsKey('userTypes')) {
+        } else if (decoded is Map<String, dynamic> &&
+            decoded.containsKey('userTypes')) {
           userTypes = decoded['userTypes'];
         } else {
-          throw HttpException('Invalid response format: expected a list or userTypes field\nResponse: \\${response.body}');
+          throw HttpException(
+              'Invalid response format: expected a list or userTypes field\nResponse: \\${response.body}');
         }
 
         if (userTypes.isEmpty) {
@@ -187,7 +191,8 @@ class ApiService {
       List<dynamic> regionList;
       if (decoded is List) {
         regionList = decoded;
-      } else if (decoded is Map<String, dynamic> && decoded['regions'] is List) {
+      } else if (decoded is Map<String, dynamic> &&
+          decoded['regions'] is List) {
         regionList = decoded['regions'];
       } else {
         throw HttpException('Unexpected regions response: $decoded');
@@ -218,12 +223,16 @@ class ApiService {
       List<dynamic> paymentTermsList;
       if (decoded is List) {
         paymentTermsList = decoded;
-      } else if (decoded is Map<String, dynamic> && decoded['paymentTerms'] is List) {
+      } else if (decoded is Map<String, dynamic> &&
+          decoded['paymentTerms'] is List) {
         paymentTermsList = decoded['paymentTerms'];
       } else {
-        throw HttpException('Unexpected payment terms response: \\${response.body}');
+        throw HttpException(
+            'Unexpected payment terms response: \\${response.body}');
       }
-      return paymentTermsList.map((item) => PaymentTerm.fromJson(item)).toList();
+      return paymentTermsList
+          .map((item) => PaymentTerm.fromJson(item))
+          .toList();
     } else {
       throw HttpException(
         'Failed to load payment terms: \\${response.statusCode} \\${response.reasonPhrase}',
@@ -278,12 +287,16 @@ class ApiService {
       List<dynamic> deliveryTermsList;
       if (decoded is List) {
         deliveryTermsList = decoded;
-      } else if (decoded is Map<String, dynamic> && decoded['deliveryTerms'] is List) {
+      } else if (decoded is Map<String, dynamic> &&
+          decoded['deliveryTerms'] is List) {
         deliveryTermsList = decoded['deliveryTerms'];
       } else {
-        throw HttpException('Unexpected delivery terms response: \\${response.body}');
+        throw HttpException(
+            'Unexpected delivery terms response: \\${response.body}');
       }
-      return deliveryTermsList.map((item) => DeliveryTerm.fromJson(item)).toList();
+      return deliveryTermsList
+          .map((item) => DeliveryTerm.fromJson(item))
+          .toList();
     } else {
       throw HttpException(
         'Failed to load delivery terms: \\${response.statusCode} \\${response.reasonPhrase}',
@@ -359,34 +372,31 @@ class ApiService {
     }
   }
 
-
-
-static Future<ApplicationSettings> getApplicationSettings() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  final response = await _client
-      .get(
-        Uri.parse('$baseUrl/application-settings'),
-        headers: {
-          if (token != null) 'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      )
-      .timeout(const Duration(seconds: 10));
-  if (response.statusCode == 200) {
-    final jsonResponse = jsonDecode(response.body);
-    if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
-      return ApplicationSettings.fromJson(jsonResponse['data']);
+  static Future<ApplicationSettings> getApplicationSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await _client.get(
+      Uri.parse('$baseUrl/application-settings'),
+      headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
+        return ApplicationSettings.fromJson(jsonResponse['data']);
+      } else {
+        throw HttpException(
+            'Failed to load application settings: \\${jsonResponse['message']}');
+      }
     } else {
-      throw HttpException('Failed to load application settings: \\${jsonResponse['message']}');
+      throw HttpException(
+          'Failed to load application settings: \\${response.statusCode}');
     }
-  } else {
-    throw HttpException('Failed to load application settings: \\${response.statusCode}');
   }
-}
 
-
-static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
+  static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final response = await http.post(
@@ -468,14 +478,17 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
           final key = endpoint.replaceFirst('/', '');
           final camelCaseKey = key.split('-').asMap().entries.map((entry) {
             if (entry.key == 0) return entry.value.toLowerCase();
-            return entry.value[0].toUpperCase() + entry.value.substring(1).toLowerCase();
+            return entry.value[0].toUpperCase() +
+                entry.value.substring(1).toLowerCase();
           }).join();
           data = decoded[camelCaseKey] ?? decoded[key] ?? decoded['data'] ?? [];
           if (data is! List) {
-            throw HttpException('Expected a list in response for $endpoint\nResponse: \\${response.body}');
+            throw HttpException(
+                'Expected a list in response for $endpoint\nResponse: \\${response.body}');
           }
         } else {
-          throw HttpException('Expected a list response from $endpoint\nResponse: \\${response.body}');
+          throw HttpException(
+              'Expected a list response from $endpoint\nResponse: \\${response.body}');
         }
 
         if (fromJson != null) {
@@ -499,7 +512,8 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
   }
 
   // Check or register user
-  static Future<Map<String, dynamic>> checkOrRegisterAppUser(String mobile) async {
+  static Future<Map<String, dynamic>> checkOrRegisterAppUser(
+      String mobile) async {
     final response = await _client.post(
       Uri.parse('$baseUrl/app-users/check-or-register'),
       headers: {'Accept': 'application/json'},
@@ -514,7 +528,8 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
   }
 
   // Update user role
-  static Future<bool> updateUserRole(String userId, int userTypeId, String token) async {
+  static Future<bool> updateUserRole(
+      String userId, int userTypeId, String token) async {
     final response = await _client.post(
       Uri.parse('$baseUrl/app-users/$userId/update-role'),
       headers: {
@@ -527,7 +542,8 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
   }
 
   // Get user profile by mobile
-  static Future<Map<String, dynamic>?> getUserByMobile(String mobile, String token) async {
+  static Future<Map<String, dynamic>?> getUserByMobile(
+      String mobile, String token) async {
     final prefs = await SharedPreferences.getInstance();
     final storedToken = prefs.getString('token') ?? token;
     final response = await _client.get(
@@ -544,15 +560,19 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
   }
 
   // Update user profile
-  static Future<bool> updateUserProfile(String userId, Map<String, dynamic> data, String token, {XFile? profileImage}) async {
+  static Future<bool> updateUserProfile(
+      String userId, Map<String, dynamic> data, String token,
+      {XFile? profileImage}) async {
     var uri = Uri.parse('$baseUrl/app-users/$userId');
     var request = http.MultipartRequest('POST', uri);
     request.headers['Authorization'] = 'Bearer $token';
     request.headers['Accept'] = 'application/json';
     request.fields.addAll(data.map((k, v) => MapEntry(k, v.toString())));
-    request.fields['_method'] = 'PUT'; // Laravel expects this for multipart updates
+    request.fields['_method'] =
+        'PUT'; // Laravel expects this for multipart updates
     if (profileImage != null) {
-      request.files.add(await http.MultipartFile.fromPath('profile_pic', profileImage.path));
+      request.files.add(
+          await http.MultipartFile.fromPath('profile_pic', profileImage.path));
     }
     var streamedResponse = await request.send();
     var response = await http.Response.fromStream(streamedResponse);
@@ -693,7 +713,6 @@ static Future<void> submitEnquiry(Map<String, dynamic> payload) async {
     }
   }
 }
-
 
 class HttpException implements Exception {
   final String message;

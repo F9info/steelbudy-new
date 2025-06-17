@@ -29,18 +29,24 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
   }
 
   Future<void> _finalizeQuotation(int quotationId) async {
-    setState(() { _finalizing = true; });
+    setState(() {
+      _finalizing = true;
+    });
     try {
       await ApiService.finalizeQuotation(widget.orderId, quotationId);
       if (mounted) {
-        Navigator.pop(context, true); // Pop with result to trigger parent refresh and tab switch
+        Navigator.pop(context,
+            true); // Pop with result to trigger parent refresh and tab switch
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to finalize quotation')),
       );
     } finally {
-      if (mounted) setState(() { _finalizing = false; });
+      if (mounted)
+        setState(() {
+          _finalizing = false;
+        });
     }
   }
 
@@ -51,22 +57,29 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
       body: FutureBuilder<Map<String, dynamic>>(
         future: _orderFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return Center(child: CircularProgressIndicator());
           final order = snapshot.data!['customerOrder'];
           final quotations = order['dealer_quotations'] as List<dynamic>;
-          final isFinalized = (order['status'] == 'done' || order['status'] == 'finalized');
+          final isFinalized =
+              (order['status'] == 'done' || order['status'] == 'finalized');
           List<dynamic> displayQuotations = quotations;
           if (isFinalized) {
             // Only show the finalized quotation
-            displayQuotations = quotations.where((q) => q['status'] == 'finalized' || q['status'] == 'done').toList();
+            displayQuotations = quotations
+                .where(
+                    (q) => q['status'] == 'finalized' || q['status'] == 'done')
+                .toList();
           }
-          if (displayQuotations.isEmpty) return Center(child: Text('No quotations found.'));
+          if (displayQuotations.isEmpty)
+            return Center(child: Text('No quotations found.'));
           return ListView.builder(
             itemCount: displayQuotations.length,
             itemBuilder: (context, index) {
               final q = displayQuotations[index];
               var totalMaterial = 0;
-              final products = q['dealer_quotation_products'] as List<dynamic>? ?? [];
+              final products =
+                  q['dealer_quotation_products'] as List<dynamic>? ?? [];
               final productRows = products.map<DataRow>((p) {
                 var rowTotal = 0;
                 final cost = p['cost'] ?? 0;
@@ -99,7 +112,8 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                       // Dealer/Company Name
                       Text(
                         q['company_name'] ?? '-',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                       SizedBox(height: 4),
                       // Date/ID Row
@@ -107,12 +121,16 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            q['created_at'] != null ? q['created_at'].toString() : '',
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            q['created_at'] != null
+                                ? q['created_at'].toString()
+                                : '',
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[700]),
                           ),
                           Text(
                             'ID: ${q['quotation_code'] ?? q['id'] ?? ''}',
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[700]),
                           ),
                         ],
                       ),
@@ -121,9 +139,14 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          headingRowColor: MaterialStateColor.resolveWith((states) => Colors.grey[200]!),
+                          headingRowColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.blue),
                           columns: const [
-                            DataColumn(label: Text('Item')),
+                            DataColumn(
+                                label: Text(
+                              'Item',
+                              style: TextStyle(color: Colors.white),
+                            )),
                             DataColumn(label: Text('Brand')),
                             DataColumn(label: Text('Qty (Tons)')),
                             DataColumn(label: Text('Pieces')),
@@ -136,16 +159,24 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                       SizedBox(height: 12),
                       // Charges and Terms
                       Text('Bending Charges: ₹${q['bending_charges'] ?? '-'}'),
-                      Text('Transport Charges: ₹${q['transport_charges'] ?? '-'}'),
-                      Text('Payment Terms:    ${q['payment_terms'] ?? order['payment_terms'] ?? '-'}'),
-                      Text('Delivery Terms: ${q['delivery_terms'] ?? order['delivery_terms'] ?? '-'}'),
-                      if ((q['delivery_terms'] ?? order['delivery_terms']) == 'Delivered To')
-                        Text('Delivery Address: ${q['delivery_address'] ?? order['delivery_address'] ?? '-'}'),
-                      Text('Delivery Condition: ${q['delivery_conditions'] ?? order['delivery_conditions'] ?? '-'}'),
-                      Text('Delivery Date: ${q['delivery_date'] ?? order['delivery_date'] ?? '-'}'),
+                      Text(
+                          'Transport Charges: ₹${q['transport_charges'] ?? '-'}'),
+                      Text(
+                          'Payment Terms:    ${q['payment_terms'] ?? order['payment_terms'] ?? '-'}'),
+                      Text(
+                          'Delivery Terms: ${q['delivery_terms'] ?? order['delivery_terms'] ?? '-'}'),
+                      if ((q['delivery_terms'] ?? order['delivery_terms']) ==
+                          'Delivered To')
+                        Text(
+                            'Delivery Address: ${q['delivery_address'] ?? order['delivery_address'] ?? '-'}'),
+                      Text(
+                          'Delivery Condition: ${q['delivery_conditions'] ?? order['delivery_conditions'] ?? '-'}'),
+                      Text(
+                          'Delivery Date: ${q['delivery_date'] ?? order['delivery_date'] ?? '-'}'),
                       SizedBox(height: 8),
                       // Totals
-                      Text('Total Material Rs: ₹${totalMaterial.toStringAsFixed(2)}'),
+                      Text(
+                          'Total Material Rs: ₹${totalMaterial.toStringAsFixed(2)}'),
                       Text('GST 18%: ₹${q['gst_amount'] ?? '-'}'),
                       SizedBox(height: 4),
                       Text(
@@ -163,7 +194,8 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () => _callDealer(q['mobile']),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red),
                               child: Text('Call'),
                             ),
                           ),
@@ -171,8 +203,11 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                             SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _finalizing ? null : () => _finalizeQuotation(q['id']),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                                onPressed: _finalizing
+                                    ? null
+                                    : () => _finalizeQuotation(q['id']),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue),
                                 child: Text('Finalize'),
                               ),
                             ),
@@ -189,4 +224,4 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
       ),
     );
   }
-} 
+}
