@@ -696,6 +696,27 @@ class ApiService {
     }
   }
 
+  static Future<void> sendDeviceTokenToBackend(String userId, String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('token');
+    final url = Uri.parse('$baseUrl/device-token');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        if (authToken != null) 'Authorization': 'Bearer $authToken',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'user_id': userId,
+        'device_token': token,
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to register device token');
+    }
+  }
+
   static Future<void> deleteProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');

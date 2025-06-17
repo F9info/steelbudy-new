@@ -1,0 +1,2 @@
+/Users/satishk/Downloads/Development/steelbudy-new/android/app/.cxx/RelWithDebInfo/3w412l4x/x86_64/CMakeFiles/edit_cache.dir
+/Users/satishk/Downloads/Development/steelbudy-new/android/app/.cxx/RelWithDebInfo/3w412l4x/x86_64/CMakeFiles/rebuild_cache.dir
