@@ -339,7 +339,7 @@ class _PostQuotationState extends State<PostQuotation> {
                       ),
                       DataColumn(
                         label: Text(
-                          'Quantity',
+                          'Qty / Pieces',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,

@@ -76,7 +76,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'This week',
+            '',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -97,60 +97,61 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                         ),
                       ),
                     )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemCount: notifications.length,
-                      itemBuilder: (context, index) {
-                        final notification = notifications[index];
-                        return Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey[200]!),
-                          ),
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: const BoxDecoration(
-                                color: Colors.grey,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            title: Text(
-                              notification['user'] ?? 'Unknown User',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Text(
-                                  notification['action'] ?? 'Unknown Action',
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  notification['timestamp'] ?? 'Unknown Time',
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  // : ListView.builder(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  //     itemCount: notifications.length,
+                  //     itemBuilder: (context, index) {
+                  //       final notification = notifications[index];
+                  //       return Card(
+                  //         elevation: 0,
+                  //         shape: RoundedRectangleBorder(
+                  //           borderRadius: BorderRadius.circular(12),
+                  //           side: BorderSide(color: Colors.grey[200]!),
+                  //         ),
+                  //         margin: const EdgeInsets.only(bottom: 8),
+                  //         child: ListTile(
+                  //           contentPadding: const EdgeInsets.all(16),
+                  //           leading: Container(
+                  //             width: 40,
+                  //             height: 40,
+                  //             decoration: const BoxDecoration(
+                  //               color: Colors.grey,
+                  //               shape: BoxShape.circle,
+                  //             ),
+                  //           ),
+                  //           title: Text(
+                  //             notification['user'] ?? 'Unknown User',
+                  //             style: const TextStyle(
+                  //               fontWeight: FontWeight.bold,
+                  //               fontSize: 16,
+                  //             ),
+                  //           ),
+                  //           subtitle: Column(
+                  //             crossAxisAlignment: CrossAxisAlignment.start,
+                  //             children: [
+                  //               const SizedBox(height: 4),
+                  //               Text(
+                  //                 notification['action'] ?? 'Unknown Action',
+                  //                 style: TextStyle(
+                  //                   color: Colors.grey[600],
+                  //                   fontSize: 14,
+                  //                 ),
+                  //               ),
+                  //               const SizedBox(height: 4),
+                  //               Text(
+                  //                 notification['timestamp'] ?? 'Unknown Time',
+                  //                 style: TextStyle(
+                  //                   color: Colors.grey[400],
+                  //                   fontSize: 12,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       );
+                  //     },
+                  //   ),
+                  : Text('')
         ),
       ],
     );

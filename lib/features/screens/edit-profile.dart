@@ -550,7 +550,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // Cancel action
+                      Navigator.pushReplacementNamed(context, '/dashboard'); // Redirect to profile screen
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

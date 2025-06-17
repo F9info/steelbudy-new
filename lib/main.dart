@@ -48,17 +48,11 @@ class _RootDeciderState extends ConsumerState<RootDecider> {
     final authState = ref.read(authProvider);
     final isAuthenticated = authState.isAuthenticated;
     final userId = authState.userId;
-    final profileComplete = prefs.getBool('profile_complete') ?? false;
 
     if (!isAuthenticated || userId == null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => SplashScreen()),
-      );
-    } else if (!profileComplete) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const EditProfile()),
       );
     } else {
       Navigator.pushReplacement(

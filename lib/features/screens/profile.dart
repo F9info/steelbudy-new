@@ -50,6 +50,29 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  String _getRoleDisplayName(String role) {
+    switch (role.toLowerCase().replaceAll(' ', '').replaceAll('/', '').replaceAll('_', '')) {
+      case 'manufacturer':
+        return 'Manufacturer';
+      case 'distributor':
+        return 'Distributor';
+      case 'dealerretailerbuilder':
+        return 'Dealer/Retailer/Builder';
+      case 'enduser':
+        return 'End User';
+      case 'others':
+        return 'Others';
+      default:
+        return role;
+    }
+  }
+
+  Future<String> _fetchRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    final role = prefs.getString('role') ?? '';
+    return _getRoleDisplayName(role);
+  }
+
   Future<Map<String, String?>> _fetchProfileHeaderInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId');
@@ -121,6 +144,31 @@ class ProfileScreen extends StatelessWidget {
                             } else {
                               return Text(
                                 snapshot.data ?? 'Phone number not available',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 4),
+                        FutureBuilder<String>(
+                          future: _fetchRole(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2));
+                            } else if (snapshot.hasError) {
+                              return Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              );
+                            } else {
+                              return Text(
+                                snapshot.data?.isNotEmpty == true ? snapshot.data! : 'Role not available',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.grey[600],
