@@ -19,7 +19,8 @@ class _EnquiryScreenState extends State<EnquiryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // Updated length to 3
+    _tabController =
+        TabController(length: 3, vsync: this); // Updated length to 3
     _tabController.addListener(() {
       if (_tabController.index != _selectedTabIndex) {
         setState(() {
@@ -71,7 +72,8 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                 );
                 if (result == true) {
                   setState(() {
-                    _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                    _enquiriesFuture =
+                        ApiService.getCustomerOrdersForCurrentUser();
                   });
                 }
               },
@@ -118,7 +120,11 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     );
                   }
                   final orders = snapshot.data!;
-                  final newOrders = orders.where((order) => order['status'] == 'pending' || order['status'] == 'inprogress').toList();
+                  final newOrders = orders
+                      .where((order) =>
+                          order['status'] == 'pending' ||
+                          order['status'] == 'inprogress')
+                      .toList();
                   Widget buildOrderList(List<dynamic> filteredOrders) {
                     if (filteredOrders.isEmpty) {
                       return const Center(
@@ -135,14 +141,16 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                       padding: const EdgeInsets.all(16),
                       itemCount: filteredOrders.length,
                       itemBuilder: (context, index) {
-                        final order = filteredOrders[index] as Map<String, dynamic>;
+                        final order =
+                            filteredOrders[index] as Map<String, dynamic>;
                         // You can adjust these fields based on your API response structure
                         final productName = order['product_name'] ?? 'Product';
                         final brand = order['brand'] ?? 'Brand';
                         final tons = order['tons']?.toString() ?? '-';
                         final location = order['location'] ?? 'Location';
                         final createdAt = order['created_at'] ?? '';
-                        final products = (order['custom_order_products'] ?? []) as List;
+                        final products =
+                            (order['custom_order_products'] ?? []) as List;
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
                           elevation: 0,
@@ -157,19 +165,24 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                               children: [
                                 // ID and Date/Time Row
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('ID: ${order['id']?.toString() ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('ID: ${order['id']?.toString() ?? ''}',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
                                     Text(
                                       createdAt,
-                                      style: TextStyle(color: Color(0xFF757575)),
+                                      style:
+                                          TextStyle(color: Color(0xFF757575)),
                                     ),
                                   ],
                                 ),
                                 SizedBox(height: 8),
                                 // Products Table (mocked for now)
                                 Table(
-                                  border: TableBorder.all(color: Colors.grey[300]!),
+                                  border:
+                                      TableBorder.all(color: Colors.grey[300]!),
                                   columnWidths: const {
                                     0: FlexColumnWidth(2),
                                     1: FlexColumnWidth(2),
@@ -178,18 +191,43 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                   },
                                   children: [
                                     TableRow(
-                                      decoration: BoxDecoration(color: Colors.grey[200]),
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey[200]),
                                       children: [
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Products', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Brand', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Qty (Tons)', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Pieces', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Products',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Brand',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Qty (Tons)',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Pieces',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
                                       ],
                                     ),
                                     if (products.isEmpty)
                                       TableRow(
                                         children: [
-                                          Padding(padding: EdgeInsets.all(4), child: Text('No products', style: TextStyle(color: Colors.grey))),
+                                          Padding(
+                                              padding: EdgeInsets.all(4),
+                                              child: Text('No products',
+                                                  style: TextStyle(
+                                                      color: Colors.grey))),
                                           SizedBox(),
                                           SizedBox(),
                                           SizedBox(),
@@ -199,10 +237,29 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                       ...products.map<TableRow>((product) {
                                         return TableRow(
                                           children: [
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['product_type']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['brand']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['quantity']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['pieces'] != null ? product['pieces'].toString() : '-')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(
+                                                    product['product_type']
+                                                            ?.toString() ??
+                                                        '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(product['brand']
+                                                        ?.toString() ??
+                                                    '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(product['quantity']
+                                                        ?.toString() ??
+                                                    '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(
+                                                    product['pieces'] != null
+                                                        ? product['pieces']
+                                                            .toString()
+                                                        : '-')),
                                           ],
                                         );
                                       }).toList(),
@@ -210,22 +267,30 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 12),
                                 // Other fields
-                                Text('Payment Terms: ${order['payment_terms'] ?? ''}'),
+                                Text(
+                                    'Payment Terms: ${order['payment_terms'] ?? ''}'),
                                 SizedBox(height: 10),
-                                Text('Delivery Terms: ${order['delivery_terms'] ?? ''}'),
+                                Text(
+                                    'Delivery Terms: ${order['delivery_terms'] ?? ''}'),
                                 SizedBox(height: 10),
-                                if (order['delivery_terms'] == 'Delivered To') ...[
-                                  Text('Delivery Address: ${order['delivery_address'] ?? ''}'),
+                                if (order['delivery_terms'] ==
+                                    'Delivered To') ...[
+                                  Text(
+                                      'Delivery Address: ${order['delivery_address'] ?? ''}'),
                                   SizedBox(height: 10),
                                 ],
-                                Text('Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
+                                Text(
+                                    'Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
                                 SizedBox(height: 10),
-                                Text('Delivery Date: ${order['delivery_date'] ?? ''}'),
+                                Text(
+                                    'Delivery Date: ${order['delivery_date'] ?? ''}'),
                                 SizedBox(height: 10),
-                                Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
+                                Text(
+                                    'Order By: ${order['app_user']?['company_name'] ?? ''}'),
                                 SizedBox(height: 10),
                                 // Remove the No Quotations button if dealer_quotations is present and not empty
-                                if ((order['dealer_quotations'] ?? []).isNotEmpty) ...[
+                                if ((order['dealer_quotations'] ?? [])
+                                    .isNotEmpty) ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
@@ -233,18 +298,25 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                         final result = await Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => ViewQuotationsList(orderId: order['id']),
+                                            builder: (context) =>
+                                                ViewQuotationsList(
+                                                    orderId: order['id']),
                                           ),
                                         );
                                         if (result == true) {
                                           setState(() {
-                                            _tabController.index = 1; // Switch to Finalized tab (adjust index if needed)
-                                            _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                            _tabController.index =
+                                                1; // Switch to Finalized tab (adjust index if needed)
+                                            _enquiriesFuture = ApiService
+                                                .getCustomerOrdersForCurrentUser();
                                           });
                                         }
                                       },
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                      child: Text('View Quotations', style: TextStyle(color: Colors.white)),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green),
+                                      child: Text('View Quotations',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                   SizedBox(height: 8),
@@ -256,38 +328,52 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.grey[300],
                                       ),
-                                      child: Text('No Quotations', style: TextStyle(color: Colors.white)),
+                                      child: Text('No Quotations',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                   SizedBox(height: 8),
                                 ],
                                 // Cancel Button
-                                if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
+                                if (order['status'] != 'expired' &&
+                                    order['status'] != 'cancelled') ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       onPressed: () async {
                                         try {
-                                          await ApiService.cancelEnquiry(order['id']);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Enquiry cancelled')),
+                                          await ApiService.cancelEnquiry(
+                                              order['id']);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content:
+                                                    Text('Enquiry cancelled')),
                                           );
                                           if (mounted) {
                                             setState(() {
-                                              _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
-                                              _tabController.index = 2; // Switch to Expired tab
+                                              _enquiriesFuture = ApiService
+                                                  .getCustomerOrdersForCurrentUser();
+                                              _tabController.index =
+                                                  2; // Switch to Expired tab
                                             });
                                           }
                                         } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Failed to cancel enquiry')),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Failed to cancel enquiry')),
                                           );
                                         }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,
                                       ),
-                                      child: Text('Cancel', style: TextStyle(color: Colors.white)),
+                                      child: Text('Cancel',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                 ],
@@ -298,6 +384,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                       },
                     );
                   }
+
                   return buildOrderList(newOrders);
                 },
               ),
@@ -321,7 +408,9 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     );
                   }
                   final orders = snapshot.data!;
-                  final finalizedOrders = orders.where((order) => order['status'] == 'finalized').toList();
+                  final finalizedOrders = orders
+                      .where((order) => order['status'] == 'finalized')
+                      .toList();
                   Widget buildOrderList(List<dynamic> filteredOrders) {
                     if (filteredOrders.isEmpty) {
                       return const Center(
@@ -338,20 +427,27 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                       padding: const EdgeInsets.all(16),
                       itemCount: filteredOrders.length,
                       itemBuilder: (context, index) {
-                        final order = filteredOrders[index] as Map<String, dynamic>;
+                        final order =
+                            filteredOrders[index] as Map<String, dynamic>;
                         // You can adjust these fields based on your API response structure
                         final productName = order['product_name'] ?? 'Product';
                         final brand = order['brand'] ?? 'Brand';
                         final tons = order['tons']?.toString() ?? '-';
                         final location = order['location'] ?? 'Location';
                         final createdAt = order['created_at'] ?? '';
-                        final products = (order['custom_order_products'] ?? []) as List;
+                        final products =
+                            (order['custom_order_products'] ?? []) as List;
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
-                          elevation: 0,
+                          elevation:
+                              8, // Increased for a smoother, more noticeable shadow
+                          shadowColor:
+                              Colors.grey.withOpacity(0.5), // Soft grey shadow
+                          color: Colors.white, // Transparent background
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey[200]!),
+                            side: BorderSide(
+                                color: Colors.grey[200]!), // Grey outline
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
@@ -360,19 +456,24 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                               children: [
                                 // ID and Date/Time Row
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('ID: ${order['id']?.toString() ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('ID: ${order['id']?.toString() ?? ''}',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
                                     Text(
                                       createdAt,
-                                      style: TextStyle(color: Color(0xFF757575)),
+                                      style:
+                                          TextStyle(color: Color(0xFF757575)),
                                     ),
                                   ],
                                 ),
                                 SizedBox(height: 8),
                                 // Products Table (mocked for now)
                                 Table(
-                                  border: TableBorder.all(color: Colors.grey[300]!),
+                                  border:
+                                      TableBorder.all(color: Colors.grey[300]!),
                                   columnWidths: const {
                                     0: FlexColumnWidth(2),
                                     1: FlexColumnWidth(2),
@@ -381,18 +482,43 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                   },
                                   children: [
                                     TableRow(
-                                      decoration: BoxDecoration(color: Colors.grey[200]),
+                                      decoration:
+                                          BoxDecoration(color: Colors.blue),
                                       children: [
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Products', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Brand', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Qty (Tons)', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Pieces', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Products',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Brand',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Qty (Tons)',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Pieces',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white))),
                                       ],
                                     ),
                                     if (products.isEmpty)
                                       TableRow(
                                         children: [
-                                          Padding(padding: EdgeInsets.all(4), child: Text('No products', style: TextStyle(color: Colors.grey))),
+                                          Padding(
+                                              padding: EdgeInsets.all(4),
+                                              child: Text('No products',
+                                                  style: TextStyle(
+                                                      color: Colors.grey))),
                                           SizedBox(),
                                           SizedBox(),
                                           SizedBox(),
@@ -402,10 +528,29 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                       ...products.map<TableRow>((product) {
                                         return TableRow(
                                           children: [
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['product_type']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['brand']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['quantity']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['pieces'] != null ? product['pieces'].toString() : '-')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(
+                                                    product['product_type']
+                                                            ?.toString() ??
+                                                        '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(product['brand']
+                                                        ?.toString() ??
+                                                    '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(product['quantity']
+                                                        ?.toString() ??
+                                                    '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(
+                                                    product['pieces'] != null
+                                                        ? product['pieces']
+                                                            .toString()
+                                                        : '-')),
                                           ],
                                         );
                                       }).toList(),
@@ -413,18 +558,26 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 12),
                                 // Other fields
-                                Text('Payment Terms: ${order['payment_terms'] ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                    'Payment Terms: ${order['payment_terms'] ?? ''}',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 SizedBox(height: 10),
-                                Text('Delivery Terms: ${order['delivery_terms'] ?? ''}'),
+                                Text(
+                                    'Delivery Terms: ${order['delivery_terms'] ?? ''}'),
                                 SizedBox(height: 10),
-                                Text('Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
+                                Text(
+                                    'Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
                                 SizedBox(height: 10),
-                                Text('Delivery Date: ${order['delivery_date'] ?? ''}'),
+                                Text(
+                                    'Delivery Date: ${order['delivery_date'] ?? ''}'),
                                 SizedBox(height: 10),
-                                Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
+                                Text(
+                                    'Order By: ${order['app_user']?['company_name'] ?? ''}'),
                                 SizedBox(height: 10),
                                 // Remove the No Quotations button if dealer_quotations is present and not empty
-                                if ((order['dealer_quotations'] ?? []).isNotEmpty) ...[
+                                if ((order['dealer_quotations'] ?? [])
+                                    .isNotEmpty) ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
@@ -432,18 +585,25 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                         final result = await Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => ViewQuotationsList(orderId: order['id']),
+                                            builder: (context) =>
+                                                ViewQuotationsList(
+                                                    orderId: order['id']),
                                           ),
                                         );
                                         if (result == true) {
                                           setState(() {
-                                            _tabController.index = 1; // Switch to Finalized tab (adjust index if needed)
-                                            _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
+                                            _tabController.index =
+                                                1; // Switch to Finalized tab (adjust index if needed)
+                                            _enquiriesFuture = ApiService
+                                                .getCustomerOrdersForCurrentUser();
                                           });
                                         }
                                       },
-                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                      child: Text('View Quotations', style: TextStyle(color: Colors.white)),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green),
+                                      child: Text('View Quotations2',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                   SizedBox(height: 8),
@@ -455,38 +615,52 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.grey[300],
                                       ),
-                                      child: Text('No Quotations', style: TextStyle(color: Colors.white)),
+                                      child: Text('No Quotations',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                   SizedBox(height: 8),
                                 ],
                                 // Cancel Button
-                                if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
+                                if (order['status'] != 'expired' &&
+                                    order['status'] != 'cancelled') ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       onPressed: () async {
                                         try {
-                                          await ApiService.cancelEnquiry(order['id']);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Enquiry cancelled')),
+                                          await ApiService.cancelEnquiry(
+                                              order['id']);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content:
+                                                    Text('Enquiry cancelled')),
                                           );
                                           if (mounted) {
                                             setState(() {
-                                              _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
-                                              _tabController.index = 2; // Switch to Expired tab
+                                              _enquiriesFuture = ApiService
+                                                  .getCustomerOrdersForCurrentUser();
+                                              _tabController.index =
+                                                  2; // Switch to Expired tab
                                             });
                                           }
                                         } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Failed to cancel enquiry')),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Failed to cancel enquiry')),
                                           );
                                         }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,
                                       ),
-                                      child: Text('Cancel', style: TextStyle(color: Colors.white)),
+                                      child: Text('Cancel',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                 ],
@@ -497,6 +671,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                       },
                     );
                   }
+
                   return buildOrderList(finalizedOrders);
                 },
               ),
@@ -520,7 +695,11 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                     );
                   }
                   final orders = snapshot.data!;
-                  final expiredOrders = orders.where((order) => order['status'] == 'expired' || order['status'] == 'cancelled').toList();
+                  final expiredOrders = orders
+                      .where((order) =>
+                          order['status'] == 'expired' ||
+                          order['status'] == 'cancelled')
+                      .toList();
                   Widget buildOrderList(List<dynamic> filteredOrders) {
                     if (filteredOrders.isEmpty) {
                       return const Center(
@@ -537,14 +716,16 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                       padding: const EdgeInsets.all(16),
                       itemCount: filteredOrders.length,
                       itemBuilder: (context, index) {
-                        final order = filteredOrders[index] as Map<String, dynamic>;
+                        final order =
+                            filteredOrders[index] as Map<String, dynamic>;
                         // You can adjust these fields based on your API response structure
                         final productName = order['product_name'] ?? 'Product';
                         final brand = order['brand'] ?? 'Brand';
                         final tons = order['tons']?.toString() ?? '-';
                         final location = order['location'] ?? 'Location';
                         final createdAt = order['created_at'] ?? '';
-                        final products = (order['custom_order_products'] ?? []) as List;
+                        final products =
+                            (order['custom_order_products'] ?? []) as List;
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
                           elevation: 0,
@@ -559,19 +740,24 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                               children: [
                                 // ID and Date/Time Row
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('ID: ${order['id']?.toString() ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Text('ID: ${order['id']?.toString() ?? ''}',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
                                     Text(
                                       createdAt,
-                                      style: TextStyle(color: Color(0xFF757575)),
+                                      style:
+                                          TextStyle(color: Color(0xFF757575)),
                                     ),
                                   ],
                                 ),
                                 SizedBox(height: 8),
                                 // Products Table (mocked for now)
                                 Table(
-                                  border: TableBorder.all(color: Colors.grey[300]!),
+                                  border:
+                                      TableBorder.all(color: Colors.grey[300]!),
                                   columnWidths: const {
                                     0: FlexColumnWidth(2),
                                     1: FlexColumnWidth(2),
@@ -580,18 +766,43 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                   },
                                   children: [
                                     TableRow(
-                                      decoration: BoxDecoration(color: Colors.grey[200]),
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey[200]),
                                       children: [
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Products', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Brand', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Qty (Tons)', style: TextStyle(fontWeight: FontWeight.bold))),
-                                        Padding(padding: EdgeInsets.all(4), child: Text('Pieces', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Products',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Brand',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Qty (Tons)',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                        Padding(
+                                            padding: EdgeInsets.all(4),
+                                            child: Text('Pieces',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
                                       ],
                                     ),
                                     if (products.isEmpty)
                                       TableRow(
                                         children: [
-                                          Padding(padding: EdgeInsets.all(4), child: Text('No products', style: TextStyle(color: Colors.grey))),
+                                          Padding(
+                                              padding: EdgeInsets.all(4),
+                                              child: Text('No products',
+                                                  style: TextStyle(
+                                                      color: Colors.grey))),
                                           SizedBox(),
                                           SizedBox(),
                                           SizedBox(),
@@ -601,10 +812,29 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                       ...products.map<TableRow>((product) {
                                         return TableRow(
                                           children: [
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['product_type']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['brand']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['quantity']?.toString() ?? '')),
-                                            Padding(padding: EdgeInsets.all(4), child: Text(product['pieces'] != null ? product['pieces'].toString() : '-')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(
+                                                    product['product_type']
+                                                            ?.toString() ??
+                                                        '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(product['brand']
+                                                        ?.toString() ??
+                                                    '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(product['quantity']
+                                                        ?.toString() ??
+                                                    '')),
+                                            Padding(
+                                                padding: EdgeInsets.all(4),
+                                                child: Text(
+                                                    product['pieces'] != null
+                                                        ? product['pieces']
+                                                            .toString()
+                                                        : '-')),
                                           ],
                                         );
                                       }).toList(),
@@ -612,26 +842,38 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                 ),
                                 SizedBox(height: 12),
                                 // Other fields
-                                Text('Payment Terms: ${order['payment_terms'] ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
-                                SizedBox(height: 10),
-                                Text('Delivery Terms: ${order['delivery_terms'] ?? ''}'),
-                                SizedBox(height: 10),
-                                Text('Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
-                                SizedBox(height: 10),
-                                Text('Delivery Date: ${order['delivery_date'] ?? ''}'),
-                                SizedBox(height: 10),
-                                Text('Order By: ${order['app_user']?['company_name'] ?? ''}'),
+                                Text(
+                                    'Payment Terms: ${order['payment_terms'] ?? ''}',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 SizedBox(height: 10),
                                 Text(
-                                  order['status'] == 'cancelled' ? 'Status: Cancelled' : 'Status: Expired',
+                                    'Delivery Terms: ${order['delivery_terms'] ?? ''}'),
+                                SizedBox(height: 10),
+                                Text(
+                                    'Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
+                                SizedBox(height: 10),
+                                Text(
+                                    'Delivery Date: ${order['delivery_date'] ?? ''}'),
+                                SizedBox(height: 10),
+                                Text(
+                                    'Order By: ${order['app_user']?['company_name'] ?? ''}'),
+                                SizedBox(height: 10),
+                                Text(
+                                  order['status'] == 'cancelled'
+                                      ? 'Status: Cancelled'
+                                      : 'Status: Expired',
                                   style: TextStyle(
-                                    color: order['status'] == 'cancelled' ? Colors.red : Colors.orange,
+                                    color: order['status'] == 'cancelled'
+                                        ? Colors.red
+                                        : Colors.orange,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(height: 10),
                                 // Do not show 'View Quotations' button for expired/cancelled orders
-                                if ((order['dealer_quotations'] ?? []).isEmpty) ...[
+                                if ((order['dealer_quotations'] ?? [])
+                                    .isEmpty) ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
@@ -639,38 +881,52 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.grey[300],
                                       ),
-                                      child: Text('No Quotations', style: TextStyle(color: Colors.white)),
+                                      child: Text('No Quotations',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                   SizedBox(height: 8),
                                 ],
                                 // Cancel Button
-                                if (order['status'] != 'expired' && order['status'] != 'cancelled') ...[
+                                if (order['status'] != 'expired' &&
+                                    order['status'] != 'cancelled') ...[
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
                                       onPressed: () async {
                                         try {
-                                          await ApiService.cancelEnquiry(order['id']);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Enquiry cancelled')),
+                                          await ApiService.cancelEnquiry(
+                                              order['id']);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content:
+                                                    Text('Enquiry cancelled')),
                                           );
                                           if (mounted) {
                                             setState(() {
-                                              _enquiriesFuture = ApiService.getCustomerOrdersForCurrentUser();
-                                              _tabController.index = 2; // Switch to Expired tab
+                                              _enquiriesFuture = ApiService
+                                                  .getCustomerOrdersForCurrentUser();
+                                              _tabController.index =
+                                                  2; // Switch to Expired tab
                                             });
                                           }
                                         } catch (e) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Failed to cancel enquiry')),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Failed to cancel enquiry')),
                                           );
                                         }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.red,
                                       ),
-                                      child: Text('Cancel', style: TextStyle(color: Colors.white)),
+                                      child: Text('Cancel',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                     ),
                                   ),
                                 ],
@@ -681,6 +937,7 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                       },
                     );
                   }
+
                   return buildOrderList(expiredOrders);
                 },
               ),

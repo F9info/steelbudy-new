@@ -140,9 +140,13 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
                           headingRowColor: MaterialStateColor.resolveWith(
-                              (states) => Colors.grey[200]!),
+                              (states) => Colors.blue),
                           columns: const [
-                            DataColumn(label: Text('Item')),
+                            DataColumn(
+                                label: Text(
+                              'Item',
+                              style: TextStyle(color: Colors.white),
+                            )),
                             DataColumn(label: Text('Brand')),
                             DataColumn(label: Text('Qty (Tons)')),
                             DataColumn(label: Text('Pieces')),
