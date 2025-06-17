@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
@@ -17,6 +18,11 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   void initState() {
     super.initState();
     fetchNotifications();
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      if (message.data['enquiry_id'] != null) {
+        Navigator.pushNamed(context, '/enquiry-details', arguments: message.data['enquiry_id']);
+      }
+    });
   }
 
   Future<void> fetchNotifications() async {

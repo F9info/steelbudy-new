@@ -18,6 +18,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:steel_budy/providers/auth_provider.dart';
 import 'features/screens/dealer_enquiry_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_budy/services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +83,11 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+
+    // FCM SETUP: Register token and notification handlers after login
+    if (authState.isAuthenticated && authState.userId != null) {
+      FCMService.setupFCM(userId: authState.userId!, context: context);
+    }
 
     if (authState.isLoading) {
       return const MaterialApp(
