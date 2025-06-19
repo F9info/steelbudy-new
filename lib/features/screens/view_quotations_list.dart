@@ -103,7 +103,14 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
               }).toList();
               return Card(
                 margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                elevation: 2,
+                elevation:
+                    8, // Increased for a smoother, more noticeable shadow
+                shadowColor: Colors.grey.withOpacity(0.5), // Soft grey shadow
+                color: Colors.white, // Transparent background
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey[200]!), // Grey outline
+                ),
                 child: Padding(
                   padding: EdgeInsets.all(16),
                   child: Column(
@@ -147,37 +154,183 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                               'Item',
                               style: TextStyle(color: Colors.white),
                             )),
-                            DataColumn(label: Text('Brand')),
-                            DataColumn(label: Text('Qty (Tons)')),
-                            DataColumn(label: Text('Pieces')),
-                            DataColumn(label: Text('Cost')),
-                            DataColumn(label: Text('Total')),
+                            DataColumn(
+                                label: Text(
+                              'Brand',
+                              style: TextStyle(color: Colors.white),
+                            )),
+                            DataColumn(
+                                label: Text(
+                              'Qty (Tons)',
+                              style: TextStyle(color: Colors.white),
+                            )),
+                            DataColumn(
+                                label: Text(
+                              'Pieces',
+                              style: TextStyle(color: Colors.white),
+                            )),
+                            DataColumn(
+                                label: Text(
+                              'Cost',
+                              style: TextStyle(color: Colors.white),
+                            )),
+                            DataColumn(
+                                label: Text(
+                              'Total',
+                              style: TextStyle(color: Colors.white),
+                            )),
                           ],
                           rows: productRows,
                         ),
                       ),
                       SizedBox(height: 12),
                       // Charges and Terms
-                      Text('Bending Charges: ₹${q['bending_charges'] ?? '-'}'),
-                      Text(
-                          'Transport Charges: ₹${q['transport_charges'] ?? '-'}'),
-                      Text(
-                          'Payment Terms:    ${q['payment_terms'] ?? order['payment_terms'] ?? '-'}'),
-                      Text(
-                          'Delivery Terms: ${q['delivery_terms'] ?? order['delivery_terms'] ?? '-'}'),
-                      if ((q['delivery_terms'] ?? order['delivery_terms']) ==
-                          'Delivered To')
-                        Text(
-                            'Delivery Address: ${q['delivery_address'] ?? order['delivery_address'] ?? '-'}'),
-                      Text(
-                          'Delivery Condition: ${q['delivery_conditions'] ?? order['delivery_conditions'] ?? '-'}'),
-                      Text(
-                          'Delivery Date: ${q['delivery_date'] ?? order['delivery_date'] ?? '-'}'),
-                      SizedBox(height: 8),
-                      // Totals
-                      Text(
-                          'Total Material Rs: ₹${totalMaterial.toStringAsFixed(2)}'),
-                      Text('GST 18%: ₹${q['gst_amount'] ?? '-'}'),
+                      Table(
+                        border:
+                            TableBorder.all(color: Colors.grey[300]!, width: 1),
+                        columnWidths: {
+                          0: FlexColumnWidth(2),
+                          1: FlexColumnWidth(3),
+                        },
+                        children: [
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Bending Charges',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('₹${q['bending_charges'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Transport Charges',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child:
+                                    Text('₹${q['transport_charges'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Payment Terms',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                    '${q['payment_terms'] ?? order['payment_terms'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Delivery Terms',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                    '${q['delivery_terms'] ?? order['delivery_terms'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                          if ((q['delivery_terms'] ??
+                                  order['delivery_terms']) ==
+                              'Delivered To')
+                            TableRow(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text('Delivery Address',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                      '${q['delivery_address'] ?? order['delivery_address'] ?? '-'}'),
+                                ),
+                              ],
+                            ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Delivery Condition',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                    '${q['delivery_conditions'] ?? order['delivery_conditions'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Delivery Date',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                    '${q['delivery_date'] ?? order['delivery_date'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('Total Material Rs',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                    '₹${totalMaterial.toStringAsFixed(2)}'),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('GST 18%',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('₹${q['gst_amount'] ?? '-'}'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 4),
                       Text(
                         'Grand Total (GST included): ₹${q['total_amount'] ?? 0}',
@@ -196,7 +349,10 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                               onPressed: () => _callDealer(q['mobile']),
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red),
-                              child: Text('Call'),
+                              child: Text(
+                                'Call',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                           ),
                           if (!isFinalized) ...[
@@ -208,7 +364,10 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                                     : () => _finalizeQuotation(q['id']),
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue),
-                                child: Text('Finalize'),
+                                child: Text(
+                                  'Finalize',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ],

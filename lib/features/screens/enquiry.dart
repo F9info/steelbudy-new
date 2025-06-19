@@ -153,10 +153,15 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                             (order['custom_order_products'] ?? []) as List;
                         return Card(
                           margin: const EdgeInsets.only(bottom: 16),
-                          elevation: 0,
+                          elevation:
+                              8, // Increased for a smoother, more noticeable shadow
+                          shadowColor:
+                              Colors.grey.withOpacity(0.5), // Soft grey shadow
+                          color: Colors.white, // Transparent background
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: Colors.grey[200]!),
+                            side: BorderSide(
+                                color: Colors.grey[200]!), // Grey outline
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
@@ -191,33 +196,37 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                   },
                                   children: [
                                     TableRow(
-                                      decoration: BoxDecoration(
-                                          color: Colors.grey[200]),
+                                      decoration:
+                                          BoxDecoration(color: Colors.blue),
                                       children: [
                                         Padding(
                                             padding: EdgeInsets.all(4),
                                             child: Text('Products',
                                                 style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                    color: Colors.white))),
                                         Padding(
                                             padding: EdgeInsets.all(4),
                                             child: Text('Brand',
                                                 style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                    color: Colors.white))),
                                         Padding(
                                             padding: EdgeInsets.all(4),
                                             child: Text('Qty (Tons)',
                                                 style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                    color: Colors.white))),
                                         Padding(
                                             padding: EdgeInsets.all(4),
                                             child: Text('Pieces',
                                                 style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                    color: Colors.white))),
                                       ],
                                     ),
                                     if (products.isEmpty)
