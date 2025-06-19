@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
-import 'package:steel_budy/features/dashboard/widgets/searchfilters.dart';
-import 'package:steel_budy/features/screens/enquiry.dart';
-import 'package:steel_budy/features/screens/profile.dart';
-import 'package:steel_budy/features/screens/notifications.dart';
+import 'package:steel_buddy/features/dashboard/widgets/mainappbar.dart';
+import 'package:steel_buddy/features/dashboard/widgets/searchfilters.dart';
+import 'package:steel_buddy/features/screens/enquiry.dart';
+import 'package:steel_buddy/features/screens/profile.dart';
+import 'package:steel_buddy/features/screens/notifications.dart';
 
-import 'package:steel_budy/providers/dashboard_providers.dart';
-import 'package:steel_budy/models/product_model.dart';
+import 'package:steel_buddy/providers/dashboard_providers.dart';
+import 'package:steel_buddy/models/product_model.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -26,7 +26,8 @@ class DashboardScreen extends ConsumerWidget {
       final productBrand = product.brand;
       final productLocation = product.location;
 
-      if (selectedProducts.isNotEmpty && !selectedProducts.contains(productName)) {
+      if (selectedProducts.isNotEmpty &&
+          !selectedProducts.contains(productName)) {
         return false;
       }
 
@@ -34,11 +35,13 @@ class DashboardScreen extends ConsumerWidget {
         return false;
       }
 
-      if (selectedLocations.isNotEmpty && !selectedLocations.contains(productLocation)) {
+      if (selectedLocations.isNotEmpty &&
+          !selectedLocations.contains(productLocation)) {
         return false;
       }
 
-      if (searchQuery.isNotEmpty && !productName.toLowerCase().contains(searchQuery)) {
+      if (searchQuery.isNotEmpty &&
+          !productName.toLowerCase().contains(searchQuery)) {
         return false;
       }
 
@@ -98,11 +101,15 @@ class DashboardScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: secondProductIndex < filteredProducts.length
+                                  child: secondProductIndex <
+                                          filteredProducts.length
                                       ? _buildProductCard(
-                                          filteredProducts[secondProductIndex].name,
-                                          filteredProducts[secondProductIndex].brand,
-                                          filteredProducts[secondProductIndex].image,
+                                          filteredProducts[secondProductIndex]
+                                              .name,
+                                          filteredProducts[secondProductIndex]
+                                              .brand,
+                                          filteredProducts[secondProductIndex]
+                                              .image,
                                         )
                                       : const SizedBox.shrink(),
                                 ),
@@ -130,7 +137,8 @@ class DashboardScreen extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const NotificationScreen(), // Navigate directly to NotificationScreen
+              builder: (context) =>
+                  const NotificationScreen(), // Navigate directly to NotificationScreen
             ),
           );
         },
@@ -139,13 +147,11 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: selectedIndex == 0
           ? _buildDashboardContent()
           : selectedIndex == 1
               ? const EnquiryScreen()
               : ProfileScreen(),
-    
     );
   }
 
@@ -182,13 +188,15 @@ class DashboardScreen extends ConsumerWidget {
                                     size: 50, color: Colors.grey);
                               },
                             )
-                          : const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                          : const Icon(Icons.broken_image,
+                              size: 50, color: Colors.grey),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     name ?? 'Unknown Product',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -197,7 +205,8 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             Center(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center, // Centers the children horizontally
+                mainAxisAlignment: MainAxisAlignment
+                    .center, // Centers the children horizontally
                 children: [
                   Container(
                     width: 16,
@@ -215,8 +224,6 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
             ),
-         
-  
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: name != null

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/features/layout/layout.dart';
-import 'package:steel_budy/features/screens/enquiry.dart';
-import 'package:steel_budy/features/screens/role_selection_screen.dart';
-import 'package:steel_budy/features/screens/support-help.dart';
+import 'package:steel_buddy/features/layout/layout.dart';
+import 'package:steel_buddy/features/screens/enquiry.dart';
+import 'package:steel_buddy/features/screens/role_selection_screen.dart';
+import 'package:steel_buddy/features/screens/support-help.dart';
 import 'splash_screen.dart';
 import 'features/authentication/screens/otp_screen.dart';
 import 'features/screens/dashboardscreen.dart';
@@ -16,13 +16,13 @@ import 'features/screens/create_enquiry_screen.dart';
 import 'features/screens/view_profile.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:steel_budy/providers/auth_provider.dart';
+import 'package:steel_buddy/providers/auth_provider.dart';
 import 'features/screens/dealer_enquiry_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:steel_budy/services/api_service.dart';
-import 'package:steel_budy/services/fcm_service.dart';
+import 'package:steel_buddy/services/api_service.dart';
+import 'package:steel_buddy/services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +63,8 @@ class _RootDeciderState extends ConsumerState<RootDecider> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => Layout(appBarTitle: 'Dashboard', child: const DashboardScreen()),
+          builder: (_) =>
+              Layout(appBarTitle: 'Dashboard', child: const DashboardScreen()),
         ),
       );
     }
@@ -106,7 +107,8 @@ class MyApp extends ConsumerWidget {
       routes: {
         '/onboarding': (context) => const OnboardingScreen(),
         '/login': (context) => const LoginScreen(),
-        '/dashboard': (context) => Layout(appBarTitle: 'Dashboard', child: const DashboardScreen()),
+        '/dashboard': (context) =>
+            Layout(appBarTitle: 'Dashboard', child: const DashboardScreen()),
         '/edit-profile': (context) => const EditProfile(),
         '/notifications': (context) => const NotificationScreen(),
         '/profile': (context) => ProfileScreen(),
@@ -115,15 +117,17 @@ class MyApp extends ConsumerWidget {
         '/support': (context) => const SupportHelp(),
         '/select-role': (context) => const RoleSelectionScreen(),
         '/enquiries': (context) => FutureBuilder<String?>(
-              future: SharedPreferences.getInstance().then((prefs) => prefs.getString('role')),
+              future: SharedPreferences.getInstance()
+                  .then((prefs) => prefs.getString('role')),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Scaffold(body: Center(child: CircularProgressIndicator()));
+                  return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()));
                 }
                 final role = snapshot.data ?? '';
                 final screen = (role.toLowerCase().contains('dealer') ||
-                                role.toLowerCase().contains('retailer') ||
-                                role.toLowerCase().contains('builder'))
+                        role.toLowerCase().contains('retailer') ||
+                        role.toLowerCase().contains('builder'))
                     ? const DealerEnquiryScreen()
                     : const EnquiryScreen();
                 return Layout(

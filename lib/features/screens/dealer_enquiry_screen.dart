@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:steel_budy/services/api_service.dart';
-import 'package:steel_budy/features/screens/post_quotation.dart';
+import 'package:steel_buddy/services/api_service.dart';
+import 'package:steel_buddy/features/screens/post_quotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:steel_budy/features/screens/view_quotation.dart';
+import 'package:steel_buddy/features/screens/view_quotation.dart';
 
 class DealerEnquiryScreen extends StatefulWidget {
   const DealerEnquiryScreen({super.key});
@@ -28,8 +28,7 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
         });
       }
     });
-    _enquiriesFuture = ApiService
-        .getAllCustomerOrders(); // Replace with actual dealer API if available
+    _enquiriesFuture = ApiService.getAllCustomerOrders();
   }
 
   @override
@@ -129,15 +128,12 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                 (order['custom_order_products'] ?? []) as List;
                             return Card(
                               margin: const EdgeInsets.only(bottom: 16),
-                              elevation:
-                                  8, // Increased for a smoother, more noticeable shadow
-                              shadowColor: Colors.grey
-                                  .withOpacity(0.5), // Soft grey shadow
-                              color: Colors.white, // Transparent background
+                              elevation: 8,
+                              shadowColor: Colors.grey.withOpacity(0.5),
+                              color: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                    color: Colors.grey[200]!), // Grey outline
+                                side: BorderSide(color: Colors.grey[200]!),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -183,8 +179,7 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white,
-                                                  fontSize:
-                                                      12, // Set font size to 12px
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ),
@@ -195,8 +190,7 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white,
-                                                  fontSize:
-                                                      12, // Set font size to 12px
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ),
@@ -207,8 +201,7 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white,
-                                                  fontSize:
-                                                      12, // Set font size to 12px
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ),
@@ -219,8 +212,7 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white,
-                                                  fontSize:
-                                                      12, // Set font size to 12px
+                                                  fontSize: 12,
                                                 ),
                                               ),
                                             ),
@@ -235,8 +227,7 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                   'No products',
                                                   style: TextStyle(
                                                     color: Colors.grey,
-                                                    fontSize:
-                                                        12, // Set font size to 12px
+                                                    fontSize: 12,
                                                   ),
                                                 ),
                                               ),
@@ -255,9 +246,8 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                     product['product_type']
                                                             ?.toString() ??
                                                         '',
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            12), // Set font size to 12px
+                                                    style:
+                                                        TextStyle(fontSize: 12),
                                                   ),
                                                 ),
                                                 Padding(
@@ -266,9 +256,8 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                     product['brand']
                                                             ?.toString() ??
                                                         '',
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            12), // Set font size to 12px
+                                                    style:
+                                                        TextStyle(fontSize: 12),
                                                   ),
                                                 ),
                                                 Padding(
@@ -277,9 +266,8 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                     product['quantity']
                                                             ?.toString() ??
                                                         '',
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            12), // Set font size to 12px
+                                                    style:
+                                                        TextStyle(fontSize: 12),
                                                   ),
                                                 ),
                                                 Padding(
@@ -289,9 +277,8 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                                         ? product['pieces']
                                                             .toString()
                                                         : '-',
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            12), // Set font size to 12px
+                                                    style:
+                                                        TextStyle(fontSize: 12),
                                                   ),
                                                 ),
                                               ],
@@ -300,29 +287,133 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                       ],
                                     ),
                                     SizedBox(height: 12),
-                                    // Other fields
-                                    Text(
-                                        'Payment Terms: ${order['payment_terms'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Terms: ${order['delivery_terms'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    if (order['delivery_terms'] ==
-                                        'Delivered To') ...[
-                                      Text(
-                                          'Delivery Address: ${order['delivery_address'] ?? ''}'),
-                                      SizedBox(height: 10),
-                                    ],
-                                    Text(
-                                        'Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Date: ${order['delivery_date'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Order By: ${order['app_user']?['company_name'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    // Post Quotation Button (only in New tab)
+                                    // Details Table
+                                    Table(
+                                      border: TableBorder.all(
+                                          color: Colors.grey[300]!),
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(1.5),
+                                        1: FlexColumnWidth(2.5),
+                                      },
+                                      children: [
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Payment Terms',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['payment_terms'] ?? ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Terms',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['delivery_terms'] ??
+                                                      ''),
+                                            ),
+                                          ],
+                                        ),
+                                        if (order['delivery_terms'] ==
+                                            'Delivered To')
+                                          TableRow(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Text(
+                                                  'Delivery Address',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Text(
+                                                    order['delivery_address'] ??
+                                                        ''),
+                                              ),
+                                            ],
+                                          ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Conditions',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(order[
+                                                      'delivery_conditions'] ??
+                                                  ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Date',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['delivery_date'] ?? ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Order By',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(order['app_user']
+                                                      ?['company_name'] ??
+                                                  ''),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 12),
+                                    // Post Quotation Button
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
@@ -385,7 +476,6 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                       final orders = snapshot.data!;
                       final respondedOrders = orders.where((order) {
                         final dq = (order['dealer_quotations'] ?? []) as List;
-                        // Only show if this dealer has a quotation with status pending or responded
                         return dq.any((q) =>
                             q['app_user_id'].toString() == userId &&
                             (q['status'] == 'pending' ||
@@ -414,15 +504,12 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                 (order['custom_order_products'] ?? []) as List;
                             return Card(
                               margin: const EdgeInsets.only(bottom: 16),
-                              elevation:
-                                  8, // Increased for a smoother, more noticeable shadow
-                              shadowColor: Colors.grey
-                                  .withOpacity(0.5), // Soft grey shadow
-                              color: Colors.white, // Transparent background
+                              elevation: 8,
+                              shadowColor: Colors.grey.withOpacity(0.5),
+                              color: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                    color: Colors.grey[200]!), // Grey outline
+                                side: BorderSide(color: Colors.grey[200]!),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -541,27 +628,132 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                       ],
                                     ),
                                     SizedBox(height: 12),
-                                    Text(
-                                        'Payment Terms: ${order['payment_terms'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Terms: ${order['delivery_terms'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    if (order['delivery_terms'] ==
-                                        'Delivered To') ...[
-                                      Text(
-                                          'Delivery Address: ${order['delivery_address'] ?? ''}'),
-                                      SizedBox(height: 10),
-                                    ],
-                                    Text(
-                                        'Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Date: ${order['delivery_date'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Order By: ${order['app_user']?['company_name'] ?? ''}'),
-                                    SizedBox(height: 10),
+                                    // Details Table
+                                    Table(
+                                      border: TableBorder.all(
+                                          color: Colors.grey[300]!),
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(1.5),
+                                        1: FlexColumnWidth(2.5),
+                                      },
+                                      children: [
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Payment Terms',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['payment_terms'] ?? ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Terms',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['delivery_terms'] ??
+                                                      ''),
+                                            ),
+                                          ],
+                                        ),
+                                        if (order['delivery_terms'] ==
+                                            'Delivered To')
+                                          TableRow(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Text(
+                                                  'Delivery Address',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Text(
+                                                    order['delivery_address'] ??
+                                                        ''),
+                                              ),
+                                            ],
+                                          ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Conditions',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(order[
+                                                      'delivery_conditions'] ??
+                                                  ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Date',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['delivery_date'] ?? ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Order By',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(order['app_user']
+                                                      ?['company_name'] ??
+                                                  ''),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 12),
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
@@ -616,7 +808,6 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                       final orders = snapshot.data!;
                       final finalizedOrders = orders.where((order) {
                         final dq = (order['dealer_quotations'] ?? []) as List;
-                        // Only show if this dealer has a quotation with status finalized or done
                         return dq.any((q) =>
                             q['app_user_id'].toString() == userId &&
                             (q['status'] == 'finalized' ||
@@ -645,15 +836,12 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                 (order['custom_order_products'] ?? []) as List;
                             return Card(
                               margin: const EdgeInsets.only(bottom: 16),
-                              elevation:
-                                  8, // Increased for a smoother, more noticeable shadow
-                              shadowColor: Colors.grey
-                                  .withOpacity(0.5), // Soft grey shadow
-                              color: Colors.white, // Transparent background
+                              elevation: 8,
+                              shadowColor: Colors.grey.withOpacity(0.5),
+                              color: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                    color: Colors.grey[200]!), // Grey outline
+                                side: BorderSide(color: Colors.grey[200]!),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -687,33 +875,45 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                       },
                                       children: [
                                         TableRow(
-                                          decoration: BoxDecoration(
-                                              color: Colors.grey[200]),
+                                          decoration:
+                                              BoxDecoration(color: Colors.blue),
                                           children: [
                                             Padding(
                                                 padding: EdgeInsets.all(4),
                                                 child: Text('Products',
                                                     style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold))),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                    ))),
                                             Padding(
                                                 padding: EdgeInsets.all(4),
                                                 child: Text('Brand',
                                                     style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold))),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                    ))),
                                             Padding(
                                                 padding: EdgeInsets.all(4),
                                                 child: Text('Qty (Tons)',
                                                     style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold))),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                    ))),
                                             Padding(
                                                 padding: EdgeInsets.all(4),
                                                 child: Text('Pieces',
                                                     style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold))),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                      color: Colors.white,
+                                                    ))),
                                           ],
                                         ),
                                         if (products.isEmpty)
@@ -764,21 +964,132 @@ class _DealerEnquiryScreenState extends State<DealerEnquiryScreen>
                                       ],
                                     ),
                                     SizedBox(height: 12),
-                                    Text(
-                                        'Payment Terms: ${order['payment_terms'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Terms: ${order['delivery_terms'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Conditions: ${order['delivery_conditions'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Delivery Date: ${order['delivery_date'] ?? ''}'),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'Order By: ${order['app_user']?['company_name'] ?? ''}'),
-                                    SizedBox(height: 10),
+                                    // Details Table
+                                    Table(
+                                      border: TableBorder.all(
+                                          color: Colors.grey[300]!),
+                                      columnWidths: const {
+                                        0: FlexColumnWidth(1.5),
+                                        1: FlexColumnWidth(2.5),
+                                      },
+                                      children: [
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Payment Terms',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['payment_terms'] ?? ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Terms',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['delivery_terms'] ??
+                                                      ''),
+                                            ),
+                                          ],
+                                        ),
+                                        if (order['delivery_terms'] ==
+                                            'Delivered To')
+                                          TableRow(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Text(
+                                                  'Delivery Address',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.all(8),
+                                                child: Text(
+                                                    order['delivery_address'] ??
+                                                        ''),
+                                              ),
+                                            ],
+                                          ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Conditions',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(order[
+                                                      'delivery_conditions'] ??
+                                                  ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Delivery Date',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                  order['delivery_date'] ?? ''),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(
+                                                'Order By',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: Text(order['app_user']
+                                                      ?['company_name'] ??
+                                                  ''),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 12),
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(

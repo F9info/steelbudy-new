@@ -1,5 +1,5 @@
-name: steel_budy
-description: "A new Steel Budy project."
+name: steel_buddy
+description: "A new Steel Buddy project."
 publish_to: 'none' 
 version: 1.0.0+1
 environment:

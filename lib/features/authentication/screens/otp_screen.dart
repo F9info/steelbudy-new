@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../services/authentication.dart';
-import 'package:steel_budy/models/application_settings_model.dart';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/models/application_settings_model.dart';
+import 'package:steel_buddy/services/api_service.dart';
 import '../../screens/role_selection_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,7 +88,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
         // and the component is mounted.
         // This also prevents infinite loops if mounted becomes false unexpectedly.
         if (!_canResend) {
-
           setState(() {
             _canResend = true;
           });
@@ -120,30 +119,42 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       String otp = _controllers.map((c) => c.text).join();
       // Dev bypass: if verificationId is 'test-verification-id', skip Firebase verification
       if (_currentVerificationId == 'test-verification-id') {
-        await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
+        await _authService.setLoggedIn(true,
+            phoneNumber: '+91${widget.phoneNumber}');
         // --- Call backend via ApiService after OTP verification ---
-        final response = await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
+        final response =
+            await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('phoneNumber', widget.phoneNumber);
-        ref.read(authProvider.notifier).update((state) => state.copyWith(phoneNumber: widget.phoneNumber));
+        ref
+            .read(authProvider.notifier)
+            .update((state) => state.copyWith(phoneNumber: widget.phoneNumber));
         final userId = response['user_id']?.toString();
         final token = response['token']?.toString();
         final role = response['role']?.toString() ?? '';
 
         if (userId != null) {
           await prefs.setString('userId', userId);
-          ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
+          ref
+              .read(authProvider.notifier)
+              .update((state) => state.copyWith(userId: userId));
         }
         if (token != null) {
           await prefs.setString('token', token);
-          ref.read(authProvider.notifier).update((state) => state.copyWith(token: token));
+          ref
+              .read(authProvider.notifier)
+              .update((state) => state.copyWith(token: token));
         }
         await prefs.setString('role', role);
-        ref.read(authProvider.notifier).update((state) => state.copyWith(role: role));
+        ref
+            .read(authProvider.notifier)
+            .update((state) => state.copyWith(role: role));
 
         if (response['status'] == 'existing') {
           await prefs.setBool('isLoggedIn', true);
-          await ref.read(authProvider.notifier).login(widget.phoneNumber, role, token: token);
+          await ref
+              .read(authProvider.notifier)
+              .login(widget.phoneNumber, role, token: token);
           Navigator.pushReplacementNamed(context, '/dashboard');
         } else if (response['status'] == 'new') {
           await prefs.setBool('isLoggedIn', true);
@@ -160,31 +171,43 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
           smsCode: otp,
         );
         await FirebaseAuth.instance.signInWithCredential(credential);
-        await _authService.setLoggedIn(true, phoneNumber: '+91${widget.phoneNumber}');
+        await _authService.setLoggedIn(true,
+            phoneNumber: '+91${widget.phoneNumber}');
 
         // --- Call backend via ApiService after OTP verification ---
-        final response = await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
+        final response =
+            await ApiService.checkOrRegisterAppUser(widget.phoneNumber);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('phoneNumber', widget.phoneNumber);
-        ref.read(authProvider.notifier).update((state) => state.copyWith(phoneNumber: widget.phoneNumber));
+        ref
+            .read(authProvider.notifier)
+            .update((state) => state.copyWith(phoneNumber: widget.phoneNumber));
         final userId = response['user_id']?.toString();
         final token = response['token']?.toString();
         final role = response['role']?.toString() ?? '';
 
         if (userId != null) {
           await prefs.setString('userId', userId);
-          ref.read(authProvider.notifier).update((state) => state.copyWith(userId: userId));
+          ref
+              .read(authProvider.notifier)
+              .update((state) => state.copyWith(userId: userId));
         }
         if (token != null) {
           await prefs.setString('token', token);
-          ref.read(authProvider.notifier).update((state) => state.copyWith(token: token));
+          ref
+              .read(authProvider.notifier)
+              .update((state) => state.copyWith(token: token));
         }
         await prefs.setString('role', role);
-        ref.read(authProvider.notifier).update((state) => state.copyWith(role: role));
+        ref
+            .read(authProvider.notifier)
+            .update((state) => state.copyWith(role: role));
 
         if (response['status'] == 'existing') {
           await prefs.setBool('isLoggedIn', true);
-          await ref.read(authProvider.notifier).login(widget.phoneNumber, role, token: token);
+          await ref
+              .read(authProvider.notifier)
+              .login(widget.phoneNumber, role, token: token);
           Navigator.pushReplacementNamed(context, '/dashboard');
         } else if (response['status'] == 'new') {
           await prefs.setBool('isLoggedIn', true);
@@ -310,7 +333,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                                 _settings!.logo,
                                 height: 70,
                                 fit: BoxFit.contain,
-                                loadingBuilder: (context, child, loadingProgress) {
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return const CircularProgressIndicator();
                                 },

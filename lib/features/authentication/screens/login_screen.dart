@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:steel_budy/models/application_settings_model.dart';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/models/application_settings_model.dart';
+import 'package:steel_buddy/services/api_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -63,7 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final String phoneNumber = '+91${_phoneController.text}';
 
     // Dev bypass for test number
-    if (_phoneController.text == '2345678901' || _phoneController.text == '2345678902') {
+    if (_phoneController.text == '2345678901' ||
+        _phoneController.text == '2345678902') {
       Navigator.pushReplacementNamed(
         context,
         '/otp',
@@ -106,7 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         },
-
         codeSent: (String verificationId, int? resendToken) {
           setState(() {
             _resendToken = resendToken;
@@ -124,7 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           print('Firebase: codeSent');
         },
-
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
@@ -179,7 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   _settings!.logo,
                                   height: 70,
                                   fit: BoxFit.contain,
-                                  loadingBuilder: (context, child, loadingProgress) {
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
                                     if (loadingProgress == null) return child;
                                     return const CircularProgressIndicator();
                                   },

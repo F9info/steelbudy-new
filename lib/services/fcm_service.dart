@@ -1,6 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/services/api_service.dart';
 import 'dart:io';
 
 class FCMService {
@@ -24,7 +24,8 @@ class FCMService {
         if (apnsToken != null) {
           token = await FirebaseMessaging.instance.getToken();
         } else {
-          debugPrint('APNS token was not set after waiting. Skipping FCM token registration.');
+          debugPrint(
+              'APNS token was not set after waiting. Skipping FCM token registration.');
         }
       } else {
         token = await FirebaseMessaging.instance.getToken();
@@ -43,14 +44,17 @@ class FCMService {
     // Handle notification tap (foreground/background)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (message.data['enquiry_id'] != null) {
-        Navigator.pushNamed(context, '/enquiry-details', arguments: message.data['enquiry_id']);
+        Navigator.pushNamed(context, '/enquiry-details',
+            arguments: message.data['enquiry_id']);
       }
     });
 
     // Handle notification tap (terminated)
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage?.data['enquiry_id'] != null) {
-      Navigator.pushNamed(context, '/enquiry-details', arguments: initialMessage!.data['enquiry_id']);
+      Navigator.pushNamed(context, '/enquiry-details',
+          arguments: initialMessage!.data['enquiry_id']);
     }
   }
-} 
+}

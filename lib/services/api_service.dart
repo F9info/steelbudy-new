@@ -2,16 +2,16 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:steel_budy/models/payment_term.dart';
-import 'package:steel_budy/models/application_settings_model.dart';
-import 'package:steel_budy/models/delivery-terms.dart';
+import 'package:steel_buddy/models/payment_term.dart';
+import 'package:steel_buddy/models/application_settings_model.dart';
+import 'package:steel_buddy/models/delivery-terms.dart';
 import 'dart:io';
-import 'package:steel_budy/models/product_model.dart';
-import 'package:steel_budy/models/role_model.dart';
-import 'package:steel_budy/models/category_model.dart';
-import 'package:steel_budy/models/brand_model.dart';
-import 'package:steel_budy/models/region_model.dart';
-import 'package:steel_budy/models/app_user_model.dart';
+import 'package:steel_buddy/models/product_model.dart';
+import 'package:steel_buddy/models/role_model.dart';
+import 'package:steel_buddy/models/category_model.dart';
+import 'package:steel_buddy/models/brand_model.dart';
+import 'package:steel_buddy/models/region_model.dart';
+import 'package:steel_buddy/models/app_user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -696,7 +696,8 @@ class ApiService {
     }
   }
 
-  static Future<void> sendDeviceTokenToBackend(String userId, String token) async {
+  static Future<void> sendDeviceTokenToBackend(
+      String userId, String token) async {
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('token');
     final url = Uri.parse('$baseUrl/device-token');
