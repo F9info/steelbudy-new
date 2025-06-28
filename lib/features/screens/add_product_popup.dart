@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/services/api_service.dart';
 import 'package:flutter/services.dart';
 
 class AddProductPopup extends StatefulWidget {
@@ -37,7 +37,10 @@ class _AddProductPopupState extends State<AddProductPopup> {
     try {
       final productsData = await ApiService.getProductTypes();
       final products = productsData
-          .where((product) => product['publish'] == 1 && product.containsKey('name') && product.containsKey('id'))
+          .where((product) =>
+              product['publish'] == 1 &&
+              product.containsKey('name') &&
+              product.containsKey('id'))
           .toList();
 
       final brandsData = await ApiService.getBrands();
@@ -46,18 +49,30 @@ class _AddProductPopupState extends State<AddProductPopup> {
           .toList();
 
       setState(() {
-        _selectedProducts = {for (var product in products) product['name'] as String: false};
-        _productIdMap = {for (var product in products) product['name'] as String: product['id']};
+        _selectedProducts = {
+          for (var product in products) product['name'] as String: false
+        };
+        _productIdMap = {
+          for (var product in products) product['name'] as String: product['id']
+        };
         _allBrands = brands.map((brand) => brand.name as String).toList();
-        _brandIdMap = {for (var brand in brands) brand.name as String: brand.id};
-        _productPiecesMap = {for (var product in products) product['name'] as String: product['pieces'] ?? 1};
+        _brandIdMap = {
+          for (var brand in brands) brand.name as String: brand.id
+        };
+        _productPiecesMap = {
+          for (var product in products)
+            product['name'] as String: product['pieces'] ?? 1
+        };
         _isLoading = false;
         // Reset selected brands if not in the new _allBrands
-        _selectedBrands.updateAll((product, brand) => _allBrands.contains(brand) ? brand : null);
+        _selectedBrands.updateAll(
+            (product, brand) => _allBrands.contains(brand) ? brand : null);
         // Initialize controllers
         for (var product in _selectedProducts.keys) {
-          _quantityControllers[product] = TextEditingController(text: _quantities[product] ?? '');
-          _piecesControllers[product] = TextEditingController(text: _pieces[product] ?? '');
+          _quantityControllers[product] =
+              TextEditingController(text: _quantities[product] ?? '');
+          _piecesControllers[product] =
+              TextEditingController(text: _pieces[product] ?? '');
         }
       });
     } catch (e) {
@@ -126,25 +141,33 @@ class _AddProductPopupState extends State<AddProductPopup> {
                         Center(
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text('Product', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            child: Text('Product',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13)),
                           ),
                         ),
                         Center(
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text('Brand', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            child: Text('Brand',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13)),
                           ),
                         ),
                         Center(
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text('Qty (Tons)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            child: Text('Qty (Tons)',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13)),
                           ),
                         ),
                         Center(
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text('Pieces', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            child: Text('Pieces',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 13)),
                           ),
                         ),
                       ],
@@ -175,20 +198,25 @@ class _AddProductPopupState extends State<AddProductPopup> {
                           ),
                           Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                              child: Text(product, style: const TextStyle(fontSize: 13)),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Text(product,
+                                  style: const TextStyle(fontSize: 13)),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
                             child: DropdownButton<String>(
                               isExpanded: true,
-                              hint: const Text('Select Brand', style: TextStyle(fontSize: 13)),
+                              hint: const Text('Select Brand',
+                                  style: TextStyle(fontSize: 13)),
                               value: _selectedBrands[product],
                               items: _allBrands.map((brand) {
                                 return DropdownMenuItem(
                                   value: brand,
-                                  child: Text(brand, style: const TextStyle(fontSize: 13)),
+                                  child: Text(brand,
+                                      style: const TextStyle(fontSize: 13)),
                                 );
                               }).toList(),
                               onChanged: isSelected
@@ -205,29 +233,39 @@ class _AddProductPopupState extends State<AddProductPopup> {
                             child: TextFormField(
                               enabled: isQuantityEditable,
                               readOnly: !isQuantityEditable,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               style: const TextStyle(fontSize: 13),
                               controller: _quantityControllers[product],
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*')),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^[0-9]*\.?[0-9]*')),
                               ],
                               decoration: InputDecoration(
                                 isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 8.0),
                                 border: const OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.grey),
-                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4.0)),
                                 ),
                                 enabledBorder: const OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.grey),
-                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4.0)),
                                 ),
                                 disabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey, width: 0.5),
-                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                  borderSide: BorderSide(
+                                      color: Colors.grey, width: 0.5),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4.0)),
                                 ),
                                 filled: !isQuantityEditable,
-                                fillColor: !isQuantityEditable ? Colors.grey[200] : null,
+                                fillColor: !isQuantityEditable
+                                    ? Colors.grey[200]
+                                    : null,
                               ),
                               onChanged: (value) {
                                 setState(() {
@@ -243,40 +281,56 @@ class _AddProductPopupState extends State<AddProductPopup> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: !showPiecesInput
-                                ? const Center(child: Text('N/A', style: TextStyle(fontSize: 13)))
+                                ? const Center(
+                                    child: Text('N/A',
+                                        style: TextStyle(fontSize: 13)))
                                 : TextFormField(
                                     enabled: isPiecesEditable,
                                     readOnly: !isPiecesEditable,
-                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
                                     style: const TextStyle(fontSize: 13),
                                     controller: _piecesControllers[product],
                                     inputFormatters: [
-                                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]*\.?[0-9]*')),
+                                      FilteringTextInputFormatter.allow(
+                                          RegExp(r'^[0-9]*\.?[0-9]*')),
                                     ],
                                     decoration: InputDecoration(
                                       isDense: true,
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 8.0, vertical: 8.0),
                                       border: const OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.grey),
-                                        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4.0)),
                                       ),
                                       enabledBorder: const OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.grey),
-                                        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                        borderSide:
+                                            BorderSide(color: Colors.grey),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4.0)),
                                       ),
                                       disabledBorder: const OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.grey, width: 0.5),
-                                        borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey, width: 0.5),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4.0)),
                                       ),
                                       filled: !isPiecesEditable,
-                                      fillColor: !isPiecesEditable ? Colors.grey[200] : null,
+                                      fillColor: !isPiecesEditable
+                                          ? Colors.grey[200]
+                                          : null,
                                     ),
                                     onChanged: (value) {
                                       setState(() {
                                         _pieces[product] = value;
                                         if (value.isNotEmpty) {
                                           _quantities[product] = null;
-                                          _quantityControllers[product]?.text = '';
+                                          _quantityControllers[product]?.text =
+                                              '';
                                         }
                                       });
                                     },
@@ -300,10 +354,15 @@ class _AddProductPopupState extends State<AddProductPopup> {
                   ),
                   onPressed: () {
                     // Validation
-                    final selected = _selectedProducts.entries.where((e) => e.value).map((e) => e.key).toList();
+                    final selected = _selectedProducts.entries
+                        .where((e) => e.value)
+                        .map((e) => e.key)
+                        .toList();
                     if (selected.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please select at least one product.')),
+                        const SnackBar(
+                            content:
+                                Text('Please select at least one product.')),
                       );
                       return;
                     }
@@ -313,32 +372,42 @@ class _AddProductPopupState extends State<AddProductPopup> {
                       final pcs = _pieces[product];
                       if (brand == null || brand.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please select a brand for $product.')),
+                          SnackBar(
+                              content:
+                                  Text('Please select a brand for $product.')),
                         );
                         return;
                       }
-                      if ((qty == null || qty.isEmpty) && (pcs == null || pcs.isEmpty)) {
+                      if ((qty == null || qty.isEmpty) &&
+                          (pcs == null || pcs.isEmpty)) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please enter quantity or pieces for $product.')),
+                          SnackBar(
+                              content: Text(
+                                  'Please enter quantity or pieces for $product.')),
                         );
                         return;
                       }
-                      if ((qty != null && qty.isNotEmpty) && (pcs != null && pcs.isNotEmpty)) {
+                      if ((qty != null && qty.isNotEmpty) &&
+                          (pcs != null && pcs.isNotEmpty)) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Please enter either quantity or pieces for $product, not both.')),
+                          SnackBar(
+                              content: Text(
+                                  'Please enter either quantity or pieces for $product, not both.')),
                         );
                         return;
                       }
                     }
                     // Prepare selected products list
-                    final List<Map<String, dynamic>> selectedProducts = selected.map((product) => {
-                      'product': product,
-                      'brand': _selectedBrands[product],
-                      'qty': _quantities[product],
-                      'pieces': _pieces[product],
-                      'productId': _productIdMap[product],
-                      'brandId': _brandIdMap[_selectedBrands[product]],
-                    }).toList();
+                    final List<Map<String, dynamic>> selectedProducts = selected
+                        .map((product) => {
+                              'product': product,
+                              'brand': _selectedBrands[product],
+                              'qty': _quantities[product],
+                              'pieces': _pieces[product],
+                              'productId': _productIdMap[product],
+                              'brandId': _brandIdMap[_selectedBrands[product]],
+                            })
+                        .toList();
                     Navigator.pop(context, selectedProducts);
                   },
                   child: const Text(

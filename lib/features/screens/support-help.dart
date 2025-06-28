@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:steel_budy/models/application_settings_model.dart'; // Add this import
-import 'package:steel_budy/services/api_service.dart'; // Add this import
+import 'package:steel_buddy/models/application_settings_model.dart'; // Add this import
+import 'package:steel_buddy/services/api_service.dart'; // Add this import
 import 'package:url_launcher/url_launcher.dart';
 
 class SupportHelp extends StatefulWidget {
@@ -152,7 +152,8 @@ class _SupportHelpState extends State<SupportHelp> {
     );
   }
 
-  Widget _buildInfoCard(String label, String value, {int maxLines = 1, Color? textColor}) {
+  Widget _buildInfoCard(String label, String value,
+      {int maxLines = 1, Color? textColor}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12.0),

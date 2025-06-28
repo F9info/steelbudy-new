@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/services/api_service.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,23 +41,31 @@ class _PostQuotationState extends State<PostQuotation> {
     });
   }
 
-  Future<void> _postQuotation(BuildContext context, List<dynamic> products) async {
+  Future<void> _postQuotation(
+      BuildContext context, List<dynamic> products) async {
     // Validation: All cost fields, bending charges, and transportation charges are required
     for (int i = 0; i < products.length; i++) {
-      if (_costControllers[i].text.isEmpty || double.tryParse(_costControllers[i].text) == null || double.tryParse(_costControllers[i].text) == 0.0) {
+      if (_costControllers[i].text.isEmpty ||
+          double.tryParse(_costControllers[i].text) == null ||
+          double.tryParse(_costControllers[i].text) == 0.0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please enter a valid cost for all products.')),
+          SnackBar(
+              content: Text('Please enter a valid cost for all products.')),
         );
         return;
       }
     }
-    if (_bendingChargesController.text.isEmpty || double.tryParse(_bendingChargesController.text) == null || double.tryParse(_bendingChargesController.text) == 0.0) {
+    if (_bendingChargesController.text.isEmpty ||
+        double.tryParse(_bendingChargesController.text) == null ||
+        double.tryParse(_bendingChargesController.text) == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter valid bending charges.')),
       );
       return;
     }
-    if (_transportationChargesController.text.isEmpty || double.tryParse(_transportationChargesController.text) == null || double.tryParse(_transportationChargesController.text) == 0.0) {
+    if (_transportationChargesController.text.isEmpty ||
+        double.tryParse(_transportationChargesController.text) == null ||
+        double.tryParse(_transportationChargesController.text) == 0.0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter valid transportation charges.')),
       );

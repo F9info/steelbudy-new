@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:steel_budy/models/application_settings_model.dart';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/models/application_settings_model.dart';
+import 'package:steel_buddy/services/api_service.dart';
 
 class GetStartedScreen2 extends StatefulWidget {
   const GetStartedScreen2({super.key});

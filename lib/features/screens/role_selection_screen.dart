@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/services/api_service.dart';
+import 'package:steel_buddy/services/api_service.dart';
 import '../../models/role_model.dart';
 import '../../models/application_settings_model.dart';
 import '../../providers/auth_provider.dart';
-import 'package:steel_budy/features/layout/layout.dart';
-import 'package:steel_budy/features/screens/edit-profile.dart';
+import 'package:steel_buddy/features/layout/layout.dart';
+import 'package:steel_buddy/features/screens/edit-profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RoleSelectionScreen extends ConsumerStatefulWidget {
@@ -193,16 +193,35 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                       _error = null;
                                     });
                                     try {
-                                      final prefs = await SharedPreferences.getInstance();
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
                                       final userId = authState.userId;
-                                      final token = authState.token ?? await ref.read(authProvider.notifier).getToken();
-                                      final selectedRoleId = _roles.firstWhere((role) => role.value == _selectedRole).id;
-                                      final success = await ApiService.updateUserRole(userId!.toString(), selectedRoleId, token);
+                                      final token = authState.token ??
+                                          await ref
+                                              .read(authProvider.notifier)
+                                              .getToken();
+                                      final selectedRoleId = _roles
+                                          .firstWhere((role) =>
+                                              role.value == _selectedRole)
+                                          .id;
+                                      final success =
+                                          await ApiService.updateUserRole(
+                                              userId!.toString(),
+                                              selectedRoleId,
+                                              token);
                                       if (success) {
-                                        await prefs.setString('role', _selectedRole!);
-                                        ref.read(authProvider.notifier).update((state) => state.copyWith(role: _selectedRole));
-                                        await ref.read(authProvider.notifier).login(authState.phoneNumber!, _selectedRole, token: token);
-                                        Navigator.pushReplacementNamed(context, '/edit-profile');
+                                        await prefs.setString(
+                                            'role', _selectedRole!);
+                                        ref.read(authProvider.notifier).update(
+                                            (state) => state.copyWith(
+                                                role: _selectedRole));
+                                        await ref
+                                            .read(authProvider.notifier)
+                                            .login(authState.phoneNumber!,
+                                                _selectedRole,
+                                                token: token);
+                                        Navigator.pushReplacementNamed(
+                                            context, '/edit-profile');
                                       } else {
                                         setState(() {
                                           _error = 'Failed to update role';

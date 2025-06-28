@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:steel_budy/features/dashboard/widgets/mainappbar.dart';
-import 'package:steel_budy/features/dashboard/widgets/mainbottombar.dart';
-import 'package:steel_budy/features/screens/dashboardscreen.dart';
-import 'package:steel_budy/features/screens/enquiry.dart';
-import 'package:steel_budy/features/screens/profile.dart';
-import 'package:steel_budy/features/screens/notifications.dart';
+import 'package:steel_buddy/features/dashboard/widgets/mainappbar.dart';
+import 'package:steel_buddy/features/dashboard/widgets/mainbottombar.dart';
+import 'package:steel_buddy/features/screens/dashboardscreen.dart';
+import 'package:steel_buddy/features/screens/enquiry.dart';
+import 'package:steel_buddy/features/screens/profile.dart';
+import 'package:steel_buddy/features/screens/notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:steel_budy/features/screens/dealer_enquiry_screen.dart';
+import 'package:steel_buddy/features/screens/dealer_enquiry_screen.dart';
 
 class Layout extends StatefulWidget {
   final Widget child;

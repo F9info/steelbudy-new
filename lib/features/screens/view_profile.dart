@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:steel_budy/services/api_service.dart';
-import 'package:steel_budy/models/app_user_model.dart';
+import 'package:steel_buddy/services/api_service.dart';
+import 'package:steel_buddy/models/app_user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewProfile extends StatefulWidget {
@@ -79,37 +79,47 @@ class _ViewProfileState extends State<ViewProfile> {
                           Center(
                             child: CircleAvatar(
                               radius: 50,
-                              backgroundImage: _user!.profilePic != null && _user!.profilePic!.isNotEmpty
+                              backgroundImage: _user!.profilePic != null &&
+                                      _user!.profilePic!.isNotEmpty
                                   ? NetworkImage(_user!.profilePic!)
                                   : null,
                               backgroundColor: Colors.grey[300],
-                              child: (_user!.profilePic == null || _user!.profilePic!.isEmpty)
-                                  ? const Icon(Icons.person, size: 50, color: Colors.white)
+                              child: (_user!.profilePic == null ||
+                                      _user!.profilePic!.isEmpty)
+                                  ? const Icon(Icons.person,
+                                      size: 50, color: Colors.white)
                                   : null,
                             ),
                           ),
                           const SizedBox(height: 24),
 
                           // Show Role
-                          _buildInfoCard('Role', _getRoleDisplayName(_user?.userType?.name ?? '')),
-                          const SizedBox(height: 16),
-                          
-                          _buildInfoCard('Company Name', _user!.companyName ?? ''),
+                          _buildInfoCard('Role',
+                              _getRoleDisplayName(_user?.userType?.name ?? '')),
                           const SizedBox(height: 16),
 
-                          _buildInfoCard('Contact Person', _user!.contactPerson ?? ''),
+                          _buildInfoCard(
+                              'Company Name', _user!.companyName ?? ''),
                           const SizedBox(height: 16),
 
-                          _buildInfoCard('Registered Number', _user!.mobile ?? '', textColor: Colors.grey),
+                          _buildInfoCard(
+                              'Contact Person', _user!.contactPerson ?? ''),
                           const SizedBox(height: 16),
 
-                          _buildInfoCard('Alternate Number', _user!.alternateNumber ?? ''),
+                          _buildInfoCard(
+                              'Registered Number', _user!.mobile ?? '',
+                              textColor: Colors.grey),
+                          const SizedBox(height: 16),
+
+                          _buildInfoCard(
+                              'Alternate Number', _user!.alternateNumber ?? ''),
                           const SizedBox(height: 16),
 
                           _buildInfoCard('Email', _user!.email ?? ''),
                           const SizedBox(height: 16),
 
-                          _buildInfoCard('Street Line', _user!.streetLine ?? '', maxLines: 3),
+                          _buildInfoCard('Street Line', _user!.streetLine ?? '',
+                              maxLines: 3),
                           const SizedBox(height: 16),
 
                           _buildInfoCard('Town/City', _user!.townCity ?? ''),
@@ -131,7 +141,8 @@ class _ViewProfileState extends State<ViewProfile> {
                           const SizedBox(height: 16),
 
                           // Selected locations
-                          if (_user!.regions != null && _user!.regions!.isNotEmpty) ...[
+                          if (_user!.regions != null &&
+                              _user!.regions!.isNotEmpty) ...[
                             const Text(
                               'Selected Locations',
                               style: TextStyle(
@@ -154,7 +165,8 @@ class _ViewProfileState extends State<ViewProfile> {
                                   return Chip(
                                     label: Text(location),
                                     backgroundColor: Colors.blue[100],
-                                    labelStyle: const TextStyle(color: Colors.black),
+                                    labelStyle:
+                                        const TextStyle(color: Colors.black),
                                   );
                                 }).toList(),
                               ),
@@ -167,7 +179,8 @@ class _ViewProfileState extends State<ViewProfile> {
     );
   }
 
-  Widget _buildInfoCard(String label, String value, {int maxLines = 1, Color? textColor}) {
+  Widget _buildInfoCard(String label, String value,
+      {int maxLines = 1, Color? textColor}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12.0),
@@ -203,7 +216,11 @@ class _ViewProfileState extends State<ViewProfile> {
   }
 
   String _getRoleDisplayName(String role) {
-    switch (role.toLowerCase().replaceAll(' ', '').replaceAll('/', '').replaceAll('_', '')) {
+    switch (role
+        .toLowerCase()
+        .replaceAll(' ', '')
+        .replaceAll('/', '')
+        .replaceAll('_', '')) {
       case 'manufacturer':
         return 'Manufacturer';
       case 'distributor':

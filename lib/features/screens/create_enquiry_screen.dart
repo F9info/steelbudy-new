@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:steel_budy/models/delivery-terms.dart';
-import 'package:steel_budy/models/payment_term.dart';
-import 'package:steel_budy/models/application_settings_model.dart';
-import 'package:steel_budy/services/api_service.dart';
-import 'package:steel_budy/providers/auth_provider.dart';
+import 'package:steel_buddy/models/delivery-terms.dart';
+import 'package:steel_buddy/models/payment_term.dart';
+import 'package:steel_buddy/models/application_settings_model.dart';
+import 'package:steel_buddy/services/api_service.dart';
+import 'package:steel_buddy/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'add_product_popup.dart';
 import 'package:flutter/services.dart';
-import 'package:steel_budy/services/fcm_service.dart';
+import 'package:steel_buddy/services/fcm_service.dart';
 
 class CreateEnquiryScreen extends ConsumerStatefulWidget {
   const CreateEnquiryScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<CreateEnquiryScreen> createState() => _CreateEnquiryScreenState();
+  ConsumerState<CreateEnquiryScreen> createState() =>
+      _CreateEnquiryScreenState();
 }
 
 class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
@@ -91,9 +92,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         // Avoid duplicates by product+brand
         for (final newProduct in result) {
           final exists = _selectedProducts.any((p) =>
-            p['productId'] == newProduct['productId'] &&
-            p['brandId'] == newProduct['brandId']
-          );
+              p['productId'] == newProduct['productId'] &&
+              p['brandId'] == newProduct['brandId']);
           if (!exists) {
             _selectedProducts.add(newProduct);
           }
@@ -129,7 +129,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         );
         return;
       }
-      if (_selectedPaymentTerm == 'Credit' && (_creditDays == null || _creditDays!.isEmpty)) {
+      if (_selectedPaymentTerm == 'Credit' &&
+          (_creditDays == null || _creditDays!.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter credit days')),
         );
@@ -141,7 +142,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         );
         return;
       }
-      if (_selectedDeliveryTerm == 'Delivered To' && (_deliveryAddress == null || _deliveryAddress!.isEmpty)) {
+      if (_selectedDeliveryTerm == 'Delivered To' &&
+          (_deliveryAddress == null || _deliveryAddress!.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter delivery address')),
         );
@@ -159,13 +161,15 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         );
         return;
       }
-      if (_selectedDeliveryDate == 'Immediate' && (_immediateHours == null || _immediateHours!.isEmpty)) {
+      if (_selectedDeliveryDate == 'Immediate' &&
+          (_immediateHours == null || _immediateHours!.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter no of hours')),
         );
         return;
       }
-      if (_selectedDeliveryDate == 'Within' && (_withinDays == null || _withinDays!.isEmpty)) {
+      if (_selectedDeliveryDate == 'Within' &&
+          (_withinDays == null || _withinDays!.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter no of days')),
         );
@@ -194,11 +198,15 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
           'payment_terms': _selectedPaymentTerm,
           'delivery_terms': _selectedDeliveryTerm,
           'delivery_condition': _selectedDeliveryCondition,
-          'delivery_address': _selectedDeliveryTerm == 'Delivered To' ? _deliveryAddress : null,
+          'delivery_address':
+              _selectedDeliveryTerm == 'Delivered To' ? _deliveryAddress : null,
           'delivery_date': _selectedDeliveryDate,
-          'payment_terms_description': _selectedPaymentTerm == 'Credit' ? _creditDays : null,
-          'delivery_date_hours': _selectedDeliveryDate == 'Immediate' ? _immediateHours : null,
-          'delivery_date_days': _selectedDeliveryDate == 'Within' ? _withinDays : null,
+          'payment_terms_description':
+              _selectedPaymentTerm == 'Credit' ? _creditDays : null,
+          'delivery_date_hours':
+              _selectedDeliveryDate == 'Immediate' ? _immediateHours : null,
+          'delivery_date_days':
+              _selectedDeliveryDate == 'Within' ? _withinDays : null,
           'products': products,
         };
 
@@ -219,7 +227,10 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = _paymentTerms == null || _deliveryTerms == null || _deliveryConditions == null || _deliveryDates == null;
+    final isLoading = _paymentTerms == null ||
+        _deliveryTerms == null ||
+        _deliveryConditions == null ||
+        _deliveryDates == null;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -277,23 +288,32 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                           },
                           children: [
                             const TableRow(
-                              decoration: BoxDecoration(color: Color(0xFFE0E0E0)),
+                              decoration:
+                                  BoxDecoration(color: Color(0xFFE0E0E0)),
                               children: [
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
-                                  child: Text('Product', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  child: Text('Product',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
-                                  child: Text('Brand', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  child: Text('Brand',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
-                                  child: Text('Qty', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  child: Text('Qty',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
-                                  child: Text('Pieces', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  child: Text('Pieces',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                 ),
                                 SizedBox(),
                               ],
@@ -320,7 +340,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                                     child: Text(p['pieces']?.toString() ?? ''),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
                                     onPressed: () {
                                       setState(() {
                                         _selectedProducts.removeAt(i);
@@ -345,7 +366,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           onPressed: () {
-                            _makePhoneCall(_settings?.supportNumber ?? '6305953196');
+                            _makePhoneCall(
+                                _settings?.supportNumber ?? '6305953196');
                           },
                           child: const Text(
                             'Call Now',
@@ -360,7 +382,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                       const SizedBox(height: 16),
                       const Text(
                         'PAYMENT TERMS',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(height: 8),
                       Column(
@@ -370,20 +393,24 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                               title: Text(term.name),
                               value: term.name,
                               groupValue: _selectedPaymentTerm,
-                              onChanged: (value) => setState(() => _selectedPaymentTerm = value),
+                              onChanged: (value) =>
+                                  setState(() => _selectedPaymentTerm = value),
                               activeColor: Colors.purple,
                             );
                           }).toList(),
                           if (_selectedPaymentTerm == 'Credit')
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+                              padding: const EdgeInsets.only(
+                                  top: 8.0, left: 16.0, right: 16.0),
                               child: TextFormField(
                                 decoration: const InputDecoration(
                                   labelText: 'Days',
                                   border: OutlineInputBorder(),
                                 ),
                                 keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                                 onChanged: (val) => _creditDays = val,
                                 validator: (val) {
                                   if (_selectedPaymentTerm == 'Credit') {
@@ -400,7 +427,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                       const SizedBox(height: 16),
                       const Text(
                         'DELIVERY TERMS',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(height: 8),
                       Column(
@@ -413,22 +441,29 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                                   title: Text(term.name),
                                   value: term.name,
                                   groupValue: _selectedDeliveryTerm,
-                                  onChanged: (value) => setState(() => _selectedDeliveryTerm = value),
+                                  onChanged: (value) => setState(
+                                      () => _selectedDeliveryTerm = value),
                                   activeColor: Colors.purple,
                                 ),
-                                if (_selectedDeliveryTerm == 'Delivered To' && term.name == 'Delivered To')
+                                if (_selectedDeliveryTerm == 'Delivered To' &&
+                                    term.name == 'Delivered To')
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 32.0, right: 16.0, bottom: 8.0),
+                                    padding: const EdgeInsets.only(
+                                        left: 32.0, right: 16.0, bottom: 8.0),
                                     child: TextFormField(
                                       decoration: const InputDecoration(
                                         labelText: 'Delivery Address',
                                         border: OutlineInputBorder(),
                                       ),
-                                      initialValue: _deliveryAddress ?? _settings?.supportAddress ?? 'Self-Pickup Ex-Visakhapatnam',
+                                      initialValue: _deliveryAddress ??
+                                          _settings?.supportAddress ??
+                                          'Self-Pickup Ex-Visakhapatnam',
                                       maxLines: 3,
-                                      onChanged: (val) => _deliveryAddress = val,
+                                      onChanged: (val) =>
+                                          _deliveryAddress = val,
                                       validator: (val) {
-                                        if (_selectedDeliveryTerm == 'Delivered To') {
+                                        if (_selectedDeliveryTerm ==
+                                            'Delivered To') {
                                           if (val == null || val.isEmpty) {
                                             return 'Enter delivery address';
                                           }
@@ -445,7 +480,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                       const SizedBox(height: 16),
                       const Text(
                         'DELIVERY CONDITION',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(height: 8),
                       Column(
@@ -455,7 +491,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                             title: Text(trimmedCondition),
                             value: trimmedCondition,
                             groupValue: _selectedDeliveryCondition?.trim(),
-                            onChanged: (value) => setState(() => _selectedDeliveryCondition = value),
+                            onChanged: (value) => setState(
+                                () => _selectedDeliveryCondition = value),
                             activeColor: Colors.purple,
                           );
                         }).toList(),
@@ -463,7 +500,8 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                       const SizedBox(height: 16),
                       const Text(
                         'DELIVERY DATE',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(height: 8),
                       Column(
@@ -478,22 +516,29 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                                   title: Text(trimmedDate),
                                   value: trimmedDate,
                                   groupValue: _selectedDeliveryDate?.trim(),
-                                  onChanged: (value) => setState(() => _selectedDeliveryDate = value),
+                                  onChanged: (value) => setState(
+                                      () => _selectedDeliveryDate = value),
                                   activeColor: Colors.purple,
                                 ),
-                                if (_selectedDeliveryDate?.trim() == trimmedDate && trimmedDate == 'Within')
+                                if (_selectedDeliveryDate?.trim() ==
+                                        trimmedDate &&
+                                    trimmedDate == 'Within')
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 32.0, right: 16.0, bottom: 8.0),
+                                    padding: const EdgeInsets.only(
+                                        left: 32.0, right: 16.0, bottom: 8.0),
                                     child: TextFormField(
                                       decoration: const InputDecoration(
                                         labelText: 'No of Days',
                                         border: OutlineInputBorder(),
                                       ),
                                       keyboardType: TextInputType.number,
-                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
                                       onChanged: (val) => _withinDays = val,
                                       validator: (val) {
-                                        if (_selectedDeliveryDate?.trim() == 'Within') {
+                                        if (_selectedDeliveryDate?.trim() ==
+                                            'Within') {
                                           if (val == null || val.isEmpty) {
                                             return 'Enter no of days';
                                           }
@@ -502,19 +547,25 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                                       },
                                     ),
                                   ),
-                                if (_selectedDeliveryDate?.trim() == trimmedDate && trimmedDate == 'Immediate')
+                                if (_selectedDeliveryDate?.trim() ==
+                                        trimmedDate &&
+                                    trimmedDate == 'Immediate')
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 32.0, right: 16.0, bottom: 8.0),
+                                    padding: const EdgeInsets.only(
+                                        left: 32.0, right: 16.0, bottom: 8.0),
                                     child: TextFormField(
                                       decoration: const InputDecoration(
                                         labelText: 'No of Hours',
                                         border: OutlineInputBorder(),
                                       ),
                                       keyboardType: TextInputType.number,
-                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
                                       onChanged: (val) => _immediateHours = val,
                                       validator: (val) {
-                                        if (_selectedDeliveryDate?.trim() == 'Immediate') {
+                                        if (_selectedDeliveryDate?.trim() ==
+                                            'Immediate') {
                                           if (val == null || val.isEmpty) {
                                             return 'Enter no of hours';
                                           }
