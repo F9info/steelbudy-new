@@ -28,10 +28,10 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.white,
       elevation: 1,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications, color: Colors.black),
-          onPressed: onNotificationTap,
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.notifications, color: Colors.black),
+        //   onPressed: onNotificationTap,
+        // ),
       ],
     );
   }
