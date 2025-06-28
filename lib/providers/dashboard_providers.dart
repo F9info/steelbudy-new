@@ -21,8 +21,8 @@ final brandsProvider = FutureProvider<List<String>>((ref) async {
 
 // Provider for fetching unique locations
 final locationsProvider = FutureProvider<List<String>>((ref) async {
-  final products = await ref.watch(productsProvider.future);
-  return products.map((product) => product.location).toSet().toList();
+  final regions = await ApiService.getRegions();
+  return regions.map((region) => region.name).toList();
 });
 
 // Provider for search query
