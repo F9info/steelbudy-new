@@ -71,22 +71,23 @@ class _ViewQuotationsListState extends State<ViewQuotationsList> {
                     (q) => q['status'] == 'finalized' || q['status'] == 'done')
                 .toList();
           }
-          if (displayQuotations.isEmpty)
+          if (displayQuotations.isEmpty) {
             return Center(child: Text('No quotations found.'));
+          }
           return ListView.builder(
             itemCount: displayQuotations.length,
             itemBuilder: (context, index) {
               final q = displayQuotations[index];
-              var totalMaterial = 0;
+              double totalMaterial = 0.0;
               final products =
                   q['dealer_quotation_products'] as List<dynamic>? ?? [];
               final productRows = products.map<DataRow>((p) {
-                var rowTotal = 0;
-                final cost = p['cost'] ?? 0;
+                double rowTotal = 0.0;
+                final cost = (p['cost'] as num?)?.toDouble() ?? 0.0;
                 if (p['pieces'] != null) {
                   rowTotal = cost;
                 } else {
-                  final qty = p['quantity'] ?? 0;
+                  final qty = (p['quantity'] as num?)?.toDouble() ?? 0.0;
                   rowTotal = qty * cost;
                 }
                 totalMaterial += rowTotal;
