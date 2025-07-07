@@ -243,7 +243,18 @@ class _SearchfiltersState extends ConsumerState<Searchfilters> {
   }
 
   Widget _buildCategoryChip(String label, int index) {
-    bool isSelected = _selectedCategoryIndex == index;
+    bool isSelected = false;
+    if (label == 'Categories') {
+      isSelected = widget.selectedProducts.isNotEmpty;
+    } else if (label == 'Brands') {
+      isSelected = widget.selectedBrands.isNotEmpty;
+    } else if (label == 'Locations') {
+      isSelected = widget.selectedLocations.isNotEmpty;
+    } else if (label == 'All') {
+      isSelected = widget.selectedProducts.isEmpty &&
+                   widget.selectedBrands.isEmpty &&
+                   widget.selectedLocations.isEmpty;
+    }
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
@@ -256,11 +267,23 @@ class _SearchfiltersState extends ConsumerState<Searchfilters> {
               widget.onFiltersApplied([], [], []);
               _searchController.clear();
             } else if (label == 'Categories') {
-              _showProductListPopup();
+              if (widget.selectedProducts.isNotEmpty) {
+                widget.onFiltersApplied([], widget.selectedBrands, widget.selectedLocations);
+              } else {
+                _showProductListPopup();
+              }
             } else if (label == 'Brands') {
-              _showBrandListPopup();
+              if (widget.selectedBrands.isNotEmpty) {
+                widget.onFiltersApplied(widget.selectedProducts, [], widget.selectedLocations);
+              } else {
+                _showBrandListPopup();
+              }
             } else if (label == 'Locations') {
-              _showLocationListPopup();
+              if (widget.selectedLocations.isNotEmpty) {
+                widget.onFiltersApplied(widget.selectedProducts, widget.selectedBrands, []);
+              } else {
+                _showLocationListPopup();
+              }
             }
           });
         },
