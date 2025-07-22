@@ -122,6 +122,20 @@ class ApiService {
     );
   }
 
+
+  static Future<List<Category>> getCategoryNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    return _get(
+      endpoint: '/category-names',
+      headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+      fromJson: Category.fromJson,
+    );
+  }
+
   static Future<List<Product>> getProducts() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -175,6 +189,65 @@ class ApiService {
       );
     }
   }
+
+ static Future<List<Brand>> getBrandNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await _client.get(
+      Uri.parse('$baseUrl/brand-names'),
+      headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      List<dynamic> brandsList;
+      if (decoded is List) {
+        brandsList = decoded;
+      } else if (decoded is Map<String, dynamic> && decoded['brands'] is List) {
+        brandsList = decoded['brands'];
+      } else {
+        throw HttpException('Unexpected brands response: \\${response.body}');
+      }
+      return brandsList.map((item) => Brand.fromJson(item)).toList();
+    } else {
+      throw HttpException(
+        'Failed to load brands: \\${response.statusCode} \\${response.reasonPhrase}',
+      );
+    }
+  }
+
+   
+  static Future<List<Region>> getRegionNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await _client.get(
+      Uri.parse('$baseUrl/region-names'),
+      headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      List<dynamic> regionList;
+      if (decoded is List) {
+        regionList = decoded;
+      } else if (decoded is Map<String, dynamic> &&
+          decoded['regionNames'] is List) {
+        regionList = decoded['regionNames'];
+      } else {
+        throw HttpException('Unexpected region names response: $decoded');
+      }
+      return regionList.map((item) => Region.fromJson(item)).toList();
+    } else {
+      throw HttpException(
+        'Failed to load regions: \\${response.statusCode} \\${response.reasonPhrase}',
+      );
+    }
+  }
+
 
   static Future<List<Region>> getRegions() async {
     final prefs = await SharedPreferences.getInstance();
