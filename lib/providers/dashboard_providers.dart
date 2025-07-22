@@ -4,7 +4,7 @@ import '../../models/product_model.dart';
 
 // Provider for fetching products
 final productsProvider = FutureProvider<List<Product>>((ref) async {
-  final products = await ApiService.getProducts();
+  final products = await ApiService.getPublishedProducts();
   return products.where((product) => product.publish).toList();
 });
 

@@ -22,12 +22,11 @@ class DashboardScreen extends ConsumerWidget {
     final selectedLocations = ref.watch(selectedLocationsProvider);
 
     return allProducts.where((product) {
-      final productName = product.name;
+      final productName = product.category;
       final productBrand = product.brand;
       final productLocation = product.location;
 
-      if (selectedProducts.isNotEmpty &&
-          !selectedProducts.contains(productName)) {
+      if (selectedProducts.isNotEmpty && !selectedProducts.contains(product.category)) {
         return false;
       }
 
