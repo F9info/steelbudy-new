@@ -17,7 +17,7 @@ import 'package:image_picker/image_picker.dart';
 
 class ApiService {
   // static const String baseUrl = 'http://127.0.0.1:8000/api';
-  static const String baseUrl = 'https://steelbuddyapi.cloudecommerce.in/api';
+  static const String baseUrl = 'https://api.steelbuddy.in/api';
   static final http.Client _client = http.Client();
 
   static Future<http.Response> _makeRequest({
@@ -189,6 +189,33 @@ class ApiService {
       );
     }
   }
+
+static Future<List<Product>> getPublishedProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await _client.get(
+      Uri.parse('$baseUrl/published-products'),
+      headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    ).timeout(const Duration(seconds: 10));
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      if (decoded is Map<String, dynamic> && decoded['products'] is List) {
+        return (decoded['products'] as List)
+            .map((item) => Product.fromJson(item as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw HttpException('Expected a "products" list in response');
+      }
+    } else {
+      throw HttpException(
+        'Failed to load products: ${response.statusCode} ${response.reasonPhrase}',
+      );
+    }
+  }
+
 
  static Future<List<Brand>> getBrandNames() async {
     final prefs = await SharedPreferences.getInstance();

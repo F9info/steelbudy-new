@@ -223,7 +223,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       setState(() {
         _error = 'Login failed: $e';
       });
-      print('Error during OTP verification: $e');
     } finally {
       setState(() {
         _isLoading = false;

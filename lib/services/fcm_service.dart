@@ -18,20 +18,15 @@ class FCMService {
         while (apnsToken == null && retries < 10) {
           await Future.delayed(const Duration(seconds: 1));
           apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-          debugPrint('APNS Token (try $retries): $apnsToken');
           retries++;
         }
         if (apnsToken != null) {
           token = await FirebaseMessaging.instance.getToken();
-        } else {
-          debugPrint(
-              'APNS token was not set after waiting. Skipping FCM token registration.');
         }
       } else {
         token = await FirebaseMessaging.instance.getToken();
       }
       if (token != null) {
-        debugPrint('FCM Token: $token');
         await ApiService.sendDeviceTokenToBackend(userId, token);
       }
     }

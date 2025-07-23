@@ -94,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
         phoneNumber: phoneNumber,
         forceResendingToken: _resendToken,
         verificationCompleted: (PhoneAuthCredential credential) {
-          print('Firebase: verificationCompleted');
         },
         verificationFailed: (FirebaseAuthException e) {
           setState(() {
@@ -122,7 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             );
           }
-          print('Firebase: codeSent');
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
       );

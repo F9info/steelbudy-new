@@ -74,7 +74,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
-      debugPrint('Error initializing auth state: $e');
       state = state.copyWith(isLoading: false);
     }
   }
@@ -138,7 +137,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
-      debugPrint('Error creating user: $e');
       // Fallback state to preserve login
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isAuthenticated', true);
@@ -170,7 +168,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
-      debugPrint('Error during logout: $e');
+      throw Exception('Error during logout: $e');
     }
   }
 

@@ -22,12 +22,11 @@ class DashboardScreen extends ConsumerWidget {
     final selectedLocations = ref.watch(selectedLocationsProvider);
 
     return allProducts.where((product) {
-      final productName = product.name;
+      final productName = product.category;
       final productBrand = product.brand;
       final productLocation = product.location;
 
-      if (selectedProducts.isNotEmpty &&
-          !selectedProducts.contains(productName)) {
+      if (selectedProducts.isNotEmpty && !selectedProducts.contains(product.category)) {
         return false;
       }
 
@@ -124,7 +123,6 @@ class DashboardScreen extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) {
-          print(error);
           return Center(child: Text('Error: $error'));
         },
       );
@@ -228,7 +226,7 @@ class DashboardScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: name != null
                   ? () {
-                      print('Call button pressed for $name');
+                    
                     }
                   : null,
               style: ElevatedButton.styleFrom(
