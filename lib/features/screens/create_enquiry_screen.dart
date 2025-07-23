@@ -40,9 +40,12 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
 
   int _selectedIndex = 1;
 
+  late final TextEditingController _deliveryAddressController;
+
   @override
   void initState() {
     super.initState();
+    _deliveryAddressController = TextEditingController();
     _fetchInitialData();
   }
 
@@ -57,13 +60,19 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         _deliveryTerms = deliveryTerms;
         _deliveryConditions = settings.deliveryConditions;
         _deliveryDates = settings.deliveryDates;
+        _deliveryAddressController.text = _deliveryAddress ?? '';
       });
     } catch (e) {
-      print('Error fetching initial data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching settings: $e')),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _deliveryAddressController.dispose();
+    super.dispose();
   }
 
   void _onItemTapped(int index) {
@@ -143,7 +152,7 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
         return;
       }
       if (_selectedDeliveryTerm == 'Delivered To' &&
-          (_deliveryAddress == null || _deliveryAddress!.isEmpty)) {
+          (_deliveryAddressController.text.isEmpty)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter delivery address')),
         );
@@ -198,8 +207,7 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
           'payment_terms': _selectedPaymentTerm,
           'delivery_terms': _selectedDeliveryTerm,
           'delivery_condition': _selectedDeliveryCondition,
-          'delivery_address':
-              _selectedDeliveryTerm == 'Delivered To' ? _deliveryAddress : null,
+          'delivery_address': _selectedDeliveryTerm == 'Delivered To' ? _deliveryAddressController.text : null,
           'delivery_date': _selectedDeliveryDate,
           'payment_terms_description':
               _selectedPaymentTerm == 'Credit' ? _creditDays : null,
@@ -451,16 +459,13 @@ class _CreateEnquiryScreenState extends ConsumerState<CreateEnquiryScreen> {
                                     padding: const EdgeInsets.only(
                                         left: 32.0, right: 16.0, bottom: 8.0),
                                     child: TextFormField(
+                                      controller: _deliveryAddressController,
                                       decoration: const InputDecoration(
                                         labelText: 'Delivery Address',
+                                        hintText: 'Enter delivery address',
                                         border: OutlineInputBorder(),
                                       ),
-                                      initialValue: _deliveryAddress ??
-                                          _settings?.supportAddress ??
-                                          'Self-Pickup Ex-Visakhapatnam',
                                       maxLines: 3,
-                                      onChanged: (val) =>
-                                          _deliveryAddress = val,
                                       validator: (val) {
                                         if (_selectedDeliveryTerm ==
                                             'Delivered To') {

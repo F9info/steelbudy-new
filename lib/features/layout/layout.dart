@@ -54,7 +54,6 @@ class _LayoutState extends State<Layout> {
       case 1:
         // Check user role from SharedPreferences
         final prefs = await SharedPreferences.getInstance();
-        print(prefs.getString('role'));
         final role = prefs.getString('role') ?? '';
         if (role.toLowerCase().contains('dealer') ||
             role.toLowerCase().contains('retailer') ||

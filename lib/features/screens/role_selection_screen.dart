@@ -66,7 +66,6 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
         _error = 'Failed to load roles: $e';
         _isLoading = false;
       });
-      debugPrint('Error fetching roles: $e');
     }
   }
 

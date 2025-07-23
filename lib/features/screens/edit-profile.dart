@@ -88,7 +88,6 @@ class _EditProfileState extends ConsumerState<EditProfile> {
             .removeWhere((location) => _selectedLocations.contains(location));
       });
     } catch (e) {
-      print('Error fetching regions: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error fetching regions: $e")),
       );
@@ -132,7 +131,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         _profileImageUrl = user.profilePic;
       });
     } catch (e) {
-      debugPrint('Error fetching user profile: $e');
+      throw Exception('Error fetching user profile: $e');
     }
   }
 
@@ -170,10 +169,11 @@ class _EditProfileState extends ConsumerState<EditProfile> {
       setState(() { _isLoading = false; });
       return false;
     }
-    // Alternate number numeric
-    if (!RegExp(r'^\d+$').hasMatch(_alternateNumberController.text)) {
+    // Alternate number: must be exactly 10 digits if entered
+    final altNum = _alternateNumberController.text;
+    if (altNum.isNotEmpty && !RegExp(r'^[0-9]{10}$').hasMatch(altNum)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Alternate number must be numeric")),
+        const SnackBar(content: Text("Alternate number must be exactly 10 digits")),
       );
       setState(() { _isLoading = false; });
       return false;
@@ -293,7 +293,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
         });
       }
     } catch (e) {
-      debugPrint("Image picker error: $e");
+      throw Exception("Image picker error: $e");
     }
   }
 
@@ -351,7 +351,7 @@ class _EditProfileState extends ConsumerState<EditProfile> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profi1le'),
+        title: const Text('Edit Profile'),
         actions: [
           IconButton(
             icon: _isLoading
@@ -447,7 +447,10 @@ class _EditProfileState extends ConsumerState<EditProfile> {
               "Alternate Number *",
               _alternateNumberController,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ],
             ),
             const SizedBox(height: 16),
 
