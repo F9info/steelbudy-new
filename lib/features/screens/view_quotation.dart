@@ -15,6 +15,11 @@ class _ViewQuotationState extends State<ViewQuotation> {
   late Future<Map<String, dynamic>> _orderFuture;
   String? userId;
 
+  String capitalize(String? s) {
+    if (s == null || s.isEmpty) return '-';
+    return s[0].toUpperCase() + s.substring(1).toLowerCase();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -238,7 +243,7 @@ class _ViewQuotationState extends State<ViewQuotation> {
                               padding: const EdgeInsets.symmetric(
                                   vertical: 4.0, horizontal: 8.0),
                               child: Text(
-                                '${myQuotation['status'] ?? '-'}',
+                                capitalize(myQuotation['status']),
                                 textAlign:
                                     TextAlign.right, // Right-align the value
                               ),
@@ -308,6 +313,28 @@ class _ViewQuotationState extends State<ViewQuotation> {
                         ),
                       ],
                     ),
+                    // Delivery Address row
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            'Delivery Address',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            '${order['delivery_address'] ?? '-'}',
+                            textAlign: TextAlign.right, // Right-align the value
+                          ),
+                        ),
+                      ],
+                    ),
+                    
                     // Delivery Conditions row
                     TableRow(
                       children: [
@@ -345,6 +372,27 @@ class _ViewQuotationState extends State<ViewQuotation> {
                               vertical: 4.0, horizontal: 8.0),
                           child: Text(
                             '${order['delivery_date'] ?? '-'}',
+                            textAlign: TextAlign.right, // Right-align the value
+                          ),
+                        ),
+                      ],
+                    ),
+                    // status
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            'Status',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          child: Text(
+                            capitalize(order['status']),
                             textAlign: TextAlign.right, // Right-align the value
                           ),
                         ),

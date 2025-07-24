@@ -805,12 +805,17 @@ class _EnquiryScreenState extends State<EnquiryScreen>
                                         Padding(
                                           padding: EdgeInsets.all(8),
                                           child: Text(
-                                            order['status'] == 'cancelled'
-                                                ? 'Cancelled'
-                                                : 'Expired',
+                                            order['status'] == 'finalized'
+                                                ? 'Finalized'
+                                                : order['status'] == 'cancelled'
+                                                    ? 'Cancelled'
+                                                    : order['status'] == 'expired'
+                                                        ? 'Expired'
+                                                        : order['status'],
                                             style: TextStyle(
-                                              color:
-                                                  order['status'] == 'cancelled'
+                                              color: order['status'] == 'finalized'
+                                                  ? Colors.green
+                                                  : order['status'] == 'cancelled'
                                                       ? Colors.red
                                                       : Colors.orange,
                                               fontWeight: FontWeight.bold,
