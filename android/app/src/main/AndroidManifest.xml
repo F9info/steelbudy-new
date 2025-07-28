@@ -1,11 +1,12 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.steel_budy">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- FCM and push notification permissions -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- For Android 13+ notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- For advertising ID (only if you plan to use ads/analytics) -->
+    <!-- <uses-permission android:name="com.google.android.gms.permission.AD_ID"/> -->
     <application
         android:label="Steel Buddy"
         android:name="${applicationName}"
