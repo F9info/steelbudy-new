@@ -15,12 +15,14 @@ class OtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
   final String verificationId;
   final int? resendToken;
+  final String? testOtp;
 
   const OtpScreen({
     super.key,
     required this.phoneNumber,
     required this.verificationId,
     this.resendToken,
+    this.testOtp,
   });
 
   @override
@@ -42,8 +44,6 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
   String? _error;
   int _resendTimer = 30;
   bool _canResend = false;
-  final String _correctOtp = '123456';
-
   ApplicationSettings? _settings;
   bool _isLogoLoading = true; // Separate loading state for logo fetch
   String? _logoError; // Separate error state for logo fetch
@@ -117,8 +117,15 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
 
     try {
       String otp = _controllers.map((c) => c.text).join();
-      // Dev bypass: if verificationId is 'test-verification-id', skip Firebase verification
+      // Bypass: if verificationId is 'test-verification-id', validate against test OTP
       if (_currentVerificationId == 'test-verification-id') {
+        if (widget.testOtp != null && otp != widget.testOtp) {
+          setState(() {
+            _error = 'Invalid OTP. Please try again.';
+            _isLoading = false;
+          });
+          return;
+        }
         await _authService.setLoggedIn(true,
             phoneNumber: '+91${widget.phoneNumber}');
         // --- Call backend via ApiService after OTP verification ---

@@ -16,8 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isValid = false;
   bool _isLoading = false; // For login button
   String? _error; // For login errors
-  final String _allowedNumber = '1234567890'; // Allowed phone number
-
   ApplicationSettings? _settings;
   bool _isLogoLoading = true; // Separate loading state for logo fetch
   String? _logoError; // Separate error state for logo fetch
@@ -62,21 +60,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final String phoneNumber = '+91${_phoneController.text}';
 
-    // Dev bypass for test number
-    if (_phoneController.text == '2345678901' ||
-        _phoneController.text == '2345678902') {
-      Navigator.pushReplacementNamed(
-        context,
-        '/otp',
-        arguments: {
-          'phoneNumber': _phoneController.text,
-          'verificationId': 'test-verification-id',
-          'resendToken': 0,
-        },
-      );
-      setState(() {
-        _isLoading = false;
-      });
+    // Bypass Firebase for known test phone numbers (Firebase Console test numbers)
+    const testNumbers = {
+      '9000022200': '123456',
+      '2345678901': '111111',
+      '2345678902': '111111',
+      '1234567890': '123456',
+      '9000022209': '123456',
+    };
+    if (testNumbers.containsKey(_phoneController.text)) {
+      if (mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          '/otp',
+          arguments: {
+            'phoneNumber': _phoneController.text,
+            'verificationId': 'test-verification-id',
+            'resendToken': 0,
+            'testOtp': testNumbers[_phoneController.text],
+          },
+        );
+      }
+      setState(() => _isLoading = false);
       return;
     }
 

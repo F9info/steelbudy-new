@@ -144,11 +144,13 @@ class MyApp extends ConsumerWidget {
           final phoneNumber = args?['phoneNumber'] as String? ?? '';
           final verificationId = args?['verificationId'] as String? ?? '';
           final resendToken = args?['resendToken'] as int?;
+          final testOtp = args?['testOtp'] as String?;
           return MaterialPageRoute(
             builder: (_) => OtpScreen(
               phoneNumber: phoneNumber,
               verificationId: verificationId,
               resendToken: resendToken,
+              testOtp: testOtp,
             ),
           );
         }
