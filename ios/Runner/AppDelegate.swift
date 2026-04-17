@@ -4,29 +4,26 @@ import FirebaseCore
 import FirebaseAuth
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+@objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     FirebaseApp.configure()
+    GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
-    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-  }
-
-  // Forward APNs device token to Firebase
+  // Forward APNs token to Firebase Auth
   override func application(
     _ application: UIApplication,
     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
   ) {
-    Auth.auth().setAPNSToken(deviceToken, type: .prod)
+    Auth.auth().setAPNSToken(deviceToken, type: .unknown)
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 
-  // Forward remote notifications to Firebase Auth (for silent push phone auth)
+  // Forward silent push to Firebase Auth (phone number verification)
   override func application(
     _ application: UIApplication,
     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
@@ -39,7 +36,7 @@ import FirebaseAuth
     super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
   }
 
-  // Forward URL opens to Firebase Auth (for reCAPTCHA fallback)
+  // Forward URL to Firebase Auth (reCAPTCHA fallback)
   override func application(
     _ app: UIApplication,
     open url: URL,

@@ -36,7 +36,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<true/>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -52,27 +52,6 @@
 	<string>This app uses push notifications to alert you about new enquiries and updates.</string>
 	<key>NSUserNotificationUsageDescription</key>
 	<string>This app uses notifications to alert you about new enquiries and updates.</string>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneClassName</key>
-					<string>UIWindowScene</string>
-					<key>UISceneConfigurationName</key>
-					<string>flutter</string>
-					<key>UISceneDelegateClassName</key>
-					<string>FlutterSceneDelegate</string>
-					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
-				</dict>
-			</array>
-		</dict>
-	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
